@@ -9,7 +9,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/login', Login::class)->name('login');
+Route::get('/login', Login::class)->name('login')
+    ->middleware('guest');
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
