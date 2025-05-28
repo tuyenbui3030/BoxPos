@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     /**
@@ -43,6 +46,31 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the user's devices.
+     */
+    public function devices(): HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Get active devices (used within last 30 days).
+     */
+    public function activeDevices(): HasMany
+    {
+        return $this->devices()->active();
+    }
+
+    /**
+     * Get trusted devices.
+     */
+    public function trustedDevices(): HasMany
+    {
+        return $this->devices()->trusted();
     }
 }

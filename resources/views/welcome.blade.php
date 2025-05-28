@@ -4,11 +4,47 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        <!-- Tabler CSS -->
+        <link rel="stylesheet" href="{{ asset('tabler/css/tabler.min.css') }}">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        
+        <style>
+            body {
+                background-color: #f5f7fb;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                height: 100vh;
+                margin: 0;
+            }
+            .welcome-container {
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .welcome-content {
+                text-align: center;
+                padding: 2rem;
+            }
+            .welcome-heading {
+                font-size: 3rem;
+                font-weight: 300;
+                margin-bottom: 1.5rem;
+                color: #206bc4;
+            }
+            .welcome-text {
+                font-size: 1.25rem;
+                margin-bottom: 2rem;
+                color: #626976;
+            }
+            .btn-welcome {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                font-weight: 500;
+            }
+        </style>
 
         <!-- Styles / Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -268,10 +304,23 @@
                     <div class="absolute inset-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
                 </div>
             </main>
+    <body>
+        <div class="welcome-container">
+            <div class="welcome-content">
+                <h1 class="welcome-heading">{{ config('app.name', 'Laravel') }}</h1>
+                <p class="welcome-text">A professional point-of-sale system built with Laravel & Tabler UI</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary btn-welcome">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-welcome">Login</a>
+                        <a href="{{ route('register') }}" class="btn btn-outline-primary btn-welcome">Register</a>
+                    @endauth
+                </div>
+            </div>
         </div>
-
-        @if (Route::has('login'))
-            <div class="h-14.5 hidden lg:block"></div>
-        @endif
+        
+        <!-- Tabler JS -->
+        <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
     </body>
 </html>

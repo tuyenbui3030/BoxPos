@@ -1,0 +1,66 @@
+/* Print Styles for BoxPos
+ * Optimizes the layout for printing reports, invoices, etc.
+ */
+
+@media print {
+    /* Hide navigation and other UI elements */
+    header, 
+    .navbar-expand-md,
+    footer,
+    .btn-print,
+    .d-print-none {
+        display: none !important;
+    }
+    
+    /* Full width layout */
+    .page-body {
+        padding: 0 !important;
+    }
+    
+    .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    /* Remove shadows and backgrounds */
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+    
+    /* Ensure tables render properly */
+    table {
+        width: 100% !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Force background colors to print */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Add page breaks before major sections */
+    .print-page-break {
+        page-break-before: always;
+    }
+    
+    /* Ensure images print well */
+    img {
+        max-width: 100% !important;
+    }
+    
+    /* Show URLs after links */
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 90%;
+        color: #333;
+    }
+    
+    /* Don't show URLs for internal or javascript links */
+    a[href^="#"]:after,
+    a[href^="javascript:"]:after {
+        content: "";
+    }
+}

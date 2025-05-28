@@ -1,0 +1,142 @@
+/* Dashboard Components Styling */
+
+/* Card customizations */
+.card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Stats card with accent colors */
+.stats-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card .icon {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    opacity: 0.15;
+    font-size: 2.5rem;
+    z-index: 1;
+}
+
+/* Background colors for stat cards - Light mode */
+.bg-primary-subtle {
+    background-color: rgba(var(--tblr-primary-rgb), 0.1);
+}
+
+.bg-success-subtle {
+    background-color: rgba(var(--tblr-success-rgb), 0.1);
+}
+
+.bg-info-subtle {
+    background-color: rgba(var(--tblr-info-rgb), 0.1);
+}
+
+.bg-warning-subtle {
+    background-color: rgba(var(--tblr-warning-rgb), 0.1);
+}
+
+.bg-danger-subtle {
+    background-color: rgba(var(--tblr-danger-rgb), 0.1);
+}
+
+/* Dashboard widgets styles */
+.widget-title {
+    font-size: 1rem;
+    font-weight: var(--tblr-font-weight-medium);
+    margin-bottom: 1rem;
+}
+
+/* Activity list */
+.activity-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--tblr-border-color);
+    display: flex;
+    align-items: center;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-time {
+    color: var(--tblr-muted);
+    font-size: 0.75rem;
+}
+
+/* Status dots for legends */
+.status-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    min-width: 0.5rem;
+}
+
+/* Progress bars */
+.progress-sm {
+    height: 0.25rem;
+}
+
+/* Dark mode specific adjustments for dashboard components */
+[data-bs-theme="dark"] .card {
+    background-color: var(--tblr-bg-surface);
+    border-color: var(--tblr-border-color);
+}
+
+[data-bs-theme="dark"] .bg-primary-subtle {
+    background-color: rgba(var(--tblr-primary-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .bg-success-subtle {
+    background-color: rgba(var(--tblr-success-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .bg-info-subtle {
+    background-color: rgba(var(--tblr-info-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .bg-warning-subtle {
+    background-color: rgba(var(--tblr-warning-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .bg-danger-subtle {
+    background-color: rgba(var(--tblr-danger-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .activity-icon {
+    background-color: var(--tblr-bg-surface-secondary);
+}
+
+[data-bs-theme="dark"] .card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .stats-card .icon {
+        display: none;
+    }
+}

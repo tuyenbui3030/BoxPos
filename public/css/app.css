@@ -1,0 +1,49 @@
+/* Custom styles for the BoxPos application */
+
+/* Logo sizing */
+.navbar-brand img {
+    max-height: 2rem;
+}
+
+/* Add custom colors to match your branding if needed */
+:root {
+    --primary-color: #206bc4;
+    --secondary-color: #626976;
+    --success-color: #2fb344;
+    --warning-color: #f76707;
+    --danger-color: #d63939;
+}
+
+/* Custom login page background (optional) */
+body.border-top-wide {
+    background-color: #f5f7fb;
+}
+
+/* Custom sidebar styling */
+.navbar-vertical.navbar-dark {
+    background-color: #232e3c;
+}
+
+/* Custom card styling */
+.card {
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Fix for Tabler UI mobile navigation */
+@media (max-width: 992px) {
+    .navbar-collapse {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+        height: 100vh;
+        background: white;
+    }
+}
+
+/* Custom button hover states */
+.btn-primary:hover {
+    box-shadow: 0 0 0 0.25rem rgba(32, 107, 196, 0.25);
+}
