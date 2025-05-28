@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\WithPagination;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
+use App\Models\Customer;
+use App\Models\User;
+
+class CustomerManagement extends Component
+{
+    use WithPagination;
+
+    protected $paginationTheme = 'custom.pagination';
+
+    // Search and pagination
+    #[Url]
+    public $search = '';
+    public $perPage = 10;
+
+    // Filter properties
+    #[Url]
+    public $filterCustomerGroup = '';
+    #[Url]
+    public $filterCustomerType = 'all';
+    #[Url]
+    public $filterGender = 'all';
+    #[Url]
+    public $filterCreatedBy = '';
+    #[Url]
+    public $filterCreatedDateFrom = '';
+    #[Url]
+    public $filterCreatedDateTo = '';
+    #[Url]
+    public $filterBirthdayFrom = '';
+    #[Url]
+    public $filterBirthdayTo = '';
+    #[Url]
+    public $filterLastTransactionFrom = '';
+    #[Url]
+    public $filterLastTransactionTo = '';
+    #[Url]
+    public $filterSalesFrom = '';
+    #[Url]
+    public $filterSalesTo = '';
+    #[Url]
+    public $filterOnlyWithDebt = false;
+
+    // UI state
+    public $showFilters = true;
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'filterCustomerGroup' => ['except' => ''],
+        'filterCustomerType' => ['except' => 'all'],
+        'filterGender' => ['except' => 'all'],
+        'filterCreatedBy' => ['except' => ''],
+        'filterCreatedDateFrom' => ['except' => ''],
+        'filterCreatedDateTo' => ['except' => ''],
+        'filterBirthdayFrom' => ['except' => ''],
+        'filterBirthdayTo' => ['except' => ''],
+        'filterLastTransactionFrom' => ['except' => ''],
+        'filterLastTransactionTo' => ['except' => ''],
+        'filterSalesFrom' => ['except' => ''],
+        'filterSalesTo' => ['except' => ''],
+        'filterOnlyWithDebt' => ['except' => false],
+    ];
+
+    public function mount()
+    {
+        // Set default date ranges if needed
+    }
+
+    protected $listeners = ['customer-created' => 'refreshCustomers'];
+
+    public function refreshCustomers()
+    {
+        // Reset to first page and refresh the customer list
+        $this->resetPage();
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterCustomerGroup()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterCustomerType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterGender()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterOnlyWithDebt()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterCreatedBy()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterCreatedDateFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterCreatedDateTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterBirthdayFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterBirthdayTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterLastTransactionFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterLastTransactionTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterSalesFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterSalesTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function gotoPage($page, $pageName = 'page')
+    {
+        $this->setPage($page, $pageName);
+    }
+
+    public function clearFilters()
+    {
+        $this->reset([
+            'search',
+            'filterCustomerGroup',
+            'filterCustomerType',
+            'filterGender',
+            'filterCreatedBy',
+            'filterCreatedDateFrom',
+            'filterCreatedDateTo',
+            'filterBirthdayFrom',
+            'filterBirthdayTo',
+            'filterLastTransactionFrom',
+            'filterLastTransactionTo',
+            'filterSalesFrom',
+            'filterSalesTo',
+            'filterOnlyWithDebt',
+        ]);
+        $this->resetPage();
+    }
+
+    public function toggleFilters()
+    {
+        $this->showFilters = !$this->showFilters;
+    }
+
+    public function importCustomers()
+    {
+        // Placeholder for import functionality
+        session()->flash('info', 'Import functionality will be implemented soon!');
+    }
+
+    public function editCustomer($customerId)
+    {
+        // Placeholder for edit functionality
+        session()->flash('info', 'Edit customer functionality will be implemented soon!');
+    }
+
+    public function viewCustomer($customerId)
+    {
+        // Placeholder for view functionality
+        session()->flash('info', 'View customer functionality will be implemented soon!');
+    }
+
+    public function getCustomersProperty()
+    {
+        $query = Customer::query()
+            ->with('creator')
+            ->when($this->search, fn($query) => $query->search($this->search))
+            ->when($this->filterCustomerGroup, fn($query) => $query->byGroup($this->filterCustomerGroup))
+            ->when($this->filterCustomerType !== 'all', fn($query) => $query->byType($this->filterCustomerType))
+            ->when($this->filterGender !== 'all', fn($query) => $query->byGender($this->filterGender))
+            ->when($this->filterCreatedBy, fn($query) => $query->whereHas('creator', fn($q) => $q->where('name', 'like', "%{$this->filterCreatedBy}%")))
+            ->when($this->filterCreatedDateFrom && $this->filterCreatedDateTo, fn($query) => $query->createdBetween($this->filterCreatedDateFrom, $this->filterCreatedDateTo))
+            ->when($this->filterBirthdayFrom && $this->filterBirthdayTo, fn($query) => $query->birthdayBetween($this->filterBirthdayFrom, $this->filterBirthdayTo))
+            ->when($this->filterLastTransactionFrom && $this->filterLastTransactionTo, fn($query) => $query->lastTransactionBetween($this->filterLastTransactionFrom, $this->filterLastTransactionTo))
+            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo !== '', fn($query) => $query->salesBetween($this->filterSalesFrom, $this->filterSalesTo))
+            ->when($this->filterOnlyWithDebt, fn($query) => $query->withDebt())
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($this->perPage);
+    }
+
+    public function getCustomerGroupsProperty()
+    {
+        return Customer::select('customer_group')
+            ->whereNotNull('customer_group')
+            ->distinct()
+            ->pluck('customer_group')
+            ->sort();
+    }
+
+    public function getCreatorsProperty()
+    {
+        return User::select('name')
+            ->distinct()
+            ->pluck('name')
+            ->sort();
+    }
+
+    #[Title('Customer Management')]
+    public function render()
+    {
+        return view('livewire.customer-management', [
+            'customers' => $this->customers,
+            'customerGroups' => $this->customerGroups,
+            'creators' => $this->creators,
+        ])->layout('layouts.app', [
+            'header' => 'Customer Management'
+        ]);
+    }
+}
