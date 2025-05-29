@@ -28,16 +28,6 @@ class CustomerManagement extends Component
     #[Url]
     public $filterGender = 'all';
     #[Url]
-    public $filterCreatedBy = '';
-    #[Url]
-    public $filterCreatedDateFrom = '';
-    #[Url]
-    public $filterCreatedDateTo = '';
-    #[Url]
-    public $filterBirthdayFrom = '';
-    #[Url]
-    public $filterBirthdayTo = '';
-    #[Url]
     public $filterLastTransactionFrom = '';
     #[Url]
     public $filterLastTransactionTo = '';
@@ -56,11 +46,6 @@ class CustomerManagement extends Component
         'filterCustomerGroup' => ['except' => ''],
         'filterCustomerType' => ['except' => 'all'],
         'filterGender' => ['except' => 'all'],
-        'filterCreatedBy' => ['except' => ''],
-        'filterCreatedDateFrom' => ['except' => ''],
-        'filterCreatedDateTo' => ['except' => ''],
-        'filterBirthdayFrom' => ['except' => ''],
-        'filterBirthdayTo' => ['except' => ''],
         'filterLastTransactionFrom' => ['except' => ''],
         'filterLastTransactionTo' => ['except' => ''],
         'filterSalesFrom' => ['except' => ''],
@@ -106,31 +91,6 @@ class CustomerManagement extends Component
         $this->resetPage();
     }
 
-    public function updatingFilterCreatedBy()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterCreatedDateFrom()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterCreatedDateTo()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterBirthdayFrom()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterBirthdayTo()
-    {
-        $this->resetPage();
-    }
-
     public function updatingFilterLastTransactionFrom()
     {
         $this->resetPage();
@@ -168,11 +128,6 @@ class CustomerManagement extends Component
             'filterCustomerGroup',
             'filterCustomerType',
             'filterGender',
-            'filterCreatedBy',
-            'filterCreatedDateFrom',
-            'filterCreatedDateTo',
-            'filterBirthdayFrom',
-            'filterBirthdayTo',
             'filterLastTransactionFrom',
             'filterLastTransactionTo',
             'filterSalesFrom',
@@ -213,9 +168,6 @@ class CustomerManagement extends Component
             ->when($this->filterCustomerGroup, fn($query) => $query->byGroup($this->filterCustomerGroup))
             ->when($this->filterCustomerType !== 'all', fn($query) => $query->byType($this->filterCustomerType))
             ->when($this->filterGender !== 'all', fn($query) => $query->byGender($this->filterGender))
-            ->when($this->filterCreatedBy, fn($query) => $query->whereHas('creator', fn($q) => $q->where('name', 'like', "%{$this->filterCreatedBy}%")))
-            ->when($this->filterCreatedDateFrom && $this->filterCreatedDateTo, fn($query) => $query->createdBetween($this->filterCreatedDateFrom, $this->filterCreatedDateTo))
-            ->when($this->filterBirthdayFrom && $this->filterBirthdayTo, fn($query) => $query->birthdayBetween($this->filterBirthdayFrom, $this->filterBirthdayTo))
             ->when($this->filterLastTransactionFrom && $this->filterLastTransactionTo, fn($query) => $query->lastTransactionBetween($this->filterLastTransactionFrom, $this->filterLastTransactionTo))
             ->when($this->filterSalesFrom !== '' && $this->filterSalesTo !== '', fn($query) => $query->salesBetween($this->filterSalesFrom, $this->filterSalesTo))
             ->when($this->filterOnlyWithDebt, fn($query) => $query->withDebt())

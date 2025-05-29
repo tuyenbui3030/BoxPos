@@ -99,38 +99,6 @@
                     </div>
                 </div>
 
-                <!-- Created By Filter -->
-                <div class="mb-3">
-                    <label class="form-label">Created By</label>
-                    <input wire:model.live.debounce.300ms="filterCreatedBy" type="text" class="form-control" placeholder="Enter creator name...">
-                </div>
-
-                <!-- Created Date Range -->
-                <div class="mb-3">
-                    <label class="form-label">Created Date Range</label>
-                    <div class="row">
-                        <div class="col-6">
-                            <input wire:model.live="filterCreatedDateFrom" type="date" class="form-control" placeholder="From">
-                        </div>
-                        <div class="col-6">
-                            <input wire:model.live="filterCreatedDateTo" type="date" class="form-control" placeholder="To">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Birthday Range -->
-                <div class="mb-3">
-                    <label class="form-label">Birthday Range</label>
-                    <div class="row">
-                        <div class="col-6">
-                            <input wire:model.live="filterBirthdayFrom" type="date" class="form-control" placeholder="From">
-                        </div>
-                        <div class="col-6">
-                            <input wire:model.live="filterBirthdayTo" type="date" class="form-control" placeholder="To">
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Last Transaction Range -->
                 <div class="mb-3">
                     <label class="form-label">Last Transaction Range</label>
@@ -252,27 +220,29 @@
                                         <span class="avatar me-2" style="background-image: url('https://ui-avatars.com/api/?name={{ urlencode($customer->customer_name) }}&background=random')"></span>
                                         <div class="flex-fill">
                                             <div class="font-weight-medium">{{ $customer->customer_name }}</div>
-                                            <div class="text-muted">
-                                                @if($customer->customer_type === 'company')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                        <line x1="3" y1="21" x2="21" y2="21"/>
-                                                        <line x1="5" y1="21" x2="5" y2="12"/>
-                                                        <line x1="9" y1="21" x2="9" y2="9"/>
-                                                        <line x1="13" y1="21" x2="13" y2="7"/>
-                                                        <line x1="17" y1="21" x2="17" y2="4"/>
-                                                    </svg>
-                                                    Company
-                                                @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                        <circle cx="12" cy="7" r="4"/>
-                                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
-                                                    </svg>
-                                                    Individual
-                                                @endif
+                                            <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
+                                                <div class="d-flex align-items-center text-muted">
+                                                    @if($customer->customer_type === 'company')
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <line x1="3" y1="21" x2="21" y2="21"/>
+                                                            <line x1="5" y1="21" x2="5" y2="12"/>
+                                                            <line x1="9" y1="21" x2="9" y2="9"/>
+                                                            <line x1="13" y1="21" x2="13" y2="7"/>
+                                                            <line x1="17" y1="21" x2="17" y2="4"/>
+                                                        </svg>
+                                                        <span class="small">Company</span>
+                                                    @else
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <circle cx="12" cy="7" r="4"/>
+                                                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                                                        </svg>
+                                                        <span class="small">Individual</span>
+                                                    @endif
+                                                </div>
                                                 @if($customer->customer_group)
-                                                    <span class="badge bg-azure-lt ms-2">{{ $customer->customer_group }}</span>
+                                                    <span class="badge bg-azure-lt small">{{ $customer->customer_group }}</span>
                                                 @endif
                                             </div>
                                         </div>
