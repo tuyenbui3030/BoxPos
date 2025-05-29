@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace Packages\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<\Packages\User\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -72,5 +72,13 @@ class User extends Authenticatable
     public function trustedDevices(): HasMany
     {
         return $this->devices()->trusted();
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\User\Database\Factories\UserFactory::new();
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\UserDevice;
+use Packages\User\Models\User;
+use Packages\User\Models\UserDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 

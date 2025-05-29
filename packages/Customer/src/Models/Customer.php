@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace Packages\Customer\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Packages\User\Models\User;
 
 class Customer extends Model
 {
@@ -108,5 +109,13 @@ class Customer extends Model
         $lastCustomer = static::orderBy('id', 'desc')->first();
         $number = $lastCustomer ? ($lastCustomer->id + 1) : 1;
         return 'CUS' . str_pad($number, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Customer\Database\Factories\CustomerFactory::new();
     }
 }

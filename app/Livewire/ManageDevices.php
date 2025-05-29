@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
-use App\Models\UserDevice;
+use Packages\User\Models\UserDevice;
 
 class ManageDevices extends Component
 {

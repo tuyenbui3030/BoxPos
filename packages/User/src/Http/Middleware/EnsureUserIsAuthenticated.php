@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace Packages\User\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfAuthenticated
+class EnsureUserIsAuthenticated
 {
     /**
      * Handle an incoming request.

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\User\Livewire;
 
-use App\Models\User;
+use Packages\User\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\Customer\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use App\Models\Customer;
-use App\Models\User;
+use Packages\Customer\Models\Customer;
+use Packages\User\Models\User;
 
 class CustomerManagement extends Component
 {

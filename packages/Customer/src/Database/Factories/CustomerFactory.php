@@ -1,15 +1,18 @@
 <?php
 
-namespace Database\Factories;
+namespace Packages\Customer\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Packages\User\Models\User;
+use Packages\Customer\Models\Customer;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Packages\Customer\Models\Customer>
  */
 class CustomerFactory extends Factory
 {
+    protected $model = Customer::class;
+
     /**
      * Define the model's default state.
      *

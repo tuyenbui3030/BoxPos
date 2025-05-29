@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\Customer\Livewire;
 
 use Livewire\Component;
-use App\Models\Customer;
+use Packages\Customer\Models\Customer;
 use Livewire\Attributes\Validate;
 
 class CreateCustomer extends Component
