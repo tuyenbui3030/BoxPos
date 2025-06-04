@@ -15,6 +15,20 @@ class CustomerServiceProvider extends ServiceProvider
     {
         // Register aliases for backward compatibility
         $this->app->alias(\Packages\Customer\Models\Customer::class, \App\Models\Customer::class);
+        
+        // Register services
+        $this->app->bind(
+            \Packages\Customer\Repositories\CustomerRepository::class,
+            \Packages\Customer\Repositories\CustomerRepository::class
+        );
+        
+        $this->app->bind(
+            \Packages\Customer\Services\CustomerService::class,
+            \Packages\Customer\Services\CustomerService::class
+        );
+        
+        // Register configuration
+        $this->mergeConfigFrom(__DIR__ . '/../config/customer.php', 'customer');
     }
 
     /**
@@ -34,10 +48,18 @@ class CustomerServiceProvider extends ServiceProvider
         // Load views if needed (commented out - using main app views for now)
         // $this->loadViewsFrom(__DIR__ . '/../resources/views', 'customer');
         
+        // Publish configuration
+        $this->publishes([
+            __DIR__ . '/../config/customer.php' => config_path('customer.php'),
+        ], 'customer-config');
+        
         // Publish migrations
         $this->publishes([
             __DIR__ . '/Database/Migrations' => database_path('migrations'),
         ], 'customer-migrations');
+        
+        // Register event listeners
+        $this->registerEventListeners();
     }
 
     /**
@@ -61,5 +83,22 @@ class CustomerServiceProvider extends ServiceProvider
         Livewire::component('customer-management', \Packages\Customer\Livewire\CustomerManagement::class);
         Livewire::component('create-customer', \Packages\Customer\Livewire\CreateCustomer::class);
         Livewire::component('customer-table', \Packages\Customer\Livewire\CustomerTable::class);
+    }
+
+    /**
+     * Register event listeners for this package.
+     */
+    protected function registerEventListeners(): void
+    {
+        // Register event listeners
+        $this->app['events']->listen(
+            \Packages\Customer\Events\CustomerCreated::class,
+            \Packages\Customer\Listeners\SendWelcomeEmail::class
+        );
+
+        $this->app['events']->listen(
+            \Packages\Customer\Events\CustomerUpdated::class,
+            \Packages\Customer\Listeners\LogCustomerUpdate::class
+        );
     }
 }

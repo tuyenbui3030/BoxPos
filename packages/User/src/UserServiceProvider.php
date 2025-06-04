@@ -4,7 +4,16 @@ namespace Packages\User;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
+use Packages\User\Services\UserService;
+use Packages\User\Repositories\UserRepository;
+use Packages\User\Events\UserRegistered;
+use Packages\User\Events\UserLoggedIn;
+use Packages\User\Events\UserPasswordChanged;
+use Packages\User\Listeners\SendWelcomeEmail;
+use Packages\User\Listeners\LogUserLogin;
+use Packages\User\Listeners\NotifyPasswordChange;
 
 class UserServiceProvider extends ServiceProvider
 {
@@ -16,6 +25,22 @@ class UserServiceProvider extends ServiceProvider
         // Register aliases for backward compatibility
         $this->app->alias(\Packages\User\Models\User::class, \App\Models\User::class);
         $this->app->alias(\Packages\User\Models\UserDevice::class, \App\Models\UserDevice::class);
+        
+        // Register services
+        $this->app->singleton(UserService::class, function ($app) {
+            return new UserService($app->make(UserRepository::class));
+        });
+        
+        // Register repositories
+        $this->app->singleton(UserRepository::class, function ($app) {
+            return new UserRepository();
+        });
+        
+        // Merge configuration
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/user.php',
+            'user'
+        );
     }
 
     /**
@@ -39,6 +64,14 @@ class UserServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/Database/Migrations' => database_path('migrations'),
         ], 'user-migrations');
+        
+        // Publish configuration
+        $this->publishes([
+            __DIR__ . '/../config/user.php' => config_path('user.php'),
+        ], 'user-config');
+        
+        // Register event listeners
+        $this->registerEventListeners();
     }
 
     /**
@@ -69,5 +102,15 @@ class UserServiceProvider extends ServiceProvider
         Livewire::component('register', \Packages\User\Livewire\Register::class);
         Livewire::component('packages.user.livewire.login', \Packages\User\Livewire\Login::class);
         Livewire::component('packages.user.livewire.register', \Packages\User\Livewire\Register::class);
+    }
+
+    /**
+     * Register event listeners for User package.
+     */
+    protected function registerEventListeners(): void
+    {
+        Event::listen(UserRegistered::class, SendWelcomeEmail::class);
+        Event::listen(UserLoggedIn::class, LogUserLogin::class);
+        Event::listen(UserPasswordChanged::class, NotifyPasswordChange::class);
     }
 }
