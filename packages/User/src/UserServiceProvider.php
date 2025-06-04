@@ -33,7 +33,7 @@ class UserServiceProvider extends ServiceProvider
         
         // Register repositories
         $this->app->singleton(UserRepository::class, function ($app) {
-            return new UserRepository();
+            return new UserRepository($app->make(\Packages\User\Models\User::class));
         });
         
         // Merge configuration
@@ -51,14 +51,17 @@ class UserServiceProvider extends ServiceProvider
         // Register Livewire components
         $this->registerLivewireComponents();
         
+        // Register middleware
+        $this->registerMiddleware();
+        
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         
         // Load routes
         $this->loadRoutes();
         
-        // Load views if needed (commented out - using main app views for now)
-        // $this->loadViewsFrom(__DIR__ . '/../resources/views', 'user');
+        // Load views
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'user');
         
         // Publish migrations
         $this->publishes([
@@ -112,5 +115,21 @@ class UserServiceProvider extends ServiceProvider
         Event::listen(UserRegistered::class, SendWelcomeEmail::class);
         Event::listen(UserLoggedIn::class, LogUserLogin::class);
         Event::listen(UserPasswordChanged::class, NotifyPasswordChange::class);
+    }
+
+    /**
+     * Register middleware for User package.
+     */
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app['router'];
+        
+        // Register middleware aliases
+        $router->aliasMiddleware('user.access', \Packages\User\Http\Middleware\EnsureUserAccess::class);
+        $router->aliasMiddleware('user.auth.log', \Packages\User\Http\Middleware\LogUserAuthentication::class);
+        $router->aliasMiddleware('user.auth.rate.limit', \Packages\User\Http\Middleware\AuthenticationRateLimiter::class);
+        $router->aliasMiddleware('user.password.validate', \Packages\User\Http\Middleware\ValidateCurrentPassword::class);
+        $router->aliasMiddleware('user.authenticated', \Packages\User\Http\Middleware\EnsureUserIsAuthenticated::class);
+        $router->aliasMiddleware('user.guest', \Packages\User\Http\Middleware\RedirectIfAuthenticated::class);
     }
 }

@@ -39,6 +39,9 @@ class CustomerServiceProvider extends ServiceProvider
         // Register Livewire components
         $this->registerLivewireComponents();
         
+        // Register middleware
+        $this->registerMiddleware();
+        
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         
@@ -100,5 +103,18 @@ class CustomerServiceProvider extends ServiceProvider
             \Packages\Customer\Events\CustomerUpdated::class,
             \Packages\Customer\Listeners\LogCustomerUpdate::class
         );
+    }
+
+    /**
+     * Register middleware for Customer package.
+     */
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app['router'];
+        
+        // Register middleware aliases
+        $router->aliasMiddleware('customer.ownership', \Packages\Customer\Http\Middleware\EnsureCustomerOwnership::class);
+        $router->aliasMiddleware('customer.logging', \Packages\Customer\Http\Middleware\LogCustomerActions::class);
+        $router->aliasMiddleware('customer.rate.limit', \Packages\Customer\Http\Middleware\CustomerRateLimiter::class);
     }
 }
