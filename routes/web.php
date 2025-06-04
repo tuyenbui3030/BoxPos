@@ -12,6 +12,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/devices', App\Livewire\ManageDevices::class)->name('devices');
+    Route::get('/customers', \Packages\Customer\Livewire\CustomerManagement::class)->name('customers');
     
     // Add more authenticated routes here
 });
