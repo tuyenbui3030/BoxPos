@@ -16,16 +16,16 @@ use Packages\User\Http\Controllers\UserController;
 
 // Guest-only authentication routes
 Route::middleware(['guest', 'user.auth.rate.limit:5,1'])->group(function () {
-    // Login routes
-    Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
+    // Login routes - using Livewire components
+    Route::get('/login', \Packages\User\Livewire\Login::class)->name('login');
     Route::post('/login', [UserController::class, 'login'])
-        ->middleware(['user.log.auth'])
+        ->middleware(['user.auth.log'])
         ->name('login.submit');
     
-    // Registration routes
-    Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('register');
+    // Registration routes - using Livewire components  
+    Route::get('/register', \Packages\User\Livewire\Register::class)->name('register');
     Route::post('/register', [UserController::class, 'register'])
-        ->middleware(['user.log.auth'])
+        ->middleware(['user.auth.log'])
         ->name('register.submit');
 });
 
@@ -42,7 +42,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Password change (requires current password validation)
         Route::put('/password', [UserController::class, 'changePassword'])
-            ->middleware(['user.validate.password'])
+            ->middleware(['user.password.validate'])
             ->name('password.change');
     });
 });
