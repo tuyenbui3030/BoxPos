@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="{{ session('theme', 'light') }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +12,9 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    
+    <!-- Container Improvements CSS -->
+    <link rel="stylesheet" href="{{ asset('css/container-improvements.css') }}">
     
     <!-- Livewire Styles -->
     @livewireStyles
@@ -46,6 +49,9 @@
                             </a>
                         </div>
                     </div>
+                    
+                    <!-- Theme Toggle -->
+                    <livewire:theme-switcher />
                     
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
@@ -222,7 +228,7 @@
             <!-- Page header -->
             @if(isset($header))
             <div class="page-header d-print-none">
-                <div class="container-xl">
+                <div class="container-xxl">
                     <div class="row g-2 align-items-center">
                         <div class="col">
                             <div class="page-pretitle">
@@ -245,7 +251,7 @@
             
             <!-- Page body -->
             <div class="page-body">
-                <div class="container-xl">
+                <div class="container-xxl">
                     {{ $slot }}
                 </div>
             </div>

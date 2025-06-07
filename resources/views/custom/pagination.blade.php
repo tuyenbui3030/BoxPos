@@ -87,12 +87,4 @@
             @endif
         </ul>
     </nav>
-
-    {{-- Debug information (remove in production) --}}
-    @if (config('app.debug'))
-        <div class="mt-2 small text-muted">
-            Page {{ $paginator->currentPage() }} of {{ $paginator->lastPage() }} 
-            ({{ $paginator->total() }} total items, {{ $paginator->perPage() }} per page)
-        </div>
-    @endif
 @endif

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="{{ session('theme', 'light') }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,18 +7,12 @@
     
     <title>{{ isset($header) ? $header . ' - ' : '' }}{{ config('app.name', 'BoxPos') }}</title>
     
-    <!-- Tabler CSS -->
-    <link rel="stylesheet" href="{{ asset('tabler/css/tabler.min.css') }}">
-    
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/tabler-icons.min.css">
-    
     <!-- Vendor Libraries CSS -->
     @vite('resources/css/vendors.css')
     
-    <!-- Custom CSS -->
+    <!-- Main CSS (includes Tabler CSS) -->
     @vite('resources/css/app.css')
-    
+        
     <!-- Livewire Styles -->
     @livewireStyles
     
@@ -28,7 +22,7 @@
     <div class="page">
         <!-- Navbar -->
         <header class="navbar navbar-expand-md d-print-none">
-            <div class="container-xl">
+            <div class="container-xxl">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -52,6 +46,11 @@
                                 <line x1="21" y1="21" x2="15" y2="15"/>
                             </svg>
                         </a>
+                    </div>
+                    
+                    <!-- Theme Toggle -->
+                    <div class="d-none d-md-flex">
+                        <livewire:theme-switcher />
                     </div>
                     
                     <!-- Notifications -->
@@ -241,7 +240,7 @@
             <!-- Page header -->
             @if(isset($header))
             <div class="page-header d-print-none">
-                <div class="container-xl">
+                <div class="container-xxl">
                     <div class="row g-2 align-items-center">
                         <div class="col">
                             <div class="page-pretitle">
@@ -264,14 +263,14 @@
             
             <!-- Page body -->
             <div class="page-body">
-                <div class="container-xl">
+                <div class="container-xxl">
                     {{ $slot }}
                 </div>
             </div>
             
             <!-- Footer -->
             <footer class="footer footer-transparent d-print-none">
-                <div class="container-xl">
+                <div class="container-xxl">
                     <div class="row text-center align-items-center flex-row-reverse">
                         <div class="col-lg-auto ms-lg-auto">
                             <ul class="list-inline list-inline-dots mb-0">
@@ -328,16 +327,10 @@
         </div>
     </div>
     
-    <!-- Tabler JS -->
-    <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
-    
     <!-- Vendor Libraries JS -->
     @vite('resources/js/vendors.js')
     
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Custom JS -->
+    <!-- Main JS (includes Tabler JS and Alpine.js) -->
     @vite('resources/js/app.js')
     
     <!-- Livewire Scripts -->

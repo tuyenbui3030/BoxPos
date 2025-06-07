@@ -1,0 +1,10 @@
+/* Import Tabler CSS files */
+@import '@tabler/core/dist/css/tabler.min.css';
+@import '@tabler/icons-webfont/dist/tabler-icons.min.css';
+@import '@tabler/core/dist/css/tabler-flags.min.css';
+@import '@tabler/core/dist/css/tabler-payments.min.css';
+
+/* Custom Tabler overrides */
+/* Add your custom styles here */
+
+/* Tailwind CSS will be injected by Vite plugin */

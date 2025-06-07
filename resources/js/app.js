@@ -1,5 +1,17 @@
 import './bootstrap';
 
+// Import Alpine.js
+import Alpine from 'alpinejs';
+// Make Alpine available globally
+window.Alpine = Alpine;
+// Start Alpine
+Alpine.start();
+
+// Import Tabler JavaScript
+import '@tabler/core/dist/js/tabler.min.js';
+
+// Theme switching is now handled by Livewire ThemeSwitcher component
+
 // Initialize Tabler-specific JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize any Tabler components that require JavaScript activation

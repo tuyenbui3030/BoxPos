@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest' => \Packages\User\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
+        
+        // Add theme middleware to web group
+        $middleware->web(append: [
+            \App\Http\Middleware\ThemeMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

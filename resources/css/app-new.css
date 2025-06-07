@@ -13,6 +13,47 @@
     height: 280px;
 }
 
+/* Theme toggle visibility controls */
+.hide-theme-dark {
+    display: block;
+}
+
+.hide-theme-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] .hide-theme-dark {
+    display: none;
+}
+
+[data-bs-theme="dark"] .hide-theme-light {
+    display: block;
+}
+
+/* Theme Toggle Button Styles */
+.hide-theme-light {
+    display: none;
+}
+
+.hide-theme-dark {
+    display: block;
+}
+
+[data-bs-theme="dark"] .hide-theme-light {
+    display: block;
+}
+
+[data-bs-theme="dark"] .hide-theme-dark {
+    display: none;
+}
+
+/* Theme toggle button hover effects */
+.nav-link[data-bs-toggle="theme"]:hover {
+    background-color: rgba(var(--tblr-primary-rgb), 0.1);
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+
 /* Custom responsive adjustments */
 @media (max-width: 768px) {
     .navbar-brand-autodark {

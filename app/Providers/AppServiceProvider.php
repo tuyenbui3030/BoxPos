@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Set default Tabler UI pagination views for Laravel
         \Illuminate\Pagination\Paginator::useBootstrap();
-        //
+        
+        // Share theme with all views
+        view()->composer('*', function ($view) {
+            $view->with('currentTheme', session('theme', 'light'));
+        });
     }
 }
