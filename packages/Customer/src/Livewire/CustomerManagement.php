@@ -170,6 +170,8 @@ class CustomerManagement extends Component
             ->when($this->filterGender !== 'all', fn($query) => $query->byGender($this->filterGender))
             ->when($this->filterLastTransactionFrom && $this->filterLastTransactionTo, fn($query) => $query->lastTransactionBetween($this->filterLastTransactionFrom, $this->filterLastTransactionTo))
             ->when($this->filterSalesFrom !== '' && $this->filterSalesTo !== '', fn($query) => $query->salesBetween($this->filterSalesFrom, $this->filterSalesTo))
+            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo === '', fn($query) => $query->where('total_sales', '>=', $this->filterSalesFrom))
+            ->when($this->filterSalesFrom === '' && $this->filterSalesTo !== '', fn($query) => $query->where('total_sales', '<=', $this->filterSalesTo))
             ->when($this->filterOnlyWithDebt, fn($query) => $query->withDebt())
             ->orderBy('created_at', 'desc');
 

@@ -1,0 +1,12 @@
+/* Vendor CSS imports */
+
+/* Litepicker - Date picker from Tabler Core */
+@import '@tabler/core/dist/libs/litepicker/dist/css/litepicker.css';
+
+/* Tabler Vendors - Contains noUiSlider and other vendor styles with Bootstrap theme */
+@import '@tabler/core/dist/css/tabler-vendors.css';
+
+/* Add more vendor CSS imports here as needed */
+/* Example:
+@import '@tabler/core/dist/libs/another-lib/dist/another-lib.css';
+*/

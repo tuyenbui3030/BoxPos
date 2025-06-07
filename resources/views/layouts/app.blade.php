@@ -13,8 +13,11 @@
     <!-- Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/tabler-icons.min.css">
     
+    <!-- Vendor Libraries CSS -->
+    @vite('resources/css/vendors.css')
+    
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @vite('resources/css/app.css')
     
     <!-- Livewire Styles -->
     @livewireStyles
@@ -328,8 +331,14 @@
     <!-- Tabler JS -->
     <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
     
+    <!-- Vendor Libraries JS -->
+    @vite('resources/js/vendors.js')
+    
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Custom JS -->
+    @vite('resources/js/app.js')
     
     <!-- Livewire Scripts -->
     @livewireScripts

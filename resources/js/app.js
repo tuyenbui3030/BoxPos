@@ -1,8 +1,5 @@
 import './bootstrap';
 
-// Import Bootstrap CSS (required for Tabler)
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 // Initialize Tabler-specific JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize any Tabler components that require JavaScript activation
