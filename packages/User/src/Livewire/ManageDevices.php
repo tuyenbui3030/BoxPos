@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\User\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -79,7 +79,7 @@ class ManageDevices extends Component
             ->orderBy('last_activity', 'desc')
             ->get();
 
-        return view('livewire.manage-devices', compact('devices'))
+        return view('user::livewire.manage-devices', compact('devices'))
             ->layout('layouts.app', [
                 'header' => 'Manage Devices'
             ]);

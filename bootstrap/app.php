@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Add theme middleware to web group (SessionManager temporarily disabled)
         $middleware->web(append: [
-            \App\Http\Middleware\ThemeMiddleware::class,
+            \Packages\Theme\Http\Middleware\ThemeMiddleware::class,
             // \Packages\SessionManager\Http\Middleware\KeepAliveSession::class,
         ]);
     })

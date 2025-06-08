@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\User\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
-use App\Traits\HasTheme;
+use Packages\Theme\Traits\HasTheme;
 
 class Dashboard extends Component
 {
@@ -13,7 +13,7 @@ class Dashboard extends Component
     #[Title('Dashboard')]
     public function render()
     {
-        return view('livewire.dashboard')
+        return view('user::livewire.dashboard')
             ->layout('layouts.app', [
                 'header' => 'Dashboard'
             ]);

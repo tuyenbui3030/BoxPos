@@ -103,8 +103,12 @@ class UserServiceProvider extends ServiceProvider
         // Register User package Livewire components with both naming conventions
         Livewire::component('login', \Packages\User\Livewire\Login::class);
         Livewire::component('register', \Packages\User\Livewire\Register::class);
+        Livewire::component('manage-devices', \Packages\User\Livewire\ManageDevices::class);
+        Livewire::component('dashboard', \Packages\User\Livewire\Dashboard::class);
         Livewire::component('packages.user.livewire.login', \Packages\User\Livewire\Login::class);
         Livewire::component('packages.user.livewire.register', \Packages\User\Livewire\Register::class);
+        Livewire::component('packages.user.livewire.manage-devices', \Packages\User\Livewire\ManageDevices::class);
+        Livewire::component('packages.user.livewire.dashboard', \Packages\User\Livewire\Dashboard::class);
     }
 
     /**

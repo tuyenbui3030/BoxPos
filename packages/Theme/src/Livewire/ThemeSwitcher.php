@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire;
+namespace Packages\Theme\Livewire;
 
 use Livewire\Component;
-use App\Traits\HasTheme;
+use Packages\Theme\Traits\HasTheme;
 
 class ThemeSwitcher extends Component
 {
@@ -28,6 +28,6 @@ class ThemeSwitcher extends Component
     
     public function render()
     {
-        return view('livewire.theme-switcher');
+        return view('theme::livewire.theme-switcher');
     }
 }

@@ -64,7 +64,7 @@ class SessionManagerServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         
         // Register middleware aliases
-        $router->aliasMiddleware('session.keep-alive', KeepAliveSession::class);
-        $router->aliasMiddleware('session.extend', ExtendSessionOnActivity::class);
+        $router->aliasMiddleware('session.keep-alive', \Packages\SessionManager\Http\Middleware\KeepAliveSession::class);
+        $router->aliasMiddleware('session.extend', \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class);
     }
 }
