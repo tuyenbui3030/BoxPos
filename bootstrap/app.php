@@ -14,13 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest' => \Packages\User\Http\Middleware\RedirectIfAuthenticated::class,
             'extend.session' => \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
-            'keep.alive' => \Packages\SessionManager\Http\Middleware\KeepAliveSession::class,
         ]);
         
-        // Add theme middleware to web group (SessionManager temporarily disabled)
+        // Add middleware to web group
         $middleware->web(append: [
             \Packages\Appearance\Http\Middleware\AppearanceMiddleware::class,
-            // \Packages\SessionManager\Http\Middleware\KeepAliveSession::class,
+            \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

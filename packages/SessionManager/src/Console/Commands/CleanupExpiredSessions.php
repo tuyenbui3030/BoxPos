@@ -25,11 +25,6 @@ class CleanupExpiredSessions extends Command
      */
     public function handle(): int
     {
-        if (!config('session-manager.cleanup.enabled', true)) {
-            $this->info('Session cleanup is disabled.');
-            return 0;
-        }
-
         $days = $this->option('days') ?: config('session-manager.cleanup.retention_days', 30);
         $dryRun = $this->option('dry-run');
         

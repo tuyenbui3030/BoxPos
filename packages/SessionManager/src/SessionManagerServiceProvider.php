@@ -3,10 +3,7 @@
 namespace Packages\SessionManager;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
-use Packages\SessionManager\Http\Middleware\KeepAliveSession;
 use Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity;
-use Packages\SessionManager\Services\SessionManagerService;
 
 class SessionManagerServiceProvider extends ServiceProvider
 {
@@ -20,11 +17,6 @@ class SessionManagerServiceProvider extends ServiceProvider
             __DIR__.'/../config/session-manager.php',
             'session-manager'
         );
-
-        // Register services
-        $this->app->singleton(SessionManagerService::class, function ($app) {
-            return new SessionManagerService();
-        });
     }
 
     /**
@@ -37,16 +29,8 @@ class SessionManagerServiceProvider extends ServiceProvider
             __DIR__.'/../config/session-manager.php' => config_path('session-manager.php'),
         ], 'session-manager-config');
 
-        // Publish assets
-        $this->publishes([
-            __DIR__.'/../resources/js' => public_path('js/session-manager'),
-        ], 'session-manager-assets');
-
         // Register middleware
         $this->registerMiddleware();
-
-        // Load routes
-        $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
 
         // Register console commands
         if ($this->app->runningInConsole()) {
@@ -63,8 +47,7 @@ class SessionManagerServiceProvider extends ServiceProvider
     {
         $router = $this->app['router'];
         
-        // Register middleware aliases
-        $router->aliasMiddleware('session.keep-alive', \Packages\SessionManager\Http\Middleware\KeepAliveSession::class);
-        $router->aliasMiddleware('session.extend', \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class);
+        // Register only the simple session extension middleware
+        $router->aliasMiddleware('session.extend', ExtendSessionOnActivity::class);
     }
 }

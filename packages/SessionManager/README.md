@@ -1,20 +1,18 @@
 # Session Manager Package
 
-Quản lý session thông minh cho Laravel với tính năng "never logout" khi user còn hoạt động.
+Simple session management for Laravel that automatically extends session lifetime on user activity.
 
-## Tính năng
+## Features
 
-- ✅ **Infinite Session**: User không bao giờ bị logout khi còn hoạt động
-- ✅ **Smart Heartbeat**: Tự động gửi request duy trì session
-- ✅ **Activity Tracking**: Theo dõi hoạt động của user
-- ✅ **Session Security**: Regenerate session ID định kỳ
-- ✅ **Configurable**: Cấu hình linh hoạt
-- ✅ **Debug Mode**: Debug và monitoring
-- ✅ **Cleanup Command**: Dọn dẹp session cũ
+- ✅ **Automatic Session Extension**: Sessions are automatically extended on any HTTP request
+- ✅ **Zero JavaScript Required**: Pure server-side solution
+- ✅ **Configurable Session Lifetime**: Set session duration (1-3 hours, 1-3 days, etc.)
+- ✅ **Database Update Throttling**: Optimize performance with configurable update intervals
+- ✅ **Cleanup Command**: Remove expired sessions
 
-## Cài đặt
+## Installation
 
-### 1. Đăng ký Package trong composer.json
+### 1. Register Package in composer.json
 
 ```json
 {
@@ -36,16 +34,15 @@ Quản lý session thông minh cho Laravel với tính năng "never logout" khi 
 sail composer install
 ```
 
-### 3. Publish config và assets
+### 3. Publish config
 
 ```bash
 sail artisan vendor:publish --tag=session-manager-config
-sail artisan vendor:publish --tag=session-manager-assets
 ```
 
-### 4. Đăng ký Service Provider
+### 4. Register Service Provider
 
-Thêm vào `config/app.php`:
+Add to `config/app.php`:
 
 ```php
 'providers' => [
@@ -54,113 +51,40 @@ Thêm vào `config/app.php`:
 ],
 ```
 
-### 5. Thêm middleware
+### 5. Register Middleware
 
-Trong `bootstrap/app.php`:
+Add to `app/Http/Kernel.php`:
 
 ```php
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->web(append: [
-        \Packages\SessionManager\Http\Middleware\KeepAliveSession::class,
-    ]);
-})
+protected $middlewareGroups = [
+    'web' => [
+        // ...existing middleware...
+        \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
+    ],
+];
 ```
 
-### 6. Include JavaScript
-
-Trong layout chính (ví dụ: `layouts/app.blade.php`):
-
-```html
-<meta name="user-authenticated" content="{{ auth()->check() ? 'true' : 'false' }}">
-
-<!-- Before closing body tag -->
-<script src="{{ asset('js/session-manager/session-keep-alive.js') }}"></script>
-```
-
-## Cấu hình
+## Configuration
 
 File config: `config/session-manager.php`
 
 ```php
 return [
-    'keep_alive' => [
-        'enabled' => true,
-        'heartbeat_interval' => 300, // 5 minutes
-        'activity_timeout' => 900,   // 15 minutes
-        'infinite_session' => true,
-    ],
+    // Session lifetime in minutes (default: 2 hours)
+    'session_lifetime' => 120,
     
-    'security' => [
-        'regenerate_interval' => 1800, // 30 minutes
-    ],
-    
-    'debug' => [
-        'enabled' => false,
-        'log_activity' => false,
-    ],
+    // Database update throttle in seconds (default: 10 minutes)
+    // Prevents excessive database writes from frequent requests
+    'db_update_throttle' => 600,
 ];
 ```
 
-## Environment Variables
+## How It Works
 
-Thêm vào `.env`:
-
-```env
-SESSION_KEEP_ALIVE_ENABLED=true
-SESSION_HEARTBEAT_INTERVAL=300
-SESSION_ACTIVITY_TIMEOUT=900
-SESSION_INFINITE_ENABLED=true
-SESSION_DEBUG_ENABLED=false
-```
-
-## API Endpoints
-
-### Heartbeat (Duy trì session)
-```
-POST /api/session/heartbeat
-```
-
-### Session Info
-```
-GET /api/session/info
-```
-
-### Enable/Disable Infinite Session
-```
-POST /api/session/infinite/enable
-POST /api/session/infinite/disable
-```
-
-## Sử dụng JavaScript
-
-### Auto-initialization
-Package tự động khởi tạo khi detect user đã login.
-
-### Manual control
-```javascript
-// Access global instance
-const keepAlive = window.sessionKeepAlive;
-
-// Enable infinite session
-await keepAlive.enableInfiniteSession();
-
-// Disable infinite session
-await keepAlive.disableInfiniteSession();
-
-// Destroy
-keepAlive.destroy();
-```
-
-### Custom instance
-```javascript
-const customKeepAlive = new SessionKeepAlive({
-    heartbeatInterval: 600000, // 10 minutes
-    debug: true,
-    onInfiniteSessionChanged: (enabled) => {
-        console.log('Infinite session:', enabled);
-    }
-});
-```
+1. **Automatic Extension**: When an authenticated user makes any HTTP request, the middleware automatically extends their session lifetime
+2. **Zero JavaScript**: No client-side code required - everything happens server-side
+3. **Performance Optimized**: Database updates are throttled to prevent excessive writes
+4. **Simple Configuration**: Just two settings to configure
 
 ## Commands
 
@@ -176,79 +100,43 @@ sail artisan session:cleanup --days=7
 sail artisan session:cleanup --dry-run
 ```
 
-### Schedule cleanup (trong app/Console/Kernel.php)
+### Schedule cleanup (in app/Console/Kernel.php)
 ```php
 $schedule->command('session:cleanup')->daily();
 ```
 
-## Middleware
+## Example Usage
 
-### KeepAliveSession
-Middleware chính để duy trì session:
-- Theo dõi hoạt động user
-- Gia hạn session tự động
-- Thêm headers cho JavaScript
+Once installed and configured, the system works automatically:
 
-### ExtendSessionOnActivity
-Middleware đơn giản chỉ gia hạn session:
-- Ít tính năng hơn
-- Performance tốt hơn
+1. User logs in normally
+2. As they use the application (any HTTP request), their session is automatically extended
+3. Session stays active as long as they continue using the application
+4. Sessions expire only after the configured period of inactivity
 
-## Service Class
+## Configuration Examples
 
-### SessionManagerService
 ```php
-use Packages\SessionManager\Services\SessionManagerService;
+// Short sessions (1 hour, update every 5 minutes)
+'session_lifetime' => 60,
+'db_update_throttle' => 300,
 
-$sessionManager = app(SessionManagerService::class);
+// Medium sessions (3 hours, update every 10 minutes)  
+'session_lifetime' => 180,
+'db_update_throttle' => 600,
 
-// Get session info
-$info = $sessionManager->getSessionInfo();
-
-// Handle heartbeat
-$result = $sessionManager->handleHeartbeat($request);
-
-// Enable/disable infinite session
-$sessionManager->enableInfiniteSession();
-$sessionManager->disableInfiniteSession();
+// Long sessions (1 day, update every 30 minutes)
+'session_lifetime' => 1440,
+'db_update_throttle' => 1800,
 ```
 
-## Debug & Monitoring
+## Benefits
 
-### Check session status
-```
-GET /debug/session/info
-```
-
-### Logs
-Khi debug mode bật, logs sẽ được ghi vào `storage/logs/laravel.log`:
-- Session extensions
-- Heartbeat requests  
-- Activity tracking
-
-## Best Practices
-
-1. **Environment-specific**: Chỉ bật debug mode trong development
-2. **Performance**: Heartbeat interval không nên quá ngắn (< 60s)
-3. **Security**: Định kỳ cleanup sessions cũ
-4. **Monitoring**: Theo dõi logs để detect issues
-
-## Troubleshooting
-
-### Session vẫn bị expire
-- Kiểm tra `SESSION_LIFETIME` trong `.env`
-- Đảm bảo middleware được load
-- Kiểm tra JavaScript có chạy không
-
-### Heartbeat không gửi
-- Kiểm tra CSRF token
-- Kiểm tra network requests trong browser
-- Bật debug mode để xem logs
-
-### Performance issues
-- Tăng heartbeat interval
-- Giảm activity timeout
-- Tắt debug logging trong production
+- **Simple**: No complex JavaScript or heartbeat systems
+- **Efficient**: Minimal overhead on each request
+- **Reliable**: Works with any HTTP request, not just specific AJAX calls
+- **Maintainable**: Clean, minimal codebase
+- **Flexible**: Configurable session lengths for different use cases
 
 ## License
 

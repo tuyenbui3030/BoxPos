@@ -3,28 +3,42 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Session Keep Alive Configuration
+    | Simple Session Extension Configuration
     |--------------------------------------------------------------------------
     |
-    | Configuration for session keep alive functionality
+    | Configuration for the simplified middleware-based session extension
+    | approach. This just automatically extends sessions whenever users
+    | make HTTP requests.
     |
     */
 
     /*
     |--------------------------------------------------------------------------
-    | Keep Alive Settings
+    | Session Lifetime Settings  
     |--------------------------------------------------------------------------
     |
-    | Settings for automatic session extension
+    | Define how long sessions should remain active when user has activity.
+    | The middleware will automatically extend this session on every request.
+    | 
+    | Unit: minutes
+    | Examples: 60 = 1 hour, 120 = 2 hours, 1440 = 1 day, 10080 = 7 days
     |
     */
-    'keep_alive' => [
-        'enabled' => env('SESSION_KEEP_ALIVE_ENABLED', true),
-        'heartbeat_interval' => env('SESSION_HEARTBEAT_INTERVAL', 300), // 5 minutes in seconds
-        'activity_timeout' => env('SESSION_ACTIVITY_TIMEOUT', 900), // 15 minutes in seconds
-        'extend_threshold' => env('SESSION_EXTEND_THRESHOLD', 300), // 5 minutes in seconds
-        'infinite_session' => env('SESSION_INFINITE_ENABLED', true),
-    ],
+    'session_lifetime' => env('SESSION_LIFETIME_MINUTES', 120), // 2 hours default
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Database Update Throttle
+    |--------------------------------------------------------------------------
+    |
+    | Minimum time between database last_login_at updates to prevent 
+    | excessive database writes on every request.
+    | 
+    | Unit: seconds
+    | Default: 600 (10 minutes)
+    |
+    */
+    'db_update_throttle' => env('SESSION_DB_THROTTLE_SECONDS', 600), // 10 minutes
 
     /*
     |--------------------------------------------------------------------------
@@ -49,22 +63,7 @@ return [
     |
     */
     'debug' => [
-        'enabled' => env('SESSION_DEBUG_ENABLED', false),
-        'log_activity' => env('SESSION_LOG_ACTIVITY', false),
-        'log_extensions' => env('SESSION_LOG_EXTENSIONS', false),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Security Settings
-    |--------------------------------------------------------------------------
-    |
-    | Security settings for session management
-    |
-    */
-    'security' => [
-        'regenerate_interval' => env('SESSION_REGENERATE_INTERVAL', 1800), // 30 minutes
-        'ip_validation' => env('SESSION_IP_VALIDATION', false),
-        'user_agent_validation' => env('SESSION_USER_AGENT_VALIDATION', false),
+        'log_extensions' => env('SESSION_DEBUG_LOG_EXTENSIONS', false),
+        'log_activity' => env('SESSION_DEBUG_LOG_ACTIVITY', false),
     ],
 ];

@@ -26,41 +26,47 @@ class ExtendSessionOnActivity
     }
 
     /**
-     * Extend session lifetime on user activity
+     * Extend session lifetime on any user request
      */
     protected function extendSessionLifetime(Request $request): void
     {
-        $user = Auth::user();
         $now = now();
+        $user = Auth::user();
         
-        // Lấy thời gian hoạt động cuối từ session
-        $lastActivity = session('last_activity_time');
+        // Get session lifetime from config (in minutes)
+        $sessionLifetime = config('session-manager.session_lifetime', 120); // default 2 hours
         
-        // Chỉ gia hạn nếu đã qua 5 phút kể từ lần gia hạn cuối
-        // Điều này tránh việc update quá thường xuyên
-        if (!$lastActivity || $now->diffInMinutes($lastActivity) >= 5) {
-            
-            // Cấu hình session lifetime mới (tính bằng phút)
-            $extendedLifetime = config('user.authentication.session_lifetime', 43200); // 30 ngày
-            
-            // Cập nhật session config
-            config(['session.lifetime' => $extendedLifetime]);
-            
-            // Lưu thời gian hoạt động hiện tại
-            session(['last_activity_time' => $now]);
-            
-            // Cập nhật last_login_at để tracking
-            if ($user->hasAttribute('last_login_at')) {
+        // Update session lifetime
+        config(['session.lifetime' => $sessionLifetime]);
+        
+        // Save activity info for tracking/demo purposes
+        session([
+            'last_activity_time' => $now,
+            'user_last_activity' => $now->timestamp,
+            'session_extended_by_middleware' => true,
+            'middleware_extension_count' => session('middleware_extension_count', 0) + 1,
+            'last_middleware_extension' => $now->toISOString(),
+        ]);
+        
+        // Optional: Update user's last_login_at (throttled to prevent too many DB updates)
+        $lastDbUpdate = session('last_db_update', 0);
+        $throttleSeconds = config('session-manager.db_update_throttle', 600);
+        
+        // Only update database according to throttle to avoid too many DB calls
+        if ($now->timestamp - $lastDbUpdate > $throttleSeconds) {
+            if ($user && $user->hasAttribute('last_login_at')) {
                 $user->update(['last_login_at' => $now]);
+                session(['last_db_update' => $now->timestamp]);
             }
-            
-            // Log hoạt động để theo dõi
-            \Log::info('Session extended for user activity', [
-                'user_id' => $user->id,
-                'user_email' => $user->email,
+        }
+        
+        // Log if debug mode (optional)
+        if (config('session-manager.debug.log_extensions', false)) {
+            \Log::info('Session extended on user request', [
+                'user_id' => $user?->id,
                 'ip' => $request->ip(),
-                'route' => $request->route() ? $request->route()->getName() : 'unknown',
-                'extended_lifetime_minutes' => $extendedLifetime,
+                'route' => $request->route()?->getName() ?? 'unknown',
+                'session_lifetime_minutes' => $sessionLifetime,
                 'timestamp' => $now->toISOString(),
             ]);
         }

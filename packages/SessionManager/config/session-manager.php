@@ -3,28 +3,27 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Session Keep Alive Configuration
+    | Session Lifetime Settings  
     |--------------------------------------------------------------------------
     |
-    | Configuration for session keep alive functionality
+    | Session lifetime in minutes when user is active.
+    | Middleware will automatically extend session on each request.
+    | 
+    | Examples: 60 = 1 hour, 120 = 2 hours, 1440 = 1 day, 10080 = 7 days
     |
     */
-
+    'session_lifetime' => env('SESSION_LIFETIME_MINUTES', 120), // 2 hours default
+    
     /*
     |--------------------------------------------------------------------------
-    | Keep Alive Settings
+    | Database Update Throttle
     |--------------------------------------------------------------------------
     |
-    | Settings for automatic session extension
+    | Minimum time between database updates for last_login_at
+    | to prevent excessive database calls. Unit: seconds
     |
     */
-    'keep_alive' => [
-        'enabled' => env('SESSION_KEEP_ALIVE_ENABLED', true),
-        'heartbeat_interval' => env('SESSION_HEARTBEAT_INTERVAL', 300), // 5 minutes in seconds
-        'activity_timeout' => env('SESSION_ACTIVITY_TIMEOUT', 900), // 15 minutes in seconds
-        'extend_threshold' => env('SESSION_EXTEND_THRESHOLD', 300), // 5 minutes in seconds
-        'infinite_session' => env('SESSION_INFINITE_ENABLED', true),
-    ],
+    'db_update_throttle' => env('SESSION_DB_UPDATE_THROTTLE', 600), // 10 minutes
 
     /*
     |--------------------------------------------------------------------------
@@ -35,36 +34,18 @@ return [
     |
     */
     'cleanup' => [
-        'enabled' => env('SESSION_CLEANUP_ENABLED', true),
-        'schedule' => env('SESSION_CLEANUP_SCHEDULE', 'daily'),
         'retention_days' => env('SESSION_RETENTION_DAYS', 30),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Debug Settings
+    | Debug Settings (Optional)
     |--------------------------------------------------------------------------
     |
-    | Settings for debugging session management
+    | Enable logging of session extensions for debugging
     |
     */
     'debug' => [
-        'enabled' => env('SESSION_DEBUG_ENABLED', false),
-        'log_activity' => env('SESSION_LOG_ACTIVITY', false),
         'log_extensions' => env('SESSION_LOG_EXTENSIONS', false),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Security Settings
-    |--------------------------------------------------------------------------
-    |
-    | Security settings for session management
-    |
-    */
-    'security' => [
-        'regenerate_interval' => env('SESSION_REGENERATE_INTERVAL', 1800), // 30 minutes
-        'ip_validation' => env('SESSION_IP_VALIDATION', false),
-        'user_agent_validation' => env('SESSION_USER_AGENT_VALIDATION', false),
     ],
 ];
