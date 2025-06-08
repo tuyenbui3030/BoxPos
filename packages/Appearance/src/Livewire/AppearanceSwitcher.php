@@ -28,6 +28,6 @@ class AppearanceSwitcher extends Component
     
     public function render()
     {
-        return view('appearance::livewire.appearance-switcher');
+        return view('appearance::livewire.theme-switcher');
     }
 }

@@ -48,8 +48,8 @@ class CustomerServiceProvider extends ServiceProvider
         // Load routes
         $this->loadRoutes();
         
-        // Load views if needed (commented out - using main app views for now)
-        // $this->loadViewsFrom(__DIR__ . '/../resources/views', 'customer');
+        // Load views from package
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'customer');
         
         // Publish configuration
         $this->publishes([

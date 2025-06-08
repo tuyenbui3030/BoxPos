@@ -85,6 +85,6 @@ class CreateCustomer extends Component
 
     public function render()
     {
-        return view('livewire.create-customer');
+        return view('customer::livewire.create-customer');
     }
 }

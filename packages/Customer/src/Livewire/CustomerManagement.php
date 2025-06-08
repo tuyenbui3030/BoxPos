@@ -198,7 +198,7 @@ class CustomerManagement extends Component
     #[Title('Customer Management')]
     public function render()
     {
-        return view('livewire.customer-management', [
+        return view('customer::livewire.customer-management', [
             'customers' => $this->customers,
             'customerGroups' => $this->customerGroups,
             'creators' => $this->creators,

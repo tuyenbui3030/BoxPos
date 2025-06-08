@@ -44,7 +44,7 @@ class Register extends Component
     #[Title('Register')]
     public function render()
     {
-        return view('livewire.register')
+        return view('user::livewire.register')
             ->layout('layouts.guest');
     }
 }
