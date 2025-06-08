@@ -9,13 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (datepickerElement) {
             console.log("Datepicker element found, creating Litepicker instance");
             
-            new window.Litepicker({
+            const picker = new window.Litepicker({
                 element: datepickerElement,
-                singleMode: false,  // Enable range mode
-                numberOfColumns: 2, // Show 2 months for better UX
-                numberOfMonths: 2,  // Show 2 months side by side
+                singleMode: false,
+                numberOfColumns: 2,
+                numberOfMonths: 2,
                 format: 'YYYY-MM-DD',
-                delimiter: ' - ',   // Delimiter between dates in range
+                delimiter: ' - ',
                 autoApply: true,
                 showTooltip: true,
                 showWeekNumbers: true,
@@ -47,7 +47,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             console.log('Single date selected:', date1.format('YYYY-MM-DD'));
                             datepickerElement.value = date1.format('YYYY-MM-DD');
                             
+                                                        
                             if (window.Livewire) {
+                                // Find the Livewire component and update properties
                                 const livewireComponent = window.Livewire.find(datepickerElement.closest('[wire\\:id]')?.getAttribute('wire:id'));
                                 if (livewireComponent) {
                                     livewireComponent.set('filterLastTransactionFrom', date1.format('YYYY-MM-DD'));
@@ -72,11 +74,55 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
             
+            // Direct event listener for clear button
+            document.addEventListener('click', function(event) {
+                // Check if the clicked element is the clear filters button
+                if (event.target.closest('[wire\\:click="clearFilters"]')) {
+                    console.log('Clear filters button clicked, clearing datepicker...');
+                    setTimeout(() => {
+                        datepickerElement.value = '';
+                        if (picker) {
+                            picker.clearSelection();
+                            console.log('Datepicker cleared via button click');
+                        }
+                    }, 100); // Small delay to ensure Livewire has processed
+                }
+            });
+            
+            // Listen for Livewire events to clear the datepicker
+            document.addEventListener('livewire:updated', function (event) {
+                // Check if filters were cleared by looking at the component data
+                const component = event.detail.component;
+                if (component && 
+                    component.get('filterLastTransactionFrom') === '' && 
+                    component.get('filterLastTransactionTo') === '') {
+                    // Clear the datepicker display value
+                    datepickerElement.value = '';
+                    // Clear the picker's selected dates
+                    if (picker) {
+                        picker.clearSelection();
+                    }
+                }
+            });
+            
+            // Alternative: Listen for custom clear event from Livewire
+            document.addEventListener('livewire:dispatch', function (event) {
+                console.log('Livewire dispatch received:', event.detail);
+                if (event.detail.name === 'clearDatePicker') {
+                    console.log('Clearing date picker...');
+                    datepickerElement.value = '';
+                    if (picker) {
+                        picker.clearSelection();
+                        console.log('Date picker cleared successfully');
+                    }
+                }
+            });
+            
             console.log("Litepicker initialized successfully");
         } else {
-            console.log("Datepicker element not found");
+            console.error("Datepicker element not found");
         }
     } else {
-        console.log("Litepicker is not available");
+        console.error("Litepicker library not found");
     }
 });

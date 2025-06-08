@@ -135,6 +135,9 @@ class CustomerManagement extends Component
             'filterOnlyWithDebt',
         ]);
         $this->resetPage();
+        
+        // Dispatch event to clear the date picker
+        $this->dispatch('clearDatePicker');
     }
 
     public function toggleFilters()
