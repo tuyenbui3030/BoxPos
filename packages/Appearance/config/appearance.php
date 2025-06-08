@@ -6,7 +6,7 @@ return [
     | Default Theme
     |--------------------------------------------------------------------------
     |
-    | This option controls the default theme for the application.
+    | This option controls the default appearance theme for the application.
     | Supported themes: "light", "dark"
     |
     */
@@ -17,7 +17,7 @@ return [
     | Available Themes
     |--------------------------------------------------------------------------
     |
-    | List of available themes for the application.
+    | List of available appearance themes for the application.
     |
     */
     'themes' => [
@@ -36,18 +36,18 @@ return [
     | Theme Storage
     |--------------------------------------------------------------------------
     |
-    | How theme preferences should be stored.
+    | How appearance preferences should be stored.
     | Supported: "session", "cookie", "database"
     |
     */
-    'storage' => env('THEME_STORAGE', 'session'),
+    'storage' => env('APPEARANCE_STORAGE', 'session'),
 
     /*
     |--------------------------------------------------------------------------
     | Theme Cookie Settings
     |--------------------------------------------------------------------------
     |
-    | Settings for theme cookie when using cookie storage.
+    | Settings for appearance cookie when using cookie storage.
     |
     */
     'cookie' => [

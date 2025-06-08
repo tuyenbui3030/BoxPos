@@ -1,12 +1,12 @@
 <?php
 
-namespace Packages\Theme\Http\Middleware;
+namespace Packages\Appearance\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ThemeMiddleware
+class AppearanceMiddleware
 {
     /**
      * Handle an incoming request.

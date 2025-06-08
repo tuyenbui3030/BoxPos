@@ -5,5 +5,5 @@ return [
     Packages\Customer\CustomerServiceProvider::class,
     Packages\User\UserServiceProvider::class,
     Packages\SessionManager\SessionManagerServiceProvider::class,
-    Packages\Theme\ThemeServiceProvider::class,
+    Packages\Appearance\AppearanceServiceProvider::class,
 ];

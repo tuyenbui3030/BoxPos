@@ -1,13 +1,13 @@
 <?php
 
-namespace Packages\Theme\Livewire;
+namespace Packages\Appearance\Livewire;
 
 use Livewire\Component;
-use Packages\Theme\Traits\HasTheme;
+use Packages\Appearance\Traits\HasAppearance;
 
-class ThemeSwitcher extends Component
+class AppearanceSwitcher extends Component
 {
-    use HasTheme;
+    use HasAppearance;
     
     public $theme = 'light';
     
@@ -28,6 +28,6 @@ class ThemeSwitcher extends Component
     
     public function render()
     {
-        return view('theme::livewire.theme-switcher');
+        return view('appearance::livewire.appearance-switcher');
     }
 }

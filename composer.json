@@ -32,7 +32,8 @@
             "Database\\Seeders\\": "database/seeders/",
             "Packages\\Customer\\": "packages/Customer/src/",
             "Packages\\User\\": "packages/User/src/",
-            "Packages\\SessionManager\\": "packages/SessionManager/src/"
+            "Packages\\SessionManager\\": "packages/SessionManager/src/",
+            "Packages\\Appearance\\": "packages/Appearance/src/"
         }
     },
     "autoload-dev": {

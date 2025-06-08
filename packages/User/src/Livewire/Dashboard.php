@@ -4,11 +4,11 @@ namespace Packages\User\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
-use Packages\Theme\Traits\HasTheme;
+use Packages\Appearance\Traits\HasAppearance;
 
 class Dashboard extends Component
 {
-    use HasTheme;
+    use HasAppearance;
     
     #[Title('Dashboard')]
     public function render()

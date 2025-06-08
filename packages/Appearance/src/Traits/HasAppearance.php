@@ -1,8 +1,8 @@
 <?php
 
-namespace Packages\Theme\Traits;
+namespace Packages\Appearance\Traits;
 
-trait HasTheme
+trait HasAppearance
 {
     public function getCurrentTheme()
     {
