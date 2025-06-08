@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-authenticated" content="{{ auth()->check() ? 'true' : 'false' }}">
     
     <title>{{ isset($header) ? $header . ' - ' : '' }}{{ config('app.name', 'BoxPos') }}</title>
     
@@ -335,6 +336,9 @@
     
     <!-- Livewire Scripts -->
     @livewireScripts
+    
+    <!-- Session Keep Alive Script - Temporarily disabled -->
+    {{-- <script src="{{ asset('js/session-keep-alive.js') }}"></script> --}}
     
     @stack('scripts')
 </body>

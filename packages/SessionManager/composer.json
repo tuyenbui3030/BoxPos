@@ -1,0 +1,21 @@
+{
+    "name": "packages/session-manager",
+    "description": "Session management package for BoxPOS",
+    "type": "library",
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\SessionManager\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\SessionManager\\SessionManagerServiceProvider"
+            ]
+        }
+    }
+}

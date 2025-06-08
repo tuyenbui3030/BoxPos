@@ -47,7 +47,11 @@ class Login extends Component
                 $deviceService = new DeviceDetectionService(request());
                 $device = $deviceService->detectAndRecordDevice($user, $user->remember_token);
                 
-                session()->flash('message', "You will be remembered on this device ({$device->device_name}).");
+                // Activate infinite session for remember me users
+                $sessionManager = new \App\Services\SessionManagerService();
+                $sessionManager->setInfiniteSessionForActiveUser();
+                
+                session()->flash('message', "Infinite session activated! Bạn sẽ không bao giờ bị logout trên thiết bị này ({$device->device_name}).");
             }
             
             // Clear any previous failed login attempts

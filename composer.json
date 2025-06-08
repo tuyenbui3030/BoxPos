@@ -31,7 +31,8 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Packages\\Customer\\": "packages/Customer/src/",
-            "Packages\\User\\": "packages/User/src/"
+            "Packages\\User\\": "packages/User/src/",
+            "Packages\\SessionManager\\": "packages/SessionManager/src/"
         }
     },
     "autoload-dev": {

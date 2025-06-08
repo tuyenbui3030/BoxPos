@@ -83,9 +83,9 @@
                                 <div class="text-muted">{{ $device->device_info }}</div>
                             </div>
                             @if($device->is_current_device)
-                                <span class="badge bg-green">Current</span>
+                                <span class="badge bg-green text-white">Current</span>
                             @elseif($device->is_trusted)
-                                <span class="badge bg-blue">Trusted</span>
+                                <span class="badge bg-blue text-white">Trusted</span>
                             @endif
                         </div>
 

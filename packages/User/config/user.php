@@ -71,7 +71,7 @@ return [
         'max_login_attempts' => 5,
         'lockout_duration' => 900, // 15 minutes in seconds
         'remember_duration' => 525600, // 1 year in minutes
-        'session_lifetime' => 120, // 2 hours in minutes
+        'session_lifetime' => 43200, // 30 days in minutes (720 hours)
     ],
 
     /*

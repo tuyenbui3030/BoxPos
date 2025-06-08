@@ -200,15 +200,6 @@
                                 <input id="datepicker-icon-prepend" class="form-control"
                                     placeholder="Select date range" readonly>
                             </div>
-                            @if ($filterLastTransactionFrom || $filterLastTransactionTo)
-                                <div class="form-text text-muted">
-                                    @if ($filterLastTransactionFrom && $filterLastTransactionTo)
-                                        {{ $filterLastTransactionFrom }} to {{ $filterLastTransactionTo }}
-                                    @elseif($filterLastTransactionFrom)
-                                        From: {{ $filterLastTransactionFrom }}
-                                    @endif
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -557,5 +548,5 @@
     <livewire:create-customer />
 
     @push('scripts')
-        <script src="{{ asset('js/customer-management.js') }}"></script>
+        @vite('resources/js/customer-management.js')
     @endpush

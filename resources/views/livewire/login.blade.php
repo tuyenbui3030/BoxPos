@@ -83,7 +83,7 @@
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                             <polyline points="11,12 12,12 12,16 13,16"/>
                         </svg>
-                        You'll stay logged in for 30 days unless you manually log out.
+                        Với "Remember me", bạn sẽ không bao giờ bị logout khi còn hoạt động!
                     </small>
                 </div>
                 
