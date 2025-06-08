@@ -25,10 +25,15 @@ class UserServiceProvider extends ServiceProvider
         // Register aliases for backward compatibility
         $this->app->alias(\Packages\User\Models\User::class, \App\Models\User::class);
         $this->app->alias(\Packages\User\Models\UserDevice::class, \App\Models\UserDevice::class);
+        $this->app->alias(\Packages\User\Services\DeviceDetectionService::class, \App\Services\DeviceDetectionService::class);
         
         // Register services
         $this->app->singleton(UserService::class, function ($app) {
             return new UserService($app->make(UserRepository::class));
+        });
+        
+        $this->app->singleton(\Packages\User\Services\DeviceDetectionService::class, function ($app) {
+            return new \Packages\User\Services\DeviceDetectionService($app->make('request'));
         });
         
         // Register repositories

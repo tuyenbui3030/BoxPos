@@ -40,6 +40,12 @@ packages/User/
   - Profile management
   - Password operations
   - Event dispatching
+- **DeviceDetectionService**: Device detection and management
+  - User agent parsing
+  - Device type detection (mobile, tablet, desktop)
+  - Browser and platform identification
+  - Device recording and tracking
+  - Location information (basic)
 
 ### Repositories
 - **UserRepository**: Data access abstraction
@@ -144,6 +150,31 @@ $exists = $this->userRepository->emailExists('test@example.com');
 
 // Get users with search
 $users = $this->userRepository->search('john', $perPage = 15);
+```
+
+### Device Detection
+
+```php
+use Packages\User\Services\DeviceDetectionService;
+
+// Inject service via dependency injection
+public function __construct(private DeviceDetectionService $deviceService) {}
+
+// Detect and record device for user login
+$device = $this->deviceService->detectAndRecordDevice($user, $rememberToken);
+
+// Get location information
+$locationInfo = $this->deviceService->getLocationInfo();
+
+// Example device information returned:
+// [
+//     'device_name' => 'Windows - Chrome 120',
+//     'device_type' => 'desktop',
+//     'browser' => 'Chrome 120',
+//     'platform' => 'Windows',
+//     'ip_address' => '192.168.1.100',
+//     'is_trusted' => false
+// ]
 ```
 
 ## Configuration

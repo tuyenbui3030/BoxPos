@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Rule;
-use App\Services\DeviceDetectionService;
+use Packages\User\Services\DeviceDetectionService;
 
 class Login extends Component
 {
@@ -44,7 +44,7 @@ class Login extends Component
             
             // Record device information if remember me is enabled
             if ($this->remember) {
-                $deviceService = new DeviceDetectionService(request());
+                $deviceService = app(DeviceDetectionService::class);
                 $device = $deviceService->detectAndRecordDevice($user, $user->remember_token);
                 
                 // Activate infinite session for remember me users

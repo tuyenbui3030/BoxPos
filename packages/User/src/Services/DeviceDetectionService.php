@@ -1,18 +1,44 @@
 <?php
 
-namespace App\Services;
+namespace Packages\User\Services;
 
 use Packages\User\Models\User;
 use Packages\User\Models\UserDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+/**
+ * Device Detection Service
+ * 
+ * Handles device detection and recording for user authentication and session management.
+ * Provides functionality to detect device type, browser, platform and manage user devices.
+ */
 class DeviceDetectionService
 {
-    public function __construct(private Request $request)
+    /**
+     * The request instance
+     *
+     * @var Request
+     */
+    private Request $request;
+
+    /**
+     * Constructor
+     *
+     * @param Request $request
+     */
+    public function __construct(Request $request)
     {
+        $this->request = $request;
     }
 
+    /**
+     * Detect and record device information for a user
+     *
+     * @param User $user
+     * @param string|null $rememberToken
+     * @return UserDevice
+     */
     public function detectAndRecordDevice(User $user, ?string $rememberToken = null): UserDevice
     {
         $deviceInfo = $this->parseUserAgent();
@@ -49,6 +75,11 @@ class DeviceDetectionService
         ]);
     }
 
+    /**
+     * Parse user agent to extract device information
+     *
+     * @return array
+     */
     private function parseUserAgent(): array
     {
         $userAgent = $this->request->userAgent();
@@ -100,6 +131,12 @@ class DeviceDetectionService
         ];
     }
 
+    /**
+     * Generate a human-readable device name
+     *
+     * @param array $deviceInfo
+     * @return string
+     */
     private function generateDeviceName(array $deviceInfo): string
     {
         $parts = [];
@@ -119,6 +156,11 @@ class DeviceDetectionService
         return implode(' - ', $parts);
     }
 
+    /**
+     * Get location information for the current request
+     *
+     * @return array
+     */
     public function getLocationInfo(): array
     {
         // This is a basic implementation. 

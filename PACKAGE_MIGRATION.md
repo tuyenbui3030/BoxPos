@@ -5,27 +5,29 @@
 ### 1. **User Package** (`packages/User/`)
 - ✅ `ManageDevices` - Di chuyển từ `app/Livewire/ManageDevices.php`
 - ✅ `Dashboard` - Di chuyển từ `app/Livewire/Dashboard.php`
+- ✅ `DeviceDetectionService` - Di chuyển từ `app/Services/DeviceDetectionService.php`
 - ✅ Views: `manage-devices.blade.php`, `dashboard.blade.php`
-- ✅ Updated UserServiceProvider để register components
+- ✅ Updated UserServiceProvider để register components và services
 
 ### 2. **SessionManager Package** (`packages/SessionManager/`)
 - ✅ `KeepAliveSession` - Di chuyển từ `app/Http/Middleware/KeepAliveSession.php`
 - ✅ `ExtendSessionOnActivity` - Di chuyển từ `app/Http/Middleware/ExtendSessionOnActivity.php`
 - ✅ Updated SessionManagerServiceProvider để register middleware
 
-### 3. **Theme Package** (`packages/Theme/`) - **MỚI**
+### 3. **Appearance Package** (`packages/Appearance/`) - **RENAMED từ Theme**
 - ✅ `ThemeSwitcher` - Di chuyển từ `app/Livewire/ThemeSwitcher.php`
 - ✅ `HasTheme` trait - Di chuyển từ `app/Traits/HasTheme.php`
 - ✅ `ThemeMiddleware` - Di chuyển từ `app/Http/Middleware/ThemeMiddleware.php`
-- ✅ Created `ThemeServiceProvider`
-- ✅ Created `config/theme.php`
+- ✅ Created `AppearanceServiceProvider` (renamed từ `ThemeServiceProvider`)
+- ✅ Created `config/appearance.php` (renamed từ `config/theme.php`)
 - ✅ Views: `theme-switcher.blade.php`
+- ✅ **RENAMED**: Package đã được đổi tên từ `Theme` thành `Appearance`
 
 ## 🔧 Cấu hình được cập nhật
 
 ### Composer & Autoload
-- ✅ Added Theme package to `composer.json` autoload
-- ✅ Added ThemeServiceProvider to `bootstrap/providers.php`
+- ✅ Added Appearance package to `composer.json` autoload (renamed từ Theme)
+- ✅ Added AppearanceServiceProvider to `bootstrap/providers.php`
 - ✅ Regenerated autoload files
 
 ### Routes & Configuration
@@ -47,18 +49,22 @@ packages/
 │   └── src/Http/Middleware/
 │       ├── KeepAliveSession.php
 │       └── ExtendSessionOnActivity.php
-├── Theme/             # NEW
+├── Appearance/         # RENAMED từ Theme
 │   ├── src/
 │   │   ├── Http/Middleware/ThemeMiddleware.php
 │   │   ├── Livewire/ThemeSwitcher.php
 │   │   ├── Traits/HasTheme.php
-│   │   └── ThemeServiceProvider.php
-│   ├── config/theme.php
+│   │   └── AppearanceServiceProvider.php
+│   ├── config/appearance.php
 │   └── resources/views/livewire/
 └── User/              # Updated
-    └── src/Livewire/
-        ├── ManageDevices.php
-        └── Dashboard.php
+    └── src/
+        ├── Livewire/
+        │   ├── ManageDevices.php
+        │   └── Dashboard.php
+        └── Services/
+            ├── UserService.php
+            └── DeviceDetectionService.php
 ```
 
 ## 🎯 Kết quả
@@ -87,7 +93,7 @@ Sau khi di chuyển, sử dụng middleware aliases:
 'session.keep-alive' => KeepAliveSession::class
 'session.extend' => ExtendSessionOnActivity::class
 
-// Theme package  
+// Appearance package (renamed từ Theme)
 'theme' => ThemeMiddleware::class
 
 // User package
@@ -95,9 +101,29 @@ Sau khi di chuyển, sử dụng middleware aliases:
 // ... other user middlewares
 ```
 
+## 🔄 Package Renaming
+
+### Theme → Appearance (June 2025)
+- ✅ **Renamed package**: `packages/Theme/` → `packages/Appearance/`
+- ✅ **Updated namespace**: `Packages\Theme\` → `Packages\Appearance\`
+- ✅ **Updated service provider**: `ThemeServiceProvider` → `AppearanceServiceProvider`
+- ✅ **Updated config**: `config/theme.php` → `config/appearance.php`
+- ✅ **Updated composer autoload**: `composer.json` và `bootstrap/providers.php`
+- ✅ **Renamed components**: 
+  - `ThemeMiddleware` → `AppearanceMiddleware`
+  - `ThemeSwitcher` → `AppearanceSwitcher`
+  - `HasTheme` → `HasAppearance` (với backward compatibility alias)
+- ✅ **Backward compatibility**: 
+  - Livewire component `theme-switcher` vẫn hoạt động
+  - Middleware alias `theme` vẫn hoạt động
+  - Trait `HasTheme` vẫn hoạt động (alias)
+- ✅ **Cleaned up**: Xóa package Theme cũ và regenerated autoload
+
+**Lý do rename**: Tên `Appearance` phù hợp hơn vì có thể mở rộng cho nhiều tính năng UI/UX khác ngoài theme switching.
+
 ## 📝 Notes
 
-- Tất cả views đã được di chuyển và sử dụng namespace views (như `user::`, `theme::`)
+- Tất cả views đã được di chuyển và sử dụng namespace views (như `user::`, `appearance::`)
 - Livewire components được register với cả short names và full package names
 - Configuration files được publish và có thể customize
 - Packages tuân thủ Laravel package development standards
