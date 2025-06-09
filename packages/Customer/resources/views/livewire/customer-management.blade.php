@@ -550,3 +550,4 @@
     @push('scripts')
         @vite('resources/js/customer-management.js')
     @endpush
+    
