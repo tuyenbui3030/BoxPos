@@ -138,6 +138,13 @@ class CustomerManagement extends Component
         
         // Dispatch event to clear the date picker
         $this->dispatch('clearDatePicker');
+        
+        // Add delay after the action is complete for smoother UX
+        $this->js('
+            setTimeout(() => {
+                // Smooth transition completed
+            }, 300);
+        ');
     }
 
     public function toggleFilters()

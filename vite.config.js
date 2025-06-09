@@ -9,7 +9,10 @@ export default defineConfig({
                 'resources/css/vendors.css',
                 'resources/js/app.js',
                 'resources/js/vendors.js',
-                'resources/js/customer-management.js'
+                // Customer Package Assets
+                'packages/Customer/resources/css/customer-components.css',
+                'packages/Customer/resources/js/constants.js',
+                'packages/Customer/resources/js/alpine-components.js'
             ],
             refresh: true,
         }),

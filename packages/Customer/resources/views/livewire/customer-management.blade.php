@@ -1,8 +1,14 @@
-<div>
+<div x-data="customerManagement()">
 
     <!-- Flash Messages -->
     @if (session()->has('success'))
-        <div class="alert alert-success alert-dismissible mb-3" role="alert">
+        <div class="alert alert-success alert-dismissible mb-3" role="alert" x-data="{ show: true }" x-show="show"
+            x-init="setTimeout(() => show = false, 5000)" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2">
             <div class="d-flex">
                 <div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
@@ -14,12 +20,18 @@
                 </div>
                 <div>{{ session('success') }}</div>
             </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+            <a class="btn-close" @click="show = false" aria-label="close"></a>
         </div>
     @endif
 
     @if (session()->has('info'))
-        <div class="alert alert-info alert-dismissible mb-3" role="alert">
+        <div class="alert alert-info alert-dismissible mb-3" role="alert" x-data="{ show: true }" x-show="show"
+            x-init="setTimeout(() => show = false, 5000)" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2">
             <div class="d-flex">
                 <div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24"
@@ -33,7 +45,7 @@
                 </div>
                 <div>{{ session('info') }}</div>
             </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+            <a class="btn-close" @click="show = false" aria-label="close"></a>
         </div>
     @endif
 
@@ -41,20 +53,40 @@
 
         <!-- Filter Sidebar -->
         @if ($showFilters)
-            <div class="col-lg-3">
+            <div class="col-lg-3" x-show="true" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform -translate-x-4"
+                x-transition:enter-end="opacity-100 transform translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 transform translate-x-0"
+                x-transition:leave-end="opacity-0 transform -translate-x-4">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Filters</h3>
-                        <div class="card-actions">
-                            <button wire:click="clearFilters" class="btn btn-outline-primary btn-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24"
-                                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                                </svg>
-                                Clear
+                        <div class="card-actions" x-data="{ isClearing: false }">
+                            <button 
+                                x-on:click="isClearing = true; setTimeout(() => { $wire.clearFilters().finally(() => isClearing = false); $dispatch('clear-date-picker'); }, 500)"
+                                class="btn btn-outline-primary btn-sm" 
+                                x-bind:disabled="isClearing">
+                                <span x-show="!isClearing">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                                    </svg>
+                                    Clear
+                                </span>
+                                <span x-show="isClearing" x-cloak>
+                                    <svg class="animate-spin icon icon-sm" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    Clearing...
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -64,9 +96,9 @@
                             <label class="form-label">Search</label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
                                         <path d="M21 21l-6 -6" />
@@ -80,7 +112,7 @@
                         <!-- Customer Group Filter -->
                         <div class="mb-3">
                             <label class="form-label">Customer Group</label>
-                            <select wire:model.live="filterCustomerGroup" class="form-select">
+                            <select wire:model.lazy="filterCustomerGroup" class="form-select">
                                 <option value="">All Groups</option>
                                 @foreach ($customerGroups as $group)
                                     <option value="{{ $group }}">{{ $group }}</option>
@@ -93,7 +125,7 @@
                             <label class="form-label">Customer Type</label>
                             <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
                                 <label class="form-selectgroup-item flex-fill">
-                                    <input wire:model.live="filterCustomerType" type="radio" name="customerType"
+                                    <input wire:model.lazy="filterCustomerType" type="radio" name="customerType"
                                         value="all" class="form-selectgroup-input" checked>
                                     <div class="form-selectgroup-label d-flex align-items-center p-3">
                                         <div class="me-3">
@@ -105,7 +137,7 @@
                                     </div>
                                 </label>
                                 <label class="form-selectgroup-item flex-fill">
-                                    <input wire:model.live="filterCustomerType" type="radio" name="customerType"
+                                    <input wire:model.lazy="filterCustomerType" type="radio" name="customerType"
                                         value="individual" class="form-selectgroup-input">
                                     <div class="form-selectgroup-label d-flex align-items-center p-3">
                                         <div class="me-3">
@@ -130,7 +162,7 @@
                                     </div>
                                 </label>
                                 <label class="form-selectgroup-item flex-fill">
-                                    <input wire:model.live="filterCustomerType" type="radio" name="customerType"
+                                    <input wire:model.lazy="filterCustomerType" type="radio" name="customerType"
                                         value="company" class="form-selectgroup-input">
                                     <div class="form-selectgroup-label d-flex align-items-center p-3">
                                         <div class="me-3">
@@ -163,7 +195,7 @@
                         <!-- Gender Filter -->
                         <div class="mb-3">
                             <label class="form-label">Gender</label>
-                            <select wire:model.live="filterGender" class="form-select">
+                            <select wire:model.lazy="filterGender" class="form-select">
                                 <option value="all">All Genders</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
@@ -182,7 +214,8 @@
                         </div>
 
                         <!-- Last Transaction Date Range -->
-                        <div class="mb-3">
+                        <div class="mb-3" x-data="datePicker()" x-init="init()"
+                            x-on:clear-date-picker.window="clearDatePicker()">
                             <label class="form-label">Last Transaction</label>
                             <div class="input-icon mb-2">
                                 <span class="input-icon-addon">
@@ -197,8 +230,8 @@
                                         <path d="M4 11h16" />
                                     </svg>
                                 </span>
-                                <input id="datepicker-icon-prepend" class="form-control"
-                                    placeholder="Select date range" readonly>
+                                <input x-ref="datepicker" class="form-control" placeholder="Select date range"
+                                    readonly>
                             </div>
                         </div>
                     </div>
@@ -211,7 +244,19 @@
             <!-- Customers Table -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Customers</h3>
+                    <h3 class="card-title">
+                        Customers
+                        <!-- Selection Summary -->
+                        <span x-show="hasSelection()" x-cloak x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95" class="badge bg-primary ms-2 text-white"
+                            style="display: none;">
+                            <span x-text="getSelectedCount()"></span> selected
+                        </span>
+                    </h3>
                     <div class="card-actions">
                         <div class="d-flex">
                             @if (!$showFilters)
@@ -231,103 +276,116 @@
                                 </div>
                             @endif
                             <div class="btn-list">
-                                <div class="btn-list">
-                                    <button wire:click="toggleFilters" class="btn btn-outline-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v5l-6 2v-7l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z" />
-                                        </svg>
-                                        {{ $showFilters ? 'Hide Filters' : 'Show Filters' }}
-                                    </button>
-                                    <button wire:click="importCustomers" class="btn btn-outline-secondary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                            <path
-                                                d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                            <path d="M12 11v6" />
-                                            <path d="M9 14l3 -3l3 3" />
-                                        </svg>
-                                        Import
-                                    </button>
-                                    <button wire:click="$dispatch('open-create-customer-modal')"
-                                        class="btn btn-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 5l0 14" />
-                                            <path d="M5 12l14 0" />
-                                        </svg>
-                                        Add Customer
-                                    </button>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <button wire:click="toggleFilters" class="btn btn-outline-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v5l-6 2v-7l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z" />
+                                    </svg>
+                                    {{ $showFilters ? 'Hide Filters' : 'Show Filters' }}
+                                </button>
+                                <button wire:click="importCustomers" class="btn btn-outline-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path
+                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        <path d="M12 11v6" />
+                                        <path d="M9 14l3 -3l3 3" />
+                                    </svg>
+                                    Import
+                                </button>
+                                <button wire:click="$dispatch('open-create-customer-modal')" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 5l0 14" />
+                                        <path d="M5 12l14 0" />
+                                    </svg>
+                                    Add Customer
+                                </button>
+                                <button @click="deleteSelected()" class="btn btn-danger" x-show="hasSelection()"
+                                    x-cloak>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 7l16 0" />
+                                        <path d="M10 11l0 6" />
+                                        <path d="M14 11l0 6" />
+                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                    </svg>
+                                    Delete Selected
+                                </button>
+                                <div class="dropdown" x-data="{ open: false }">
+                                    <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                                        @click="open = !open" :aria-expanded="open">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24"
                                             height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none" stroke-linecap="round"
                                             stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 3l0 6l4 -4l-4 -4" />
-                                            <path d="M12 21l0 -6l-4 4l4 4" />
-                                            <path d="M3 12l6 0l-4 -4l-4 4" />
-                                            <path d="M21 12l-6 0l4 -4l4 4" />
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                            <path d="M12 17v-6" />
+                                            <path d="M9.5 14.5l2.5 2.5l2.5 -2.5" />
                                         </svg>
                                         Export
                                     </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon"
-                                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                <path
-                                                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                                <path d="M9 9l1 0" />
-                                                <path d="M9 13l6 0" />
-                                                <path d="M9 17l6 0" />
-                                            </svg>
-                                            Export as CSV
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon"
-                                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                <path
-                                                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                                <path d="M9 9l1 0" />
-                                                <path d="M9 13l6 0" />
-                                                <path d="M9 17l6 0" />
-                                            </svg>
-                                            Export as Excel
-                                        </a>
-                                    </div>
+                                    <ul class="dropdown-menu" x-show="open" x-transition @click.away="open = false"
+                                        :class="{ 'show': open }">
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="icon dropdown-item-icon" width="24" height="24"
+                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                                                    <path d="M7 16.5a1.5 1.5 0 0 0 -3 0v3a1.5 1.5 0 0 0 3 0" />
+                                                    <path d="M10 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75" />
+                                                    <path d="M16 15l2 6l2 -6" />
+                                                </svg>
+                                                Export as CSV
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="icon dropdown-item-icon" width="24" height="24"
+                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                                    <path d="M8 11h8v7h-8z" />
+                                                    <path d="M8 15h8" />
+                                                    <path d="M11 11v7" />
+                                                </svg>
+                                                Export as Excel
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table">
                         <thead>
                             <tr>
                                 <th class="w-1">
                                     <input class="form-check-input m-0 align-middle" type="checkbox"
-                                        aria-label="Select all customers">
+                                        x-model="selectAll" @change="toggleAll()" aria-label="Select all customers">
                                 </th>
                                 <th>Customer</th>
                                 <th>Contact</th>
@@ -341,7 +399,9 @@
                                 <tr>
                                     <td>
                                         <input class="form-check-input m-0 align-middle" type="checkbox"
-                                            aria-label="Select customer">
+                                            :checked="selectedCustomers.includes('{{ $customer->id }}')"
+                                            @change="toggleCustomer('{{ $customer->id }}')"
+                                            data-customer-id="{{ $customer->id }}" aria-label="Select customer">
                                     </td>
                                     <td>
                                         <div class="d-flex py-1 align-items-center">
@@ -547,7 +607,5 @@
     <!-- Create Customer Modal -->
     <livewire:create-customer />
 
-    @push('scripts')
-        @vite('resources/js/customer-management.js')
-    @endpush
-    
+    <!-- Customer Management Scripts and Styles -->
+    @vite(['packages/Customer/resources/css/customer-components.css', 'packages/Customer/resources/js/constants.js', 'packages/Customer/resources/js/alpine-components.js'])

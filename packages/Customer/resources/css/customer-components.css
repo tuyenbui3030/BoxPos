@@ -1,0 +1,111 @@
+/**
+ * Customer Package Styles
+ * 
+ * This file contains Alpine.js related styles and animations
+ * for the Customer package components.
+ */
+
+/* Alpine.js Animations */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Alpine.js cloak - hides elements before Alpine.js initializes */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* Selection transition animations */
+.selection-badge {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Bulk actions bar animations */
+.bulk-actions-bar {
+    border-top: 1px solid var(--tblr-border-color);
+    background-color: var(--tblr-bg-surface-secondary);
+}
+
+/* Filter sidebar animations */
+.filter-sidebar {
+    transition: all 0.3s ease-out;
+}
+
+/* Loading button states */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin: -0.5rem 0 0 -0.5rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Date picker styling */
+.date-picker-container {
+    position: relative;
+}
+
+.date-picker-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Customer selection styles */
+.customer-selected {
+    background-color: var(--tblr-primary-lt) !important;
+}
+
+.customer-row {
+    transition: background-color 0.15s ease-in-out;
+}
+
+.customer-row:hover {
+    background-color: var(--tblr-bg-surface-secondary);
+}
+
+/* Advanced form styles */
+.advanced-fields {
+    border-top: 1px solid var(--tblr-border-color);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .bulk-actions-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .bulk-actions-bar .btn-list {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .bulk-actions-bar {
+        background-color: var(--tblr-dark-bg-surface-secondary, #1a1a1a);
+    }
+    
+    .customer-selected {
+        background-color: var(--tblr-dark-primary-lt, #2c3e50) !important;
+    }
+}
