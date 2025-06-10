@@ -106,42 +106,32 @@ class CustomerRepository
      */
     public function search(array $criteria): Collection
     {
-        $query = $this->model->query();
+        return $this->buildSearchQuery($criteria)->get();
+    }
 
-        // Use Builder Pattern methods
-        if (!empty($criteria['search'])) {
-            $query->search($criteria['search']);
-        }
+    /**
+     * Search customers with pagination using Builder Pattern
+     *
+     * @param array $criteria
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
+    public function searchWithPagination(array $criteria, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->buildSearchQuery($criteria)->paginate($perPage);
+    }
 
-        if (!empty($criteria['type'])) {
-            $query->byType($criteria['type']);
-        }
-
-        if (!empty($criteria['group'])) {
-            $query->byGroup($criteria['group']);
-        }
-
-        if (!empty($criteria['gender'])) {
-            $query->byGender($criteria['gender']);
-        }
-
-        if (!empty($criteria['has_debt'])) {
-            $query->withDebt();
-        }
-
-        if (!empty($criteria['min_sales'])) {
-            $query->salesAbove($criteria['min_sales']);
-        }
-
-        if (!empty($criteria['max_debt'])) {
-            $query->debtBelow($criteria['max_debt']);
-        }
-
-        if (!empty($criteria['active_days'])) {
-            $query->activeInLastDays($criteria['active_days']);
-        }
-
-        return $query->orderByName()->get();
+    /**
+     * Build search query using Builder Pattern
+     *
+     * @param array $criteria
+     * @return CustomerBuilder
+     */
+    private function buildSearchQuery(array $criteria)
+    {
+        return $this->model->query()
+            ->applyCriteria($criteria)
+            ->orderByName();
     }
 
     /**
@@ -258,26 +248,11 @@ class CustomerRepository
      */
     public function getCustomersByGroup(string $group, array $filters = []): Collection
     {
-        $query = $this->model->query()->byGroup($group);
-
-        // Apply additional filters
-        if (!empty($filters['gender'])) {
-            $query->byGender($filters['gender']);
-        }
-
-        if (!empty($filters['min_sales'])) {
-            $query->salesAbove($filters['min_sales']);
-        }
-
-        if (!empty($filters['max_debt'])) {
-            $query->debtBelow($filters['max_debt']);
-        }
-
-        if (!empty($filters['active_days'])) {
-            $query->activeInLastDays($filters['active_days']);
-        }
-
-        return $query->orderByName()->get();
+        return $this->model->query()
+            ->byGroup($group)
+            ->applyFilters($filters)
+            ->orderByName()
+            ->get();
     }
 
     /**
@@ -289,5 +264,34 @@ class CustomerRepository
     public function getByStatus(string $status): Collection
     {
         return $this->model->where('status', $status)->get();
+    }
+
+    /**
+     * Get customers for specific business scenario
+     *
+     * @param string $scenario
+     * @param array $options
+     * @return Collection
+     */
+    public function getCustomersForScenario(string $scenario, array $options = []): Collection
+    {
+        return $this->model->query()
+            ->forScenario($scenario)
+            ->applyFilters($options)
+            ->get();
+    }
+
+    /**
+     * Get dashboard analytics data
+     *
+     * @param array $options
+     * @return Collection
+     */
+    public function getDashboardData(array $options = []): Collection
+    {
+        return $this->model->query()
+            ->forDashboard($options)
+            ->orderByHighestSales()
+            ->get();
     }
 }

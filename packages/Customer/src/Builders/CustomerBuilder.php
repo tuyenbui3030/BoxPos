@@ -231,4 +231,109 @@ class CustomerBuilder extends Builder
     {
         return $this->debtAbove($minDebt)->inactiveInLastDays($inactiveDays);
     }
+
+    /**
+     * Apply multiple filters from criteria array
+     *
+     * @param array $criteria
+     * @return self
+     */
+    public function applyCriteria(array $criteria): self
+    {
+        return $this
+            ->when(!empty($criteria['search']), fn($q) => $q->search($criteria['search']))
+            ->when(!empty($criteria['type']), fn($q) => $q->byType($criteria['type']))
+            ->when(!empty($criteria['group']), fn($q) => $q->byGroup($criteria['group']))
+            ->when(!empty($criteria['gender']), fn($q) => $q->byGender($criteria['gender']))
+            ->when(!empty($criteria['has_debt']), fn($q) => $q->withDebt())
+            ->when(!empty($criteria['min_sales']), fn($q) => $q->salesAbove($criteria['min_sales']))
+            ->when(!empty($criteria['max_debt']), fn($q) => $q->debtBelow($criteria['max_debt']))
+            ->when(!empty($criteria['active_days']), fn($q) => $q->activeInLastDays($criteria['active_days']));
+    }
+
+    /**
+     * Apply dynamic filters from array
+     *
+     * @param array $filters
+     * @return self
+     */
+    public function applyFilters(array $filters): self
+    {
+        foreach ($filters as $filter => $value) {
+            if (empty($value)) continue;
+
+            match ($filter) {
+                'search' => $this->search($value),
+                'type' => $this->byType($value),
+                'group' => $this->byGroup($value),
+                'gender' => $this->byGender($value),
+                'has_debt' => $value ? $this->withDebt() : $this,
+                'min_sales' => $this->salesAbove($value),
+                'max_debt' => $this->debtBelow($value),
+                'active_days' => $this->activeInLastDays($value),
+                'sales_range' => is_array($value) && count($value) === 2 
+                    ? $this->salesBetween($value[0], $value[1]) 
+                    : $this,
+                'debt_range' => is_array($value) && count($value) === 2 
+                    ? $this->where('current_debt', '>=', $value[0])->where('current_debt', '<=', $value[1])
+                    : $this,
+                default => $this,
+            };
+        }
+
+        return $this;
+    }
+
+    /**
+     * Create a complex query for dashboard analytics
+     *
+     * @param array $options
+     * @return self
+     */
+    public function forDashboard(array $options = []): self
+    {
+        $query = $this->withCreator();
+
+        // Apply default analytics filters
+        if ($options['include_inactive'] ?? false) {
+            // Include all customers
+        } else {
+            $query->activeInLastDays($options['active_days'] ?? 90);
+        }
+
+        if ($options['vip_only'] ?? false) {
+            $query->vipCustomers(
+                $options['min_sales'] ?? 10000,
+                $options['max_debt'] ?? 1000
+            );
+        }
+
+        if ($options['at_risk_only'] ?? false) {
+            $query->atRiskCustomers(
+                $options['min_debt'] ?? 5000,
+                $options['inactive_days'] ?? 30
+            );
+        }
+
+        return $query;
+    }
+
+    /**
+     * Quick filters for common business scenarios
+     *
+     * @param string $scenario
+     * @return self
+     */
+    public function forScenario(string $scenario): self
+    {
+        return match ($scenario) {
+            'marketing_campaign' => $this->activeInLastDays(60)->salesAbove(5000)->withCreator(),
+            'debt_collection' => $this->withDebt()->orderByHighestDebt(),
+            'birthday_promotion' => $this->birthdayThisMonth()->orderByName(),
+            'loyalty_program' => $this->salesAbove(20000)->activeInLastDays(30),
+            'win_back_campaign' => $this->inactiveInLastDays(90)->salesAbove(10000),
+            'new_customer_welcome' => $this->where('created_at', '>=', now()->subDays(7)),
+            default => $this,
+        };
+    }
 }

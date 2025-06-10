@@ -121,7 +121,7 @@ class CustomerService
     }
 
     /**
-     * Search customers by criteria using Builder Pattern
+     * Search customers by criteria using Repository
      *
      * @param string $search Search term
      * @param array $filters Additional filters
@@ -133,44 +133,9 @@ class CustomerService
         // Prepare criteria for repository
         $criteria = array_merge($filters, ['search' => $search]);
         
-        // Use repository method but add pagination
-        $query = Customer::query();
-
-        // Apply search if provided
-        if (!empty($search)) {
-            $query->search($search);
-        }
-
-        // Apply filters dynamically
-        if (!empty($filters['type'])) {
-            $query->byType($filters['type']);
-        }
-
-        if (!empty($filters['group'])) {
-            $query->byGroup($filters['group']);
-        }
-
-        if (!empty($filters['gender'])) {
-            $query->byGender($filters['gender']);
-        }
-
-        if (isset($filters['has_debt']) && $filters['has_debt']) {
-            $query->withDebt();
-        }
-
-        if (!empty($filters['min_sales'])) {
-            $query->salesAbove($filters['min_sales']);
-        }
-
-        if (!empty($filters['max_debt'])) {
-            $query->debtBelow($filters['max_debt']);
-        }
-
-        if (!empty($filters['active_days'])) {
-            $query->activeInLastDays($filters['active_days']);
-        }
-
-        return $query->orderByName()->paginate($perPage);
+        // For pagination, we need to handle it differently
+        // Repository handles the Builder Pattern, Service handles pagination
+        return $this->customerRepository->searchWithPagination($criteria, $perPage);
     }
 
     /**

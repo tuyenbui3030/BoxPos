@@ -178,7 +178,148 @@ class CustomerRepository
 }
 ```
 
+### **Repository Anti-Patterns & Solutions**
+
+**❌ Anti-Pattern: Duplicate Query Logic**
+```php
+// Bad - Duplicate filtering logic
+public function search(array $criteria): Collection
+{
+    $query = $this->model->query();
+    // 10 if statements...
+    return $query->get();
+}
+
+public function searchWithPagination(array $criteria, int $perPage): LengthAwarePaginator
+{
+    $query = $this->model->query();
+    // Same 10 if statements duplicated...
+    return $query->paginate($perPage);
+}
+```
+
+**✅ Solution: Extract Query Building**
+```php
+// Good - Reusable query building
+public function search(array $criteria): Collection
+{
+    return $this->buildSearchQuery($criteria)->get();
+}
+
+public function searchWithPagination(array $criteria, int $perPage): LengthAwarePaginator
+{
+    return $this->buildSearchQuery($criteria)->paginate($perPage);
+}
+
+private function buildSearchQuery(array $criteria)
+{
+    return $this->model->query()
+        ->applyCriteria($criteria)
+        ->orderByName();
+}
+```
+
+**❌ Anti-Pattern: Repository with Business Logic**
+```php
+// Bad - Business logic in repository
+public function getVipCustomers(): Collection
+{
+    $customers = $this->model->where('total_sales', '>', 10000)->get();
+    
+    // Business logic doesn't belong here
+    foreach ($customers as $customer) {
+        $customer->sendWelcomeEmail();
+        $customer->assignLoyaltyPoints(100);
+    }
+    
+    return $customers;
+}
+```
+
+**✅ Solution: Keep Repository for Data Access Only**
+```php
+// Good - Repository for data access only
+public function getVipCustomers(float $minSales, float $maxDebt): Collection
+{
+    return $this->model->query()
+        ->vipCustomers($minSales, $maxDebt)
+        ->withCreator()
+        ->orderByHighestSales()
+        ->get();
+}
+
+// Business logic belongs in Service
+// CustomerService::processVipCustomers() handles email and points
+```
+
 ## Builder Pattern
+
+### **⚠️ CRITICAL: Where to Use Builder Pattern**
+
+**Builder Pattern should ONLY be called in:**
+- ✅ **Repositories** - Primary location for Builder usage
+- ✅ **Livewire Components** - For UI filtering and direct queries
+- ✅ **Direct Model Queries** - In simple cases (not recommended)
+
+**Builder Pattern should NEVER be called in:**
+- ❌ **Services** - Services should only call Repository methods
+- ❌ **Controllers** - Controllers should only call Service methods
+
+### **Correct Flow:**
+```
+Controller → Service → Repository → Builder → Model → Database
+```
+
+### **Example:**
+
+```php
+// ❌ WRONG - Service using Builder directly
+class CustomerService 
+{
+    public function getVipCustomers()
+    {
+        return Customer::query()  // ❌ Don't do this
+            ->vipCustomers()
+            ->get();
+    }
+}
+
+// ✅ CORRECT - Service calls Repository
+class CustomerService 
+{
+    public function getVipCustomers(float $minSales, float $maxDebt): Collection
+    {
+        return $this->customerRepository->getVipCustomers($minSales, $maxDebt);
+    }
+}
+
+// ✅ CORRECT - Repository uses Builder
+class CustomerRepository
+{
+    public function getVipCustomers(float $minSales, float $maxDebt): Collection
+    {
+        return $this->model->query()  // ✅ Builder called here
+            ->vipCustomers($minSales, $maxDebt)
+            ->withCreator()
+            ->get();
+    }
+}
+```
+
+### **Livewire Exception:**
+```php
+// ✅ EXCEPTION - Livewire can use Builder directly
+class CustomerManagement extends Component
+{
+    public function getCustomersProperty()
+    {
+        return Customer::query()  // ✅ OK for Livewire
+            ->search($this->search)
+            ->byType($this->filterType)
+            ->paginate(15);
+    }
+}
+```
 
 ### Implementation Rules
 
@@ -186,6 +327,118 @@ class CustomerRepository
 2. **Method Chaining** - All methods should return `self` for chaining
 3. **Descriptive Names** - Method names should clearly describe their purpose
 4. **Reusable Logic** - Create small, composable methods
+5. **Avoid Multiple If Statements** - Use fluent methods instead of conditional chains
+
+### **⚠️ ANTI-PATTERN: Too Many If Statements**
+
+**❌ Bad - Multiple if statements (code smell):**
+```php
+// Repository with too many if statements
+public function search(array $criteria): Collection
+{
+    $query = $this->model->query();
+    
+    if (!empty($criteria['search'])) {
+        $query->search($criteria['search']);
+    }
+    if (!empty($criteria['type'])) {
+        $query->byType($criteria['type']);
+    }
+    if (!empty($criteria['group'])) {
+        $query->byGroup($criteria['group']);
+    }
+    if (!empty($criteria['gender'])) {
+        $query->byGender($criteria['gender']);
+    }
+    // ... 8 more if statements (code duplication)
+    
+    return $query->get();
+}
+```
+
+**✅ Good - Fluent Builder Pattern:**
+```php
+// Builder with criteria application method
+public function applyCriteria(array $criteria): self
+{
+    return $this
+        ->when(!empty($criteria['search']), fn($q) => $q->search($criteria['search']))
+        ->when(!empty($criteria['type']), fn($q) => $q->byType($criteria['type']))
+        ->when(!empty($criteria['group']), fn($q) => $q->byGroup($criteria['group']))
+        ->when(!empty($criteria['gender']), fn($q) => $q->byGender($criteria['gender']))
+        ->when(!empty($criteria['has_debt']), fn($q) => $q->withDebt())
+        ->when(!empty($criteria['min_sales']), fn($q) => $q->salesAbove($criteria['min_sales']))
+        ->when(!empty($criteria['max_debt']), fn($q) => $q->debtBelow($criteria['max_debt']))
+        ->when(!empty($criteria['active_days']), fn($q) => $q->activeInLastDays($criteria['active_days']));
+}
+
+// Repository using Builder method
+public function search(array $criteria): Collection
+{
+    return $this->model->query()
+        ->applyCriteria($criteria)
+        ->orderByName()
+        ->get();
+}
+```
+
+### **Business Scenario Methods**
+
+Create predefined methods for common business scenarios:
+
+```php
+// Builder with business scenarios
+public function forScenario(string $scenario): self
+{
+    return match ($scenario) {
+        'marketing_campaign' => $this->activeInLastDays(60)->salesAbove(5000),
+        'debt_collection' => $this->withDebt()->orderByHighestDebt(),
+        'birthday_promotion' => $this->birthdayThisMonth()->orderByName(),
+        'loyalty_program' => $this->salesAbove(20000)->activeInLastDays(30),
+        'win_back_campaign' => $this->inactiveInLastDays(90)->salesAbove(10000),
+        default => $this,
+    };
+}
+
+// Usage in Repository
+public function getCustomersForScenario(string $scenario): Collection
+{
+    return $this->model->query()
+        ->forScenario($scenario)
+        ->get();
+}
+```
+
+### **Dynamic Filter Application**
+
+For handling dynamic filters without repetitive code:
+
+```php
+// Builder with dynamic filter application
+public function applyFilters(array $filters): self
+{
+    foreach ($filters as $filter => $value) {
+        if (empty($value)) continue;
+
+        match ($filter) {
+            'search' => $this->search($value),
+            'type' => $this->byType($value),
+            'group' => $this->byGroup($value),
+            'gender' => $this->byGender($value),
+            'has_debt' => $value ? $this->withDebt() : $this,
+            'min_sales' => $this->salesAbove($value),
+            'max_debt' => $this->debtBelow($value),
+            'active_days' => $this->activeInLastDays($value),
+            'sales_range' => is_array($value) && count($value) === 2 
+                ? $this->salesBetween($value[0], $value[1]) 
+                : $this,
+            default => $this,
+        };
+    }
+
+    return $this;
+}
+```
 
 ### Builder Structure
 
@@ -522,6 +775,11 @@ packages/
 8. Handle exceptions gracefully
 9. Follow PSR standards
 10. Use meaningful variable and method names
+11. **Use `when()` instead of multiple `if` statements**
+12. **Create reusable Builder methods for common scenarios**
+13. **Extract duplicate query logic into private methods**
+14. **Use business scenario methods (`forScenario()`)**
+15. **Apply filters dynamically with `applyFilters()`**
 
 ### DON'Ts ❌
 
@@ -535,6 +793,44 @@ packages/
 8. Don't ignore code quality tools (PHPStan, Pint)
 9. Don't hardcode configuration values
 10. Don't use global state
+11. **Don't write multiple `if` statements for filtering**
+12. **Don't duplicate query building logic**
+13. **Don't mix data access with business logic**
+14. **Don't create overly complex single methods**
+15. **Don't ignore the Builder Pattern for complex queries**
+
+## Builder Pattern Best Practices
+
+### **Code Smell Indicators:**
+
+1. **Multiple consecutive `if` statements** - Use `when()` or `applyCriteria()`
+2. **Duplicate query logic** - Extract to private methods
+3. **Long parameter lists** - Use arrays or DTOs
+4. **Complex conditional logic** - Use `match()` or scenario methods
+5. **Mixed concerns** - Separate data access from business logic
+
+### **Refactoring Guidelines:**
+
+```php
+// 🔄 REFACTOR THIS:
+if ($criteria['search']) $query->search($criteria['search']);
+if ($criteria['type']) $query->byType($criteria['type']);
+if ($criteria['group']) $query->byGroup($criteria['group']);
+// ... 8 more if statements
+
+// 🎯 TO THIS:
+$query->applyCriteria($criteria);
+
+// 🔄 REFACTOR THIS:
+public function getMarketingCustomers() { /* complex logic */ }
+public function getDebtCollectionCustomers() { /* similar logic */ }
+public function getBirthdayCustomers() { /* similar logic */ }
+
+// 🎯 TO THIS:
+public function getCustomersForScenario(string $scenario) {
+    return $this->model->query()->forScenario($scenario)->get();
+}
+```
 
 ## Conclusion
 
@@ -544,5 +840,47 @@ Following these coding rules ensures:
 - **Scalable Design** - Can grow with business requirements
 - **Team Consistency** - All developers follow same patterns
 - **Quality Assurance** - High code quality and reliability
+
+### **Code Quality Metrics**
+
+Monitor these metrics to ensure code quality:
+
+1. **Cyclomatic Complexity** - Keep methods under 10 complexity points
+2. **Method Length** - Maximum 20 lines per method
+3. **Class Length** - Maximum 200 lines per class
+4. **Parameter Count** - Maximum 4 parameters per method
+5. **If Statement Count** - Maximum 3 consecutive if statements
+6. **Duplication** - Zero tolerance for duplicate code blocks
+7. **Test Coverage** - Minimum 80% code coverage
+8. **Documentation** - 100% public method documentation
+
+### **Tools for Quality Assurance**
+
+```bash
+# Code style and formatting
+./vendor/bin/pint
+
+# Static analysis
+./vendor/bin/phpstan analyse
+
+# Testing
+./vendor/bin/phpunit
+
+# Coverage report
+./vendor/bin/phpunit --coverage-html coverage
+```
+
+### **Builder Pattern Checklist**
+
+Before committing, ensure your Builder Pattern implementation:
+
+- ✅ Uses fluent interface with method chaining
+- ✅ Avoids multiple consecutive if statements
+- ✅ Has reusable criteria application methods
+- ✅ Includes business scenario methods
+- ✅ Separates data access from business logic
+- ✅ Has proper type hints and documentation
+- ✅ Follows single responsibility principle
+- ✅ Is covered by unit tests
 
 Remember: **Consistency is key**. It's better to follow these rules consistently than to have perfect code in some places and inconsistent code in others.
