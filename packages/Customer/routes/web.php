@@ -27,6 +27,13 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
     Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('edit');
     Route::put('/{customer}', [CustomerController::class, 'update'])->name('update');
     Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('destroy');
+    
+    // Builder Pattern endpoints
+    Route::get('/vip', [CustomerController::class, 'vipCustomers'])->name('vip');
+    Route::get('/at-risk', [CustomerController::class, 'atRiskCustomers'])->name('at-risk');
+    Route::get('/birthdays', [CustomerController::class, 'upcomingBirthdays'])->name('birthdays');
+    Route::get('/top', [CustomerController::class, 'topCustomers'])->name('top');
+    Route::get('/group/{group}', [CustomerController::class, 'customersByGroup'])->name('by-group');
 });
 
 // API routes for Customer package
@@ -36,4 +43,11 @@ Route::middleware(['auth:sanctum'])->prefix('api/customers')->name('api.customer
     Route::get('/{customer}', [CustomerController::class, 'apiShow'])->name('show');
     Route::put('/{customer}', [CustomerController::class, 'apiUpdate'])->name('update');
     Route::delete('/{customer}', [CustomerController::class, 'apiDestroy'])->name('destroy');
+    
+    // Builder Pattern API endpoints
+    Route::get('/vip', [CustomerController::class, 'vipCustomers'])->name('vip');
+    Route::get('/at-risk', [CustomerController::class, 'atRiskCustomers'])->name('at-risk');
+    Route::get('/birthdays', [CustomerController::class, 'upcomingBirthdays'])->name('birthdays');
+    Route::get('/top', [CustomerController::class, 'topCustomers'])->name('top');
+    Route::get('/group/{group}', [CustomerController::class, 'customersByGroup'])->name('by-group');
 });

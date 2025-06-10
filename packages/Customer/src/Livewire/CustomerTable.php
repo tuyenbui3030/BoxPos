@@ -31,7 +31,9 @@ final class CustomerTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Customer::query();
+        return Customer::query()
+            ->withCreator()
+            ->orderByName();
     }
 
     public function relationSearch(): array

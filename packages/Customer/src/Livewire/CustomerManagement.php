@@ -173,17 +173,21 @@ class CustomerManagement extends Component
     public function getCustomersProperty()
     {
         $query = Customer::query()
-            ->with('creator')
+            ->withCreator()
             ->when($this->search, fn($query) => $query->search($this->search))
             ->when($this->filterCustomerGroup, fn($query) => $query->byGroup($this->filterCustomerGroup))
             ->when($this->filterCustomerType !== 'all', fn($query) => $query->byType($this->filterCustomerType))
             ->when($this->filterGender !== 'all', fn($query) => $query->byGender($this->filterGender))
-            ->when($this->filterLastTransactionFrom && $this->filterLastTransactionTo, fn($query) => $query->lastTransactionBetween($this->filterLastTransactionFrom, $this->filterLastTransactionTo))
-            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo !== '', fn($query) => $query->salesBetween($this->filterSalesFrom, $this->filterSalesTo))
-            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo === '', fn($query) => $query->where('total_sales', '>=', $this->filterSalesFrom))
-            ->when($this->filterSalesFrom === '' && $this->filterSalesTo !== '', fn($query) => $query->where('total_sales', '<=', $this->filterSalesTo))
+            ->when($this->filterLastTransactionFrom && $this->filterLastTransactionTo, 
+                fn($query) => $query->lastTransactionBetween($this->filterLastTransactionFrom, $this->filterLastTransactionTo))
+            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo !== '', 
+                fn($query) => $query->salesBetween($this->filterSalesFrom, $this->filterSalesTo))
+            ->when($this->filterSalesFrom !== '' && $this->filterSalesTo === '', 
+                fn($query) => $query->salesAbove($this->filterSalesFrom))
+            ->when($this->filterSalesFrom === '' && $this->filterSalesTo !== '', 
+                fn($query) => $query->salesBelow($this->filterSalesTo))
             ->when($this->filterOnlyWithDebt, fn($query) => $query->withDebt())
-            ->orderBy('created_at', 'desc');
+            ->orderByName();
 
         return $query->paginate($this->perPage);
     }

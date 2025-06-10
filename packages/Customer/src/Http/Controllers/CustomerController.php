@@ -25,11 +25,21 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         try {
-            $customers = $this->customerService->getAllCustomers([
-                'per_page' => $request->get('per_page', 15),
-                'search' => $request->get('search'),
-                'status' => $request->get('status'),
-            ]);
+            // Use Builder Pattern for advanced filtering
+            $search = $request->get('search', '');
+            $filters = [
+                'type' => $request->get('type'),
+                'group' => $request->get('group'),
+                'gender' => $request->get('gender'),
+                'has_debt' => $request->boolean('has_debt'),
+                'min_sales' => $request->get('min_sales'),
+                'max_debt' => $request->get('max_debt'),
+                'active_days' => $request->get('active_days'),
+            ];
+            
+            $perPage = $request->get('per_page', 15);
+            
+            $customers = $this->customerService->searchCustomers($search, $filters, $perPage);
 
             if ($request->expectsJson()) {
                 return CustomerResource::collection($customers);
@@ -170,6 +180,130 @@ class CustomerController extends Controller
             }
 
             return back()->with('error', 'Failed to delete customer');
+        }
+    }
+
+    /**
+     * Get VIP customers
+     */
+    public function vipCustomers(Request $request)
+    {
+        try {
+            $minSales = $request->get('min_sales', 10000);
+            $maxDebt = $request->get('max_debt', 1000);
+            
+            $customers = $this->customerService->getVipCustomers($minSales, $maxDebt);
+
+            if ($request->expectsJson()) {
+                return CustomerResource::collection($customers);
+            }
+
+            return view('customer::vip', compact('customers'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch VIP customers'], 500);
+            }
+
+            return back()->with('error', 'Failed to fetch VIP customers');
+        }
+    }
+
+    /**
+     * Get at-risk customers
+     */
+    public function atRiskCustomers(Request $request)
+    {
+        try {
+            $minDebt = $request->get('min_debt', 5000);
+            $inactiveDays = $request->get('inactive_days', 30);
+            
+            $customers = $this->customerService->getAtRiskCustomers($minDebt, $inactiveDays);
+
+            if ($request->expectsJson()) {
+                return CustomerResource::collection($customers);
+            }
+
+            return view('customer::at-risk', compact('customers'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch at-risk customers'], 500);
+            }
+
+            return back()->with('error', 'Failed to fetch at-risk customers');
+        }
+    }
+
+    /**
+     * Get customers with upcoming birthdays
+     */
+    public function upcomingBirthdays(Request $request)
+    {
+        try {
+            $customers = $this->customerService->getUpcomingBirthdays();
+
+            if ($request->expectsJson()) {
+                return CustomerResource::collection($customers);
+            }
+
+            return view('customer::birthdays', compact('customers'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch birthday customers'], 500);
+            }
+
+            return back()->with('error', 'Failed to fetch birthday customers');
+        }
+    }
+
+    /**
+     * Get top customers by sales
+     */
+    public function topCustomers(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 10);
+            $customers = $this->customerService->getTopCustomers($limit);
+
+            if ($request->expectsJson()) {
+                return CustomerResource::collection($customers);
+            }
+
+            return view('customer::top', compact('customers'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch top customers'], 500);
+            }
+
+            return back()->with('error', 'Failed to fetch top customers');
+        }
+    }
+
+    /**
+     * Get customers by group with filters
+     */
+    public function customersByGroup(Request $request, string $group)
+    {
+        try {
+            $filters = [
+                'gender' => $request->get('gender'),
+                'min_sales' => $request->get('min_sales'),
+                'max_debt' => $request->get('max_debt'),
+                'active_days' => $request->get('active_days'),
+            ];
+            
+            $customers = $this->customerService->getCustomersByGroup($group, $filters);
+
+            if ($request->expectsJson()) {
+                return CustomerResource::collection($customers);
+            }
+
+            return view('customer::by-group', compact('customers', 'group'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch customers by group'], 500);
+            }
+
+            return back()->with('error', 'Failed to fetch customers by group');
         }
     }
 }

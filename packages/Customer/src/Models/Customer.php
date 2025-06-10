@@ -4,6 +4,7 @@ namespace Packages\Customer\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Packages\Customer\Builders\CustomerBuilder;
 use Packages\User\Models\User;
 
 class Customer extends Model
@@ -34,6 +35,14 @@ class Customer extends Model
         'total_sales' => 'decimal:2',
         'total_sales_minus_returns' => 'decimal:2',
     ];
+
+    /**
+     * Create a new Eloquent query builder for the model.
+     */
+    public function newEloquentBuilder($query)
+    {
+        return new CustomerBuilder($query);
+    }
 
     public function creator()
     {
