@@ -13,14 +13,21 @@ use Packages\User\Http\Requests\ChangePasswordRequest;
 use Packages\User\Http\Resources\UserResource;
 use Packages\User\Exceptions\UserNotFoundException;
 use Packages\User\Exceptions\InvalidCredentialsException;
+use Packages\Log\Traits\Loggable;
 
 class UserController extends Controller
 {
+    use Loggable; // ⚠️ MANDATORY: Use Loggable trait
+
     protected UserService $userService;
 
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
+        
+        // Apply logging middleware to specific actions
+        $this->middleware('log.requests')->only(['register', 'login', 'updateProfile', 'changePassword']);
+        $this->middleware('log.sql')->only(['register', 'updateProfile']);
     }
 
     /**
@@ -28,13 +35,37 @@ class UserController extends Controller
      */
     public function profile(Request $request)
     {
-        $user = Auth::user();
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_profile_accessed', [
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'expects_json' => $request->expectsJson(),
+        ]);
 
-        if ($request->expectsJson()) {
-            return new UserResource($user);
+        try {
+            $user = Auth::user();
+
+            if ($request->expectsJson()) {
+                return new UserResource($user);
+            }
+
+            return view('user::profile', compact('user'));
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'profile',
+                'user_id' => auth()->id(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to load profile'], 500);
+            }
+
+            return redirect()->route('dashboard')
+                ->with('error', 'Failed to load profile');
         }
-
-        return view('user::profile', compact('user'));
     }
 
     /**
@@ -42,6 +73,13 @@ class UserController extends Controller
      */
     public function showRegistrationForm()
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('registration_form_accessed', [
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'referrer' => request()->headers->get('referer'),
+        ]);
+
         return view('user::auth.register');
     }
 
@@ -50,6 +88,15 @@ class UserController extends Controller
      */
     public function register(RegisterUserRequest $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_registration_form_submitted', [
+            'email' => $request->input('email'),
+            'name' => $request->input('name'),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'expects_json' => $request->expectsJson(),
+        ]);
+
         try {
             $user = $this->userService->register($request->validated());
 
@@ -67,6 +114,14 @@ class UserController extends Controller
             return redirect()->route('login')
                 ->with('success', 'Registration successful! Please login.');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'register',
+                'email' => $request->input('email'),
+                'ip_address' => $request->ip(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Registration failed'], 500);
             }
@@ -81,6 +136,13 @@ class UserController extends Controller
      */
     public function showLoginForm()
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('login_form_accessed', [
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'referrer' => request()->headers->get('referer'),
+        ]);
+
         return view('user::auth.login');
     }
 
@@ -89,6 +151,15 @@ class UserController extends Controller
      */
     public function login(LoginUserRequest $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_login_form_submitted', [
+            'email' => $request->input('email'),
+            'remember' => $request->boolean('remember'),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'expects_json' => $request->expectsJson(),
+        ]);
+
         try {
             $user = $this->userService->authenticate(
                 $request->input('email'),
@@ -96,6 +167,15 @@ class UserController extends Controller
             );
 
             Auth::login($user, $request->boolean('remember'));
+
+            // ⚠️ MANDATORY: Log successful controller action
+            $this->logActivity('user_login_controller_success', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'remember' => $request->boolean('remember'),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
 
             if ($request->expectsJson()) {
                 return new UserResource($user);
@@ -105,6 +185,15 @@ class UserController extends Controller
             return redirect($intended)
                 ->with('success', 'Welcome back!');
         } catch (InvalidCredentialsException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'login',
+                'email' => $request->input('email'),
+                'ip_address' => $request->ip(),
+                'error_type' => 'invalid_credentials',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
@@ -112,6 +201,14 @@ class UserController extends Controller
             return back()->withInput($request->only('email'))
                 ->with('error', 'Invalid email or password.');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'login',
+                'email' => $request->input('email'),
+                'ip_address' => $request->ip(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Login failed'], 500);
             }
@@ -126,17 +223,51 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::logout();
+        $user = Auth::user();
+        
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_logout_requested', [
+            'user_id' => $user?->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'expects_json' => $request->expectsJson(),
+        ]);
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        try {
+            Auth::logout();
 
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'Logged out successfully']);
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // ⚠️ MANDATORY: Log successful logout
+            $this->logActivity('user_logout_completed', [
+                'user_id' => $user?->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Logged out successfully']);
+            }
+
+            return redirect()->route('login')
+                ->with('success', 'You have been logged out successfully.');
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'logout',
+                'user_id' => $user?->id,
+                'ip_address' => $request->ip(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Logout failed'], 500);
+            }
+
+            return redirect()->route('dashboard')
+                ->with('error', 'Logout failed. Please try again.');
         }
-
-        return redirect()->route('login')
-            ->with('success', 'You have been logged out successfully.');
     }
 
     /**
@@ -144,8 +275,17 @@ class UserController extends Controller
      */
     public function updateProfile(UpdateUserRequest $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_profile_update_form_submitted', [
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'updated_fields' => array_keys($request->validated()),
+            'expects_json' => $request->expectsJson(),
+        ]);
+
         try {
-            $user = $this->userService->updateProfile(Auth::id(), $request->validated());
+            $user = $this->userService->updateUser(Auth::id(), $request->validated());
 
             if ($request->expectsJson()) {
                 return new UserResource($user);
@@ -153,12 +293,27 @@ class UserController extends Controller
 
             return back()->with('success', 'Profile updated successfully');
         } catch (UserNotFoundException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'updateProfile',
+                'user_id' => auth()->id(),
+                'error_type' => 'user_not_found',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'User not found'], 404);
             }
 
             return back()->with('error', 'User not found');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'updateProfile',
+                'user_id' => auth()->id(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to update profile'], 500);
             }
@@ -173,12 +328,27 @@ class UserController extends Controller
      */
     public function changePassword(ChangePasswordRequest $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('user_password_change_form_submitted', [
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'expects_json' => $request->expectsJson(),
+        ]);
+
         try {
             $this->userService->changePassword(
-                Auth::user(),
+                Auth::id(),
                 $request->input('current_password'),
                 $request->input('password')
             );
+
+            // ⚠️ MANDATORY: Log successful controller action
+            $this->logActivity('user_password_change_controller_success', [
+                'user_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Password changed successfully']);
@@ -186,12 +356,29 @@ class UserController extends Controller
 
             return back()->with('success', 'Password changed successfully');
         } catch (InvalidCredentialsException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'changePassword',
+                'user_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'error_type' => 'invalid_current_password',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Current password is incorrect'], 422);
             }
 
             return back()->with('error', 'Current password is incorrect');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'UserController',
+                'action' => 'changePassword',
+                'user_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to change password'], 500);
             }
