@@ -1,6 +1,7 @@
 # Coding Rules & Architecture Guidelines
 
 ## Table of Contents
+- [Local Development Environment](#local-development-environment)
 - [Architecture Overview](#architecture-overview)
 - [Layer Responsibilities](#layer-responsibilities)
 - [Repository Pattern](#repository-pattern)
@@ -8,9 +9,391 @@
 - [Service Layer](#service-layer)
 - [Controller Guidelines](#controller-guidelines)
 - [Livewire Components](#livewire-components)
+- [Logging Package](#logging-package)
+- [Mandatory Logging Requirements](#mandatory-logging-requirements)
 - [Code Quality Standards](#code-quality-standards)
 - [Testing Guidelines](#testing-guidelines)
 - [Package Structure](#package-structure)
+
+## Local Development Environment
+
+For local development, we use **Laravel Sail** to ensure consistent development environments across all team members.
+
+> **⚠️ IMPORTANT:** All examples in this document show two formats:
+> - **Without alias:** `./vendor/bin/sail command` (works immediately)  
+> - **With alias:** `sail command` (requires one-time setup, see [Setting Up Sail Alias](#setting-up-sail-alias))
+
+### Laravel Sail Setup
+
+Laravel Sail provides a Docker-based development environment that includes:
+- PHP 8.x with all required extensions
+- MySQL/PostgreSQL database
+- Redis for caching and sessions
+- Node.js for frontend asset compilation
+- Mailpit for email testing
+
+### Installation & Setup
+
+1. **Initial Setup:**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd BoxPos
+
+# Install dependencies
+composer install
+
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+2. **Start Sail Environment:**
+```bash
+# Start all services (without alias)
+./vendor/bin/sail up -d
+
+# Setup alias for convenience (add to ~/.bashrc or ~/.zshrc)
+alias sail='./vendor/bin/sail'
+
+# After setting up alias, you can use short commands:
+sail up -d
+
+# Stop services (with alias)
+sail down
+
+# Restart services (with alias)  
+sail restart
+
+# Or without alias:
+./vendor/bin/sail down
+./vendor/bin/sail restart
+```
+
+3. **Database Setup:**
+```bash
+# Run migrations (without alias)
+./vendor/bin/sail artisan migrate
+
+# Seed database (if seeders exist) 
+./vendor/bin/sail artisan db:seed
+
+# OR with alias (after setup)
+sail artisan migrate
+sail artisan db:seed
+```
+
+### Setting Up Sail Alias
+
+**For Bash users (~/.bashrc):**
+```bash
+# Add this line to ~/.bashrc
+echo "alias sail='./vendor/bin/sail'" >> ~/.bashrc
+
+# Reload your shell
+source ~/.bashrc
+```
+
+**For Zsh users (~/.zshrc):**
+```bash
+# Add this line to ~/.zshrc  
+echo "alias sail='./vendor/bin/sail'" >> ~/.zshrc
+
+# Reload your shell
+source ~/.zshrc
+```
+
+**Verify alias setup:**
+```bash
+# Test the alias
+sail --version
+
+# Should show Laravel Sail version instead of "command not found"
+```
+
+### Daily Development Commands
+
+**Setup alias first (highly recommended):**
+```bash
+# Add this line to your shell profile (~/.bashrc, ~/.zshrc, ~/.profile)
+alias sail='./vendor/bin/sail'
+
+# Reload your shell or run:
+source ~/.bashrc  # or ~/.zshrc
+```
+
+**Use Sail for all development tasks:**
+
+```bash
+# Artisan commands
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan make:model Customer
+./vendor/bin/sail artisan make:controller CustomerController
+./vendor/bin/sail artisan queue:work
+
+# Composer commands
+./vendor/bin/sail composer install
+./vendor/bin/sail composer require package/name
+./vendor/bin/sail composer dump-autoload
+
+# Node/NPM commands
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+./vendor/bin/sail npm run build
+
+# Testing
+./vendor/bin/sail test
+./vendor/bin/sail test --filter CustomerTest
+
+# Database commands
+./vendor/bin/sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan tinker
+
+# Code quality tools
+./vendor/bin/sail composer pint
+./vendor/bin/sail composer phpstan
+```
+
+**After setting up the alias, you can use short commands:**
+
+```bash
+# Artisan commands (with alias)
+sail artisan migrate
+sail artisan make:model Customer
+sail artisan make:controller CustomerController
+sail artisan queue:work
+
+# Composer commands (with alias)
+sail composer install
+sail composer require package/name
+sail composer dump-autoload
+
+# Node/NPM commands (with alias)
+sail npm install
+sail npm run dev
+sail npm run build
+
+# Testing (with alias)
+sail test
+sail test --filter CustomerTest
+
+# Database commands (with alias)
+sail artisan migrate:fresh --seed
+sail artisan tinker
+
+# Code quality tools (with alias)
+sail composer pint
+sail composer phpstan
+```
+
+**Summary of command formats:**
+```bash
+# Without alias (always works immediately)
+./vendor/bin/sail [command]
+
+# With alias (requires one-time setup)
+sail [command]
+```
+
+**Without alias (if you haven't setup the alias):**
+```bash
+# You can use the full path
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail test
+./vendor/bin/sail composer install
+```
+
+**⚠️ Important:** Never run these commands directly in local development:
+```bash
+# ❌ DON'T do this in local development
+php artisan migrate
+composer install
+npm run dev
+phpunit
+```
+
+### Environment Configuration
+
+**Key `.env` variables for Sail:**
+
+```env
+# Application
+APP_NAME="BoxPos"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
+
+# Database (Sail default)
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=boxpos
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+# Redis (Sail default)
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# Mail (Mailpit for testing)
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+```
+
+### Service Access
+
+**Default Sail service ports:**
+- **Application:** http://localhost (port 80)
+- **MySQL:** localhost:3306
+- **Redis:** localhost:6379
+- **Mailpit:** http://localhost:8025
+- **Vite Dev Server:** http://localhost:5173
+
+### Development Workflow
+
+1. **Start your development session:**
+```bash
+# Without alias
+./vendor/bin/sail up -d
+./vendor/bin/sail npm run dev  # For frontend development
+
+# With alias (after setup)
+sail up -d
+sail npm run dev  # For frontend development
+```
+
+2. **Make code changes using your preferred IDE**
+
+3. **Run tests:**
+```bash
+# Without alias
+./vendor/bin/sail test
+
+# With alias
+sail test
+```
+
+4. **Check code quality:**
+```bash
+# Without alias
+./vendor/bin/sail composer pint      # Code formatting
+./vendor/bin/sail composer phpstan   # Static analysis
+
+# With alias
+sail composer pint      # Code formatting
+sail composer phpstan   # Static analysis
+```
+
+5. **Database operations:**
+```bash
+# Without alias
+./vendor/bin/sail artisan migrate    # Run new migrations
+./vendor/bin/sail artisan tinker     # Database REPL
+
+# With alias
+sail artisan migrate    # Run new migrations
+sail artisan tinker     # Database REPL
+```
+
+### Debugging
+
+**Enable Xdebug (when needed):**
+```bash
+# Start Sail with Xdebug (without alias)
+SAIL_XDEBUG_MODE=develop,debug ./vendor/bin/sail up -d
+
+# With alias
+SAIL_XDEBUG_MODE=develop,debug sail up -d
+```
+
+**View logs:**
+```bash
+# Application logs (without alias)
+./vendor/bin/sail logs
+
+# Specific service logs (without alias)
+./vendor/bin/sail logs mysql
+./vendor/bin/sail logs redis
+
+# With alias
+sail logs
+sail logs mysql
+sail logs redis
+```
+
+### Team Collaboration
+
+**Rules for team development:**
+
+1. **Always use Sail commands** - Never run `php artisan` or `composer` directly
+2. **Consistent environment** - All developers use the same Docker services
+3. **Share Sail configuration** - Keep `docker-compose.yml` in version control
+4. **Document custom services** - Any additional Docker services must be documented
+
+### Performance Optimization
+
+**For better performance:**
+
+```bash
+# Use dedicated volumes for vendor and node_modules
+# (Already configured in docker-compose.yml)
+
+# Optimize Composer (without alias)
+./vendor/bin/sail composer install --optimize-autoloader --no-dev
+
+# Clear application caches (without alias)
+./vendor/bin/sail artisan optimize:clear
+./vendor/bin/sail artisan config:cache
+./vendor/bin/sail artisan route:cache
+./vendor/bin/sail artisan view:cache
+
+# With alias
+sail composer install --optimize-autoloader --no-dev
+sail artisan optimize:clear
+sail artisan config:cache
+sail artisan route:cache
+sail artisan view:cache
+```
+
+### Troubleshooting
+
+**Common issues and solutions:**
+
+```bash
+# Ports already in use (without alias)
+./vendor/bin/sail down
+./vendor/bin/sail up -d
+
+# Permission issues (without alias)
+./vendor/bin/sail root-shell
+chown -R sail:sail /var/www/html
+
+# Database connection issues (without alias)
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail down && ./vendor/bin/sail up -d
+
+# Clear all caches (without alias)
+./vendor/bin/sail artisan optimize:clear
+
+# With alias (after setup)
+sail down
+sail up -d
+sail root-shell
+sail artisan config:clear
+sail down && sail up -d
+sail artisan optimize:clear
+```
+
+### Production Deployment
+
+**Note:** Laravel Sail is for **local development only**. Production deployment uses different containerization or traditional server setup.
 
 ## Architecture Overview
 
@@ -497,6 +880,7 @@ class Customer extends Model
 2. **Transaction Management** - Handle database transactions in services
 3. **Event Dispatching** - Dispatch domain events for important actions
 4. **Repository Coordination** - Coordinate multiple repositories when needed
+5. **⚠️ MANDATORY LOGGING** - All business operations MUST be logged with appropriate context
 
 ### Service Structure
 
@@ -607,6 +991,396 @@ class CustomerManagement extends Component
 }
 ```
 
+## Logging Package
+
+### Overview
+
+The Logging Package provides comprehensive logging functionality for BoxPos with advanced features for monitoring, debugging, and audit trails. It follows the coding architecture principles and integrates seamlessly with the repository pattern.
+
+### Features
+
+- ✅ **User Activity Logging** - Track user actions and behaviors
+- ✅ **SQL Query Logging** - Monitor database performance with query analysis
+- ✅ **Request/Response Logging** - HTTP request/response tracking
+- ✅ **Performance Monitoring** - Application performance metrics
+- ✅ **Error Logging** - Comprehensive error tracking with context
+- ✅ **Custom Events** - Log custom business events
+- ✅ **N+1 Query Detection** - Automatic detection of performance issues
+- ✅ **Log Rotation** - Automatic log file management
+
+### Architecture Integration
+
+The Log package follows our architectural guidelines:
+
+```
+Controller → Service → Repository → Builder → Model → Database
+    ↓          ↓          ↓
+  Logging   Logging    Logging (via middleware)
+```
+
+### Usage in Controllers
+
+**✅ Correct Implementation:**
+
+```php
+namespace Packages\Customer\Http\Controllers;
+
+use Packages\Log\Traits\Loggable;
+
+class CustomerController extends Controller
+{
+    use Loggable;
+
+    protected CustomerService $customerService;
+
+    public function __construct(CustomerService $customerService)
+    {
+        $this->customerService = $customerService;
+        
+        // Apply logging middleware to specific actions
+        $this->middleware('log.requests')->only(['store', 'update', 'destroy']);
+        $this->middleware('log.sql')->only(['store', 'update']);
+    }
+
+    public function index(Request $request)
+    {
+        $customers = $this->customerService->searchCustomers(
+            $request->get('search', ''),
+            $request->only(['type', 'group', 'gender']),
+            $request->get('per_page', 15)
+        );
+
+        // Log user activity
+        $this->logActivity('customers_viewed', [
+            'search_term' => $request->get('search'),
+            'filters' => $request->only(['type', 'group', 'gender']),
+            'results_count' => $customers->count(),
+        ]);
+
+        return $request->expectsJson() 
+            ? CustomerResource::collection($customers)
+            : view('customers.index', compact('customers'));
+    }
+
+    public function store(StoreCustomerRequest $request)
+    {
+        try {
+            $customer = $this->customerService->createCustomer($request->validated());
+
+            // Log successful creation
+            $this->logActivity('customer_created', [
+                'customer_id' => $customer->id,
+                'customer_email' => $customer->email,
+                'customer_type' => $customer->type,
+            ]);
+
+            return new CustomerResource($customer);
+
+        } catch (\Exception $e) {
+            // Log error with context
+            $this->logError($e, [
+                'action' => 'customer_creation',
+                'request_data' => $request->except(['password']), // Exclude sensitive data
+            ]);
+
+            throw $e;
+        }
+    }
+}
+```
+
+### Usage in Services
+
+**✅ Service Layer Logging:**
+
+```php
+namespace Packages\Customer\Services;
+
+use Packages\Log\Traits\Loggable;
+
+class CustomerService
+{
+    use Loggable;
+
+    protected CustomerRepository $customerRepository;
+
+    public function createCustomer(array $data): Customer
+    {
+        $startTime = microtime(true);
+
+        try {
+            $customer = $this->customerRepository->create($data);
+
+            // Log model event with changes
+            $this->logModelEvent('created', $customer, [
+                'created_fields' => array_keys($data),
+            ]);
+
+            // Log operation performance
+            $this->logOperationPerformance('customer_creation', $startTime, [
+                'customer_id' => $customer->id,
+            ]);
+
+            return $customer;
+
+        } catch (\Exception $e) {
+            $this->logError($e, [
+                'action' => 'customer_creation',
+                'data' => $data,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    public function exportCustomers(array $criteria): array
+    {
+        // Log process start
+        $this->logProcessStep('customer_export', 'started', [
+            'export_format' => $criteria['format'] ?? 'csv',
+            'filters' => $criteria,
+        ]);
+
+        try {
+            $exportData = $this->withQueryLogging('customer_export_query', function () use ($criteria) {
+                return $this->customerRepository->getExportData($criteria);
+            });
+
+            $this->logProcessStep('customer_export', 'completed', [
+                'records_exported' => count($exportData),
+                'file_size_mb' => round(strlen(serialize($exportData)) / 1024 / 1024, 2),
+            ]);
+
+            return $exportData;
+
+        } catch (\Exception $e) {
+            $this->logProcessStep('customer_export', 'failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+}
+```
+
+### Loggable Trait Methods
+
+The `Loggable` trait provides standardized logging methods:
+
+```php
+// Log user activity
+$this->logActivity('action_name', $data, $userId);
+
+// Log custom events  
+$this->logEvent('event_name', $data);
+
+// Log errors with context
+$this->logError($exception, $context);
+
+// Log info messages
+$this->logInfo('message', $context);
+
+// Log model events (create, update, delete)
+$this->logModelEvent('updated', $model, $additionalData);
+
+// Log operation performance
+$this->logOperationPerformance('operation_name', $startTime, $context);
+
+// Log process steps
+$this->logProcessStep('process_name', 'step_name', $data);
+
+// Log with query tracking
+$result = $this->withQueryLogging('operation_name', function() {
+    return $this->repository->someComplexQuery();
+});
+
+// Log with performance tracking
+$result = $this->withPerformanceLogging('operation_name', function() {
+    return $this->someExpensiveOperation();
+});
+```
+
+### Middleware Usage
+
+**Automatic Logging with Middleware:**
+
+```php
+// In Controller constructor
+$this->middleware('log.requests');     // Log HTTP requests/responses
+$this->middleware('log.sql');          // Log SQL queries
+$this->middleware('log.performance');  // Log performance metrics
+
+// In routes
+Route::middleware(['log.requests', 'log.performance'])->group(function () {
+    Route::apiResource('customers', CustomerController::class);
+});
+
+// Global middleware (in bootstrap/app.php)
+$middleware->web(append: [
+    \Packages\Log\Middleware\LogPerformance::class,
+]);
+```
+
+### Configuration
+
+**Environment Variables:**
+
+```env
+# SQL Query Logging
+LOG_SQL=true
+LOG_SLOW_QUERIES=true
+SLOW_QUERY_THRESHOLD=500
+DETECT_N_PLUS_ONE=true
+MAX_QUERIES_PER_REQUEST=50
+
+# Request Logging
+LOG_REQUESTS=true
+LOG_REQUEST_HEADERS=false
+LOG_REQUEST_BODY=false
+
+# Performance Monitoring
+LOG_PERFORMANCE=true
+
+# Log Retention
+LOG_RETENTION_DAYS=14
+```
+
+### Log Files Structure
+
+The package creates organized log files:
+
+```
+storage/logs/
+├── laravel-YYYY-MM-DD.log      # Main application logs
+├── sql-YYYY-MM-DD.log          # SQL queries with performance
+├── performance-YYYY-MM-DD.log  # Request performance metrics
+└── error-YYYY-MM-DD.log        # Error logs with context
+```
+
+### Best Practices
+
+**✅ DO's:**
+
+1. **Always use Loggable trait** in Controllers and Services
+2. **Log user activities** for audit trails
+3. **Log errors with context** for debugging
+4. **Use appropriate log levels** (info, warning, error)
+5. **Monitor SQL queries** for performance optimization
+6. **Log process steps** for complex operations
+7. **Exclude sensitive data** from logs (passwords, tokens)
+
+**❌ DON'Ts:**
+
+1. **Don't log sensitive information** (passwords, API keys, personal data)
+2. **Don't log in loops** without pagination or limits
+3. **Don't ignore log performance** - logging should be fast
+4. **Don't log everything** - be selective and purposeful
+5. **Don't hardcode log messages** - use configuration
+
+### Advanced Usage Examples
+
+**Complex Process Logging:**
+
+```php
+public function processLargeDataset(array $data): array
+{
+    $startTime = microtime(true);
+    $processId = uniqid('process_');
+
+    $this->logProcessStep('large_dataset_processing', 'started', [
+        'process_id' => $processId,
+        'total_records' => count($data),
+        'memory_start' => memory_get_usage(true),
+    ]);
+
+    $results = [];
+    $processed = 0;
+
+    try {
+        foreach (array_chunk($data, 100) as $chunk) {
+            $chunkResults = $this->withQueryLogging("process_chunk_{$processed}", function () use ($chunk) {
+                return $this->processChunk($chunk);
+            });
+
+            $results = array_merge($results, $chunkResults);
+            $processed += count($chunk);
+
+            // Log progress every 1000 records
+            if ($processed % 1000 === 0) {
+                $this->logProcessStep('large_dataset_processing', 'progress', [
+                    'process_id' => $processId,
+                    'records_processed' => $processed,
+                    'memory_usage' => memory_get_usage(true),
+                ]);
+            }
+        }
+
+        $this->logOperationPerformance('large_dataset_processing', $startTime, [
+            'process_id' => $processId,
+            'total_processed' => $processed,
+            'memory_peak' => memory_get_peak_usage(true),
+        ]);
+
+        return $results;
+
+    } catch (\Exception $e) {
+        $this->logError($e, [
+            'process_id' => $processId,
+            'records_processed' => $processed,
+            'action' => 'large_dataset_processing',
+        ]);
+
+        throw $e;
+    }
+}
+```
+
+**Monitoring Integration:**
+
+```php
+// Custom log channels for different environments
+'channels' => [
+    'slack_critical' => [
+        'driver' => 'custom',
+        'via' => Packages\Log\Channels\SlackChannel::class,
+        'webhook' => env('SLACK_WEBHOOK_URL'),
+        'level' => 'critical',
+    ],
+    
+    'remote_file' => [
+        'driver' => 'custom',
+        'via' => Packages\Log\Channels\RemoteFileChannel::class,
+        'path' => env('REMOTE_LOG_PATH'),
+        'level' => 'debug',
+    ],
+],
+```
+
+### Testing with Logs
+
+**Test log generation:**
+
+```bash
+# Without alias
+./vendor/bin/sail artisan log:cleanup --days=30
+./vendor/bin/sail exec laravel.test tail -f /var/www/html/storage/logs/laravel-$(date +%Y-%m-%d).log
+
+# With alias
+sail artisan log:cleanup --days=30
+sail exec laravel.test tail -f /var/www/html/storage/logs/sql-$(date +%Y-%m-%d).log
+```
+
+### Log Package Rules
+
+1. **Follow Architecture** - Use through Services and Controllers only
+2. **Use Middleware** - Apply logging middleware appropriately  
+3. **Context is King** - Always provide relevant context
+4. **Performance Aware** - Don't impact application performance
+5. **Security First** - Never log sensitive information
+6. **Structured Data** - Use arrays for structured logging
+7. **Consistent Format** - Follow logging standards across the application
+
 ## Code Quality Standards
 
 ### Naming Conventions
@@ -677,6 +1451,78 @@ public function getCustomerById(int $id): Customer
 2. **Feature Tests** - Test complete features end-to-end
 3. **Mock Dependencies** - Mock external dependencies in unit tests
 4. **Test Coverage** - Maintain high test coverage (>80%)
+5. **Use Laravel Sail** - Always run tests through Sail in local development using `./vendor/bin/sail` or setup alias
+
+### Running Tests with Laravel Sail
+
+**Setup Sail alias (recommended):**
+```bash
+# Add to your shell profile (~/.bashrc, ~/.zshrc, etc.)
+alias sail='./vendor/bin/sail'
+
+# Or use it directly without alias
+./vendor/bin/sail
+```
+
+**Basic test commands:**
+```bash
+# Run all tests (without alias)
+./vendor/bin/sail test
+
+# Run specific test file (without alias)
+./vendor/bin/sail test tests/Unit/Packages/Customer/Services/CustomerServiceTest.php
+
+# Run tests with coverage (without alias)
+./vendor/bin/sail test --coverage
+
+# Run tests with filter (without alias)
+./vendor/bin/sail test --filter test_creates_customer_successfully
+
+# Run feature tests only (without alias)
+./vendor/bin/sail test tests/Feature/
+
+# Run unit tests only (without alias)
+./vendor/bin/sail test tests/Unit/
+
+# Run tests in parallel (without alias)
+./vendor/bin/sail test --parallel
+
+# Run tests with verbose output (without alias)
+./vendor/bin/sail test --verbose
+
+# With alias (after setup)
+sail test
+sail test tests/Unit/Packages/Customer/Services/CustomerServiceTest.php
+sail test --coverage
+sail test --filter test_creates_customer_successfully
+sail test tests/Feature/
+sail test tests/Unit/
+sail test --parallel
+sail test --verbose
+```
+
+**Test database setup:**
+```bash
+# Create test database (without alias)
+./vendor/bin/sail artisan migrate --env=testing
+
+# Refresh test database (without alias)
+./vendor/bin/sail artisan migrate:fresh --env=testing
+
+# Seed test database (without alias)
+./vendor/bin/sail artisan db:seed --env=testing
+
+# With alias (after setup)
+sail artisan migrate --env=testing
+sail artisan migrate:fresh --env=testing
+sail artisan db:seed --env=testing
+```
+
+**Important Notes:**
+- **Never run `php artisan test` or `phpunit` directly** in local development
+- **Always use `./vendor/bin/sail test` or `sail test` (with alias)**
+- **Setup the alias once** to avoid typing the full path repeatedly
+- **All team members must use the same approach** for consistency
 
 ### Test Structure
 
@@ -751,6 +1597,33 @@ packages/
 │       ├── Jobs/
 │       ├── Exceptions/
 │       └── CustomerServiceProvider.php
+├── Log/
+│   ├── config/
+│   │   └── logging.php
+│   ├── examples/
+│   │   ├── CustomerController_example.php
+│   │   └── CustomerService_example.php
+│   └── src/
+│       ├── Channels/
+│       │   ├── SlackChannel.php
+│       │   └── RemoteFileChannel.php
+│       ├── Console/
+│       │   └── Commands/
+│       │       └── CleanupLogsCommand.php
+│       ├── Middleware/
+│       │   ├── LogRequests.php
+│       │   ├── LogSqlQueries.php
+│       │   └── LogPerformance.php
+│       ├── Services/
+│       │   ├── LogService.php
+│       │   ├── LogFormatterService.php
+│       │   └── QueryPerformanceService.php
+│       ├── Traits/
+│       │   ├── Loggable.php
+│       │   └── LogsQueries.php
+│       ├── Exceptions/
+│       │   └── LoggingException.php
+│       └── LogServiceProvider.php
 ```
 
 ### Package Rules
@@ -760,6 +1633,158 @@ packages/
 3. **Configuration** - Package-specific configuration files
 4. **Migrations** - Database migrations within packages
 5. **Tests** - Package-specific tests
+
+## Mandatory Logging Requirements
+
+### ⚠️ CRITICAL: All Business Operations Must Be Logged
+
+**This is a MANDATORY requirement for all business logic operations in BoxPos.**
+
+### What Must Be Logged
+
+1. **All Service Layer Operations**
+   - Customer creation, updates, deletions
+   - Product operations (create, update, delete, inventory changes)
+   - Order processing and status changes
+   - Payment processing and refunds
+   - User authentication and authorization
+   - Data imports and exports
+   - System configuration changes
+
+2. **All Controller Actions**
+   - User activities (page views, form submissions)
+   - API requests and responses
+   - Error conditions and exceptions
+   - Performance metrics for slow operations
+
+3. **All Repository Operations That Modify Data**
+   - Database create, update, delete operations
+   - Bulk operations and data migrations
+   - File system operations
+
+### Enforcement Rules
+
+**✅ REQUIRED Implementation:**
+
+```php
+// All Services MUST use Loggable trait
+class CustomerService
+{
+    use Loggable; // ← MANDATORY
+
+    public function createCustomer(array $data): Customer
+    {
+        // Log operation start
+        $this->logActivity('customer_creation_started', [
+            'user_id' => auth()->id(),
+            'data_keys' => array_keys($data),
+        ]);
+
+        try {
+            $customer = $this->customerRepository->create($data);
+            
+            // Log successful operation
+            $this->logActivity('customer_created', [
+                'customer_id' => $customer->id,
+                'customer_email' => $customer->email,
+                'user_id' => auth()->id(),
+            ]);
+
+            return $customer;
+        } catch (\Exception $e) {
+            // Log error - MANDATORY
+            $this->logError($e, [
+                'action' => 'customer_creation',
+                'user_id' => auth()->id(),
+                'data' => $data,
+            ]);
+            
+            throw $e;
+        }
+    }
+}
+
+// All Controllers MUST use Loggable trait
+class CustomerController extends Controller
+{
+    use Loggable; // ← MANDATORY
+
+    public function store(StoreCustomerRequest $request)
+    {
+        // Log user action - MANDATORY
+        $this->logActivity('customer_form_submitted', [
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        try {
+            $customer = $this->customerService->createCustomer($request->validated());
+            
+            return new CustomerResource($customer);
+        } catch (\Exception $e) {
+            // Log controller error - MANDATORY
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'store',
+                'user_id' => auth()->id(),
+            ]);
+            
+            throw $e;
+        }
+    }
+}
+```
+
+### Code Review Checklist
+
+**Before approving any pull request, verify:**
+
+- [ ] All Services use `Loggable` trait
+- [ ] All Controllers use `Loggable` trait
+- [ ] All business operations log their activities
+- [ ] All errors are logged with proper context
+- [ ] User IDs are included in all business operation logs
+- [ ] Sensitive data is excluded from logs
+- [ ] Appropriate log levels are used
+- [ ] Performance-sensitive operations include timing logs
+
+### Violation Consequences
+
+**Pull requests WILL BE REJECTED if:**
+- Business operations are not logged
+- Loggable trait is missing from Services or Controllers
+- Error logging is incomplete or missing
+- User context is missing from business operation logs
+
+### Performance Requirements
+
+**All logged operations must:**
+- Include user context (user_id, action, timestamp)
+- Complete logging in under 10ms
+- Use appropriate log levels
+- Include relevant business context
+- Exclude sensitive data (passwords, tokens, personal data)
+
+### Monitoring and Compliance
+
+**Daily monitoring requirements:**
+```bash
+# Check for missing logging in new code
+sail artisan log:check-compliance
+
+# Monitor log coverage
+sail artisan log:coverage-report
+
+# Check for performance issues
+sail artisan log:performance-check
+```
+
+**Weekly compliance review:**
+- Review all new Services and Controllers for logging compliance
+- Check log coverage reports
+- Verify error logging completeness
+- Review performance impact of logging
 
 ## Best Practices Summary
 
@@ -780,6 +1805,14 @@ packages/
 13. **Extract duplicate query logic into private methods**
 14. **Use business scenario methods (`forScenario()`)**
 15. **Apply filters dynamically with `applyFilters()`**
+16. **Use Laravel Sail for all local development commands**
+17. **Always use `./vendor/bin/sail` or setup alias for Sail commands**
+18. **⚠️ MANDATORY: Use Loggable trait in all Controllers and Services**
+19. **⚠️ MANDATORY: Log all business operations with proper context**
+20. **⚠️ MANDATORY: Log user activities for audit trails**
+21. **⚠️ MANDATORY: Log errors with proper context for debugging**
+22. **Use appropriate log levels (info, warning, error)**
+23. **Monitor SQL queries for performance optimization**
 
 ### DON'Ts ❌
 
@@ -798,6 +1831,16 @@ packages/
 13. **Don't mix data access with business logic**
 14. **Don't create overly complex single methods**
 15. **Don't ignore the Builder Pattern for complex queries**
+16. **Don't run `php artisan`, `composer`, or `npm` commands directly in local development**
+17. **Don't use Sail for production deployment**
+18. **⚠️ NEVER create Services without Loggable trait**
+19. **⚠️ NEVER create Controllers without Loggable trait**
+20. **⚠️ NEVER skip logging for business operations**
+21. **⚠️ NEVER skip error logging in try-catch blocks**
+22. **Don't log sensitive information (passwords, tokens, personal data)**
+23. **Don't log in loops without pagination or limits**
+24. **Don't ignore log performance - logging should be fast**
+25. **Don't log everything - be selective and purposeful**
 
 ## Builder Pattern Best Practices
 
@@ -840,6 +1883,7 @@ Following these coding rules ensures:
 - **Scalable Design** - Can grow with business requirements
 - **Team Consistency** - All developers follow same patterns
 - **Quality Assurance** - High code quality and reliability
+- **Comprehensive Monitoring** - Full visibility into application behavior through logging
 
 ### **Code Quality Metrics**
 
@@ -853,22 +1897,10 @@ Monitor these metrics to ensure code quality:
 6. **Duplication** - Zero tolerance for duplicate code blocks
 7. **Test Coverage** - Minimum 80% code coverage
 8. **Documentation** - 100% public method documentation
-
-### **Tools for Quality Assurance**
-
-```bash
-# Code style and formatting
-./vendor/bin/pint
-
-# Static analysis
-./vendor/bin/phpstan analyse
-
-# Testing
-./vendor/bin/phpunit
-
-# Coverage report
-./vendor/bin/phpunit --coverage-html coverage
-```
+9. **⚠️ MANDATORY: Log Coverage** - 100% of business operations must have logging
+10. **⚠️ MANDATORY: Error Log Coverage** - 100% of try-catch blocks must log errors
+11. **⚠️ MANDATORY: Loggable Trait Usage** - 100% of Services and Controllers must use Loggable trait
+12. **Performance Monitoring** - SQL queries and request performance tracked
 
 ### **Builder Pattern Checklist**
 
@@ -882,5 +1914,48 @@ Before committing, ensure your Builder Pattern implementation:
 - ✅ Has proper type hints and documentation
 - ✅ Follows single responsibility principle
 - ✅ Is covered by unit tests
+
+### **⚠️ MANDATORY Logging Package Checklist**
+
+**🚫 PULL REQUESTS WILL BE REJECTED WITHOUT:**
+
+- ✅ **MANDATORY:** Uses `Loggable` trait in ALL Controllers and Services
+- ✅ **MANDATORY:** Logs ALL business operations and user activities  
+- ✅ **MANDATORY:** Logs ALL errors with proper context and stack traces
+- ✅ **MANDATORY:** Includes user_id in all business operation logs
+- ✅ **MANDATORY:** Uses appropriate log levels (info, warning, error, debug)
+- ✅ **MANDATORY:** Excludes sensitive data from logs (passwords, tokens)
+- ✅ **MANDATORY:** Includes relevant context for debugging (user_id, request_id, etc.)
+- ✅ Uses performance logging for slow operations (>1 second)
+- ✅ Applies logging middleware where appropriate
+- ✅ Logs process steps for complex operations
+- ✅ Has proper log retention and cleanup policies
+- ✅ Follows structured logging format
+- ✅ Does not impact application performance significantly (logging <10ms)
+
+### **Daily Development Logging Workflow**
+
+**Monitor logs during development:**
+
+```bash
+# Without alias - Monitor application logs
+./vendor/bin/sail exec laravel.test tail -f /var/www/html/storage/logs/laravel-$(date +%Y-%m-%d).log
+
+# Without alias - Monitor SQL performance
+./vendor/bin/sail exec laravel.test tail -f /var/www/html/storage/logs/sql-$(date +%Y-%m-%d).log
+
+# Without alias - Monitor performance metrics
+./vendor/bin/sail exec laravel.test tail -f /var/www/html/storage/logs/performance-$(date +%Y-%m-%d).log
+
+# With alias (after setup)
+sail exec laravel.test tail -f /var/www/html/storage/logs/laravel-$(date +%Y-%m-%d).log
+sail exec laravel.test tail -f /var/www/html/storage/logs/sql-$(date +%Y-%m-%d).log
+sail exec laravel.test tail -f /var/www/html/storage/logs/performance-$(date +%Y-%m-%d).log
+
+# Clean up old logs
+./vendor/bin/sail artisan log:cleanup --days=30
+# With alias
+sail artisan log:cleanup --days=30
+```
 
 Remember: **Consistency is key**. It's better to follow these rules consistently than to have perfect code in some places and inconsistent code in others.

@@ -1,4 +1,4 @@
-<div class="nav-item d-flex me-3">
+<div class="nav-item d-flex">
     <a href="#" wire:click.prevent="toggleTheme" class="nav-link px-0 hide-theme-dark" data-bs-toggle="tooltip" data-bs-placement="bottom" aria-label="Enable dark mode" data-bs-original-title="Enable dark mode">
         <!-- Download SVG icon from http://tabler.io/icons/icon/moon -->
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">

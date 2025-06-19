@@ -6,4 +6,5 @@ return [
     Packages\User\UserServiceProvider::class,
     Packages\SessionManager\SessionManagerServiceProvider::class,
     Packages\Appearance\AppearanceServiceProvider::class,
+    Packages\Log\LogServiceProvider::class,
 ];

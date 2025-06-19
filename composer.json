@@ -33,7 +33,8 @@
             "Packages\\Customer\\": "packages/Customer/src/",
             "Packages\\User\\": "packages/User/src/",
             "Packages\\SessionManager\\": "packages/SessionManager/src/",
-            "Packages\\Appearance\\": "packages/Appearance/src/"
+            "Packages\\Appearance\\": "packages/Appearance/src/",
+            "Packages\\Log\\": "packages/Log/src/"
         }
     },
     "autoload-dev": {

@@ -127,6 +127,43 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Custom Log Package Channels
+        'sql' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sql.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_RETENTION_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'error' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/error.log'),
+            'level' => 'error',
+            'days' => env('LOG_RETENTION_DAYS', 14),
+        ],
+
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_RETENTION_DAYS', 14),
+        ],
+
+        'remote_file' => [
+            'driver' => 'custom',
+            'via' => Packages\Log\Channels\RemoteFileChannel::class,
+            'path' => env('REMOTE_LOG_PATH', '/var/log/shared/laravel-logs'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
+        'slack_critical' => [
+            'driver' => 'custom',
+            'via' => Packages\Log\Channels\SlackChannel::class,
+            'webhook' => env('SLACK_WEBHOOK_URL'),
+            'level' => 'critical',
+        ],
+
     ],
 
 ];

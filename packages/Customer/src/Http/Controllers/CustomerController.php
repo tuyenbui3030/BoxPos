@@ -9,14 +9,21 @@ use Packages\Customer\Http\Requests\StoreCustomerRequest;
 use Packages\Customer\Http\Requests\UpdateCustomerRequest;
 use Packages\Customer\Http\Resources\CustomerResource;
 use Packages\Customer\Exceptions\CustomerNotFoundException;
+use Packages\Log\Traits\Loggable;
 
 class CustomerController extends Controller
 {
+    use Loggable;
+
     protected CustomerService $customerService;
 
     public function __construct(CustomerService $customerService)
     {
         $this->customerService = $customerService;
+        
+        // Apply logging middleware to specific actions
+        $this->middleware('log.requests')->only(['store', 'update', 'destroy']);
+        $this->middleware('log.sql')->only(['store', 'update']);
     }
 
     /**
@@ -41,12 +48,27 @@ class CustomerController extends Controller
             
             $customers = $this->customerService->searchCustomers($search, $filters, $perPage);
 
+            // Log user activity
+            $this->logActivity('customers_viewed', [
+                'search_term' => $search,
+                'filters' => array_filter($filters), // Only log non-empty filters
+                'results_count' => $customers->count(),
+                'user_id' => auth()->id(),
+            ]);
+
             if ($request->expectsJson()) {
                 return CustomerResource::collection($customers);
             }
 
             return view('customer::index', compact('customers'));
         } catch (\Exception $e) {
+            // Log error with context
+            $this->logError($e, [
+                'action' => 'customers_listing',
+                'search_term' => $request->get('search'),
+                'filters' => $request->all(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch customers'], 500);
             }

@@ -19,7 +19,7 @@
     
     @stack('styles')
 </head>
-<body>
+<body class="layout-fluid">
     <div class="page">
         <!-- Navbar -->
         <header class="navbar navbar-expand-md d-print-none">
