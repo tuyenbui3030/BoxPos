@@ -100,6 +100,14 @@ class CustomerController extends Controller
             return redirect()->route('customers.show', $customer)
                 ->with('success', 'Customer created successfully');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'store',
+                'user_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to create customer'], 500);
             }
@@ -114,6 +122,14 @@ class CustomerController extends Controller
      */
     public function show(Request $request, $id)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('customer_view_accessed', [
+            'user_id' => auth()->id(),
+            'customer_id' => $id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         try {
             $customer = $this->customerService->getCustomerById($id);
 
@@ -123,12 +139,36 @@ class CustomerController extends Controller
 
             return view('customer::show', compact('customer'));
         } catch (CustomerNotFoundException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'show',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+                'error_type' => 'customer_not_found',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Customer not found'], 404);
             }
 
             return redirect()->route('customers.index')
                 ->with('error', 'Customer not found');
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'show',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Failed to fetch customer'], 500);
+            }
+
+            return redirect()->route('customers.index')
+                ->with('error', 'Failed to fetch customer');
         }
     }
 
@@ -137,12 +177,39 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('customer_edit_form_accessed', [
+            'user_id' => auth()->id(),
+            'customer_id' => $id,
+            'ip_address' => request()->ip(),
+        ]);
+
         try {
             $customer = $this->customerService->getCustomerById($id);
             return view('customer::edit', compact('customer'));
         } catch (CustomerNotFoundException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'edit',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+                'error_type' => 'customer_not_found',
+            ]);
+
             return redirect()->route('customers.index')
                 ->with('error', 'Customer not found');
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'edit',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+            ]);
+
+            return redirect()->route('customers.index')
+                ->with('error', 'Failed to access customer edit form');
         }
     }
 
@@ -151,6 +218,15 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, $id)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('customer_update_form_submitted', [
+            'user_id' => auth()->id(),
+            'customer_id' => $id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'updated_fields' => array_keys($request->validated()),
+        ]);
+
         try {
             $customer = $this->customerService->updateCustomer($id, $request->validated());
 
@@ -161,12 +237,29 @@ class CustomerController extends Controller
             return redirect()->route('customers.show', $customer)
                 ->with('success', 'Customer updated successfully');
         } catch (CustomerNotFoundException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'update',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+                'error_type' => 'customer_not_found',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Customer not found'], 404);
             }
 
             return back()->with('error', 'Customer not found');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'update',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to update customer'], 500);
             }
@@ -179,8 +272,19 @@ class CustomerController extends Controller
     /**
      * Remove the specified customer.
      */
+    /**
+     * Remove the specified customer.
+     */
     public function destroy(Request $request, $id)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('customer_deletion_requested', [
+            'user_id' => auth()->id(),
+            'customer_id' => $id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         try {
             $this->customerService->deleteCustomer($id);
 
@@ -191,12 +295,29 @@ class CustomerController extends Controller
             return redirect()->route('customers.index')
                 ->with('success', 'Customer deleted successfully');
         } catch (CustomerNotFoundException $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'destroy',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+                'error_type' => 'customer_not_found',
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Customer not found'], 404);
             }
 
             return back()->with('error', 'Customer not found');
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'destroy',
+                'customer_id' => $id,
+                'user_id' => auth()->id(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to delete customer'], 500);
             }
@@ -210,6 +331,14 @@ class CustomerController extends Controller
      */
     public function vipCustomers(Request $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('vip_customers_report_accessed', [
+            'user_id' => auth()->id(),
+            'min_sales' => $request->get('min_sales', 10000),
+            'max_debt' => $request->get('max_debt', 1000),
+            'ip_address' => $request->ip(),
+        ]);
+
         try {
             $minSales = $request->get('min_sales', 10000);
             $maxDebt = $request->get('max_debt', 1000);
@@ -222,6 +351,15 @@ class CustomerController extends Controller
 
             return view('customer::vip', compact('customers'));
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'vipCustomers',
+                'user_id' => auth()->id(),
+                'min_sales' => $request->get('min_sales', 10000),
+                'max_debt' => $request->get('max_debt', 1000),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch VIP customers'], 500);
             }
@@ -235,6 +373,14 @@ class CustomerController extends Controller
      */
     public function atRiskCustomers(Request $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('at_risk_customers_report_accessed', [
+            'user_id' => auth()->id(),
+            'min_debt' => $request->get('min_debt', 5000),
+            'inactive_days' => $request->get('inactive_days', 30),
+            'ip_address' => $request->ip(),
+        ]);
+
         try {
             $minDebt = $request->get('min_debt', 5000);
             $inactiveDays = $request->get('inactive_days', 30);
@@ -247,6 +393,15 @@ class CustomerController extends Controller
 
             return view('customer::at-risk', compact('customers'));
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'atRiskCustomers',
+                'user_id' => auth()->id(),
+                'min_debt' => $request->get('min_debt', 5000),
+                'inactive_days' => $request->get('inactive_days', 30),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch at-risk customers'], 500);
             }
@@ -260,6 +415,12 @@ class CustomerController extends Controller
      */
     public function upcomingBirthdays(Request $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('upcoming_birthdays_report_accessed', [
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+        ]);
+
         try {
             $customers = $this->customerService->getUpcomingBirthdays();
 
@@ -269,6 +430,13 @@ class CustomerController extends Controller
 
             return view('customer::birthdays', compact('customers'));
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'upcomingBirthdays',
+                'user_id' => auth()->id(),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch birthday customers'], 500);
             }
@@ -282,6 +450,13 @@ class CustomerController extends Controller
      */
     public function topCustomers(Request $request)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('top_customers_report_accessed', [
+            'user_id' => auth()->id(),
+            'limit' => $request->get('limit', 10),
+            'ip_address' => $request->ip(),
+        ]);
+
         try {
             $limit = $request->get('limit', 10);
             $customers = $this->customerService->getTopCustomers($limit);
@@ -292,6 +467,14 @@ class CustomerController extends Controller
 
             return view('customer::top', compact('customers'));
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'topCustomers',
+                'user_id' => auth()->id(),
+                'limit' => $request->get('limit', 10),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch top customers'], 500);
             }
@@ -305,6 +488,14 @@ class CustomerController extends Controller
      */
     public function customersByGroup(Request $request, string $group)
     {
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('customers_by_group_report_accessed', [
+            'user_id' => auth()->id(),
+            'group' => $group,
+            'filters' => array_filter($request->only(['gender', 'min_sales', 'max_debt', 'active_days'])),
+            'ip_address' => $request->ip(),
+        ]);
+
         try {
             $filters = [
                 'gender' => $request->get('gender'),
@@ -321,6 +512,15 @@ class CustomerController extends Controller
 
             return view('customer::by-group', compact('customers', 'group'));
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'controller' => 'CustomerController',
+                'action' => 'customersByGroup',
+                'user_id' => auth()->id(),
+                'group' => $group,
+                'filters' => $request->only(['gender', 'min_sales', 'max_debt', 'active_days']),
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Failed to fetch customers by group'], 500);
             }

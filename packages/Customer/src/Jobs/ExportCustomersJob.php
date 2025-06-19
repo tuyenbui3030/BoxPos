@@ -3,6 +3,7 @@
 namespace Packages\Customer\Jobs;
 
 use Packages\Customer\Models\Customer;
+use Packages\Log\Traits\Loggable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ExportCustomersJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Loggable; // ⚠️ MANDATORY: Use Loggable trait
 
     /**
      * The export format
@@ -52,12 +53,17 @@ class ExportCustomersJob implements ShouldQueue
      */
     public function handle(): void
     {
-        try {
-            Log::info('Starting customer export', [
-                'format' => $this->format,
-                'file_path' => $this->filePath,
-            ]);
+        $startTime = microtime(true);
 
+        // ⚠️ MANDATORY: Log job start
+        $this->logActivity('customer_export_job_started', [
+            'format' => $this->format,
+            'file_path' => $this->filePath,
+            'job_id' => $this->job?->getJobId(),
+            'queue' => $this->queue,
+        ]);
+
+        try {
             $customers = Customer::all();
 
             // Create export directory if it doesn't exist
@@ -65,6 +71,13 @@ class ExportCustomersJob implements ShouldQueue
             if (!is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
+
+            // ⚠️ MANDATORY: Log process step
+            $this->logProcessStep('customer_export', 'data_retrieval_completed', [
+                'format' => $this->format,
+                'records_count' => $customers->count(),
+                'memory_usage' => memory_get_usage(true),
+            ]);
 
             // Export based on format
             switch ($this->format) {
@@ -78,17 +91,31 @@ class ExportCustomersJob implements ShouldQueue
                     throw new \InvalidArgumentException("Unsupported export format: {$this->format}");
             }
 
-            Log::info('Customer export completed successfully', [
+            // ⚠️ MANDATORY: Log successful completion
+            $this->logActivity('customer_export_job_completed', [
                 'format' => $this->format,
                 'file_path' => $this->filePath,
                 'records_count' => $customers->count(),
+                'file_size' => file_exists($this->filePath) ? filesize($this->filePath) : 0,
+                'job_id' => $this->job?->getJobId(),
+            ]);
+
+            // ⚠️ MANDATORY: Log operation performance
+            $this->logOperationPerformance('customer_export_job', $startTime, [
+                'format' => $this->format,
+                'records_count' => $customers->count(),
+                'file_size' => file_exists($this->filePath) ? filesize($this->filePath) : 0,
+                'memory_peak' => memory_get_peak_usage(true),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Customer export failed', [
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'job' => 'ExportCustomersJob',
                 'format' => $this->format,
                 'file_path' => $this->filePath,
-                'error' => $e->getMessage(),
+                'job_id' => $this->job?->getJobId(),
+                'memory_usage' => memory_get_usage(true),
             ]);
 
             throw $e;
