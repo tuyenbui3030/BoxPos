@@ -3,11 +3,14 @@
 namespace Packages\SessionManager\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use Packages\SessionManager\Services\SessionService;
+use Packages\Log\Traits\Loggable;
 use Carbon\Carbon;
 
 class CleanupExpiredSessions extends Command
 {
+    use Loggable; // ⚠️ MANDATORY: Use Loggable trait
+
     /**
      * The name and signature of the console command.
      */
@@ -21,59 +24,85 @@ class CleanupExpiredSessions extends Command
     protected $description = 'Clean up expired sessions from the database';
 
     /**
+     * Session service instance
+     *
+     * @var SessionService
+     */
+    protected SessionService $sessionService;
+
+    /**
+     * Constructor
+     *
+     * @param SessionService $sessionService
+     */
+    public function __construct(SessionService $sessionService)
+    {
+        parent::__construct();
+        $this->sessionService = $sessionService;
+    }
+
+    /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $days = $this->option('days') ?: config('session-manager.cleanup.retention_days', 30);
-        $dryRun = $this->option('dry-run');
-        
-        $cutoffDate = Carbon::now()->subDays($days);
-        
-        $this->info("Cleaning up sessions older than {$days} days (before {$cutoffDate->toDateTimeString()})");
-        
+        // ⚠️ MANDATORY: Log operation performance start
+        $startTime = microtime(true);
+
         try {
-            $query = DB::table('sessions')
-                ->where('last_activity', '<', $cutoffDate->timestamp);
+            $days = $this->option('days') ?: config('session-manager.cleanup.retention_days', 30);
+            $dryRun = $this->option('dry-run');
             
-            $count = $query->count();
+            // ⚠️ MANDATORY: Log user activity for console command
+            $this->logActivity('session_cleanup_command_started', [
+                'retention_days' => $days,
+                'dry_run' => $dryRun,
+                'command' => $this->getName(),
+                'action' => 'cleanup_sessions_command',
+            ]);
+
+            $this->info("Cleaning up sessions older than {$days} days");
             
-            if ($count === 0) {
-                $this->info('No expired sessions found.');
-                return 0;
-            }
+            $result = $this->sessionService->cleanupExpiredSessions($days, $dryRun);
             
             if ($dryRun) {
-                $this->info("Would delete {$count} expired sessions (dry run)");
-                
-                // Show sample sessions
-                $samples = $query->limit(5)->get(['id', 'user_id', 'last_activity']);
-                if ($samples->count() > 0) {
-                    $this->table(
-                        ['Session ID', 'User ID', 'Last Activity'],
-                        $samples->map(function ($session) {
-                            return [
-                                substr($session->id, 0, 8) . '...',
-                                $session->user_id ?? 'guest',
-                                Carbon::createFromTimestamp($session->last_activity)->toDateTimeString()
-                            ];
-                        })->toArray()
-                    );
+                $count = $result['sessions_to_delete'];
+                if ($count === 0) {
+                    $this->info('No expired sessions found.');
+                } else {
+                    $this->info("Would delete {$count} expired sessions (dry run)");
+                    $this->line("Cutoff date: {$result['cutoff_date']}");
                 }
             } else {
-                if ($this->confirm("Delete {$count} expired sessions?")) {
-                    $deleted = $query->delete();
-                    $this->info("Successfully deleted {$deleted} expired sessions.");
+                $count = $result['sessions_deleted'];
+                if ($count === 0) {
+                    $this->info('No expired sessions found.');
                 } else {
-                    $this->info('Operation cancelled.');
+                    $this->info("Successfully deleted {$count} expired sessions.");
+                    $this->line("Cutoff date: {$result['cutoff_date']}");
                 }
             }
-            
+
+            // ⚠️ MANDATORY: Log operation performance
+            $this->logOperationPerformance('session_cleanup_command', $startTime, [
+                'retention_days' => $days,
+                'dry_run' => $dryRun,
+                'sessions_affected' => $dryRun ? ($result['sessions_to_delete'] ?? 0) : ($result['sessions_deleted'] ?? 0),
+            ]);
+
+            return 0;
+
         } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'action' => 'session_cleanup_command',
+                'retention_days' => $days ?? null,
+                'dry_run' => $dryRun ?? null,
+                'command' => $this->getName(),
+            ]);
+            
             $this->error("Error cleaning up sessions: " . $e->getMessage());
             return 1;
         }
-        
-        return 0;
     }
 }

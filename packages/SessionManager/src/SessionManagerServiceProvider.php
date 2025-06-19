@@ -4,6 +4,7 @@ namespace Packages\SessionManager;
 
 use Illuminate\Support\ServiceProvider;
 use Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity;
+use Packages\SessionManager\Services\SessionService;
 
 class SessionManagerServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,14 @@ class SessionManagerServiceProvider extends ServiceProvider
             __DIR__.'/../config/session-manager.php',
             'session-manager'
         );
+
+        // Register SessionService
+        $this->app->singleton(SessionService::class, function ($app) {
+            return new SessionService();
+        });
+
+        // Bind to shorter alias for easier access
+        $this->app->alias(SessionService::class, 'session.manager');
     }
 
     /**
@@ -38,6 +47,9 @@ class SessionManagerServiceProvider extends ServiceProvider
                 \Packages\SessionManager\Console\Commands\CleanupExpiredSessions::class,
             ]);
         }
+
+        // Load routes if they exist
+        $this->loadRoutes();
     }
 
     /**
@@ -47,7 +59,34 @@ class SessionManagerServiceProvider extends ServiceProvider
     {
         $router = $this->app['router'];
         
-        // Register only the simple session extension middleware
+        // Register middleware aliases
         $router->aliasMiddleware('session.extend', ExtendSessionOnActivity::class);
+        
+        // Register logging middleware if Log package is available
+        if (class_exists(\Packages\Log\Middleware\LogRequests::class)) {
+            $router->aliasMiddleware('session.log.requests', \Packages\Log\Middleware\LogRequests::class);
+            $router->aliasMiddleware('session.log.performance', \Packages\Log\Middleware\LogPerformance::class);
+        }
+    }
+
+    /**
+     * Load package routes.
+     */
+    protected function loadRoutes(): void
+    {
+        if (file_exists(__DIR__.'/../routes/web.php')) {
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        }
+    }
+
+    /**
+     * Get the services provided by the provider.
+     */
+    public function provides(): array
+    {
+        return [
+            SessionService::class,
+            'session.manager',
+        ];
     }
 }

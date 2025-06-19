@@ -5,11 +5,31 @@ namespace Packages\SessionManager\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Packages\SessionManager\Services\SessionService;
+use Packages\Log\Traits\Loggable;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExtendSessionOnActivity
 {
+    use Loggable; // ⚠️ MANDATORY: Use Loggable trait
+
+    /**
+     * Session service instance
+     *
+     * @var SessionService
+     */
+    protected SessionService $sessionService;
+
+    /**
+     * Constructor
+     *
+     * @param SessionService $sessionService
+     */
+    public function __construct(SessionService $sessionService)
+    {
+        $this->sessionService = $sessionService;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -17,58 +37,50 @@ class ExtendSessionOnActivity
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Chỉ áp dụng cho user đã login
-        if (Auth::check()) {
-            $this->extendSessionLifetime($request);
-        }
+        // ⚠️ MANDATORY: Log operation performance start
+        $startTime = microtime(true);
 
-        return $next($request);
-    }
-
-    /**
-     * Extend session lifetime on any user request
-     */
-    protected function extendSessionLifetime(Request $request): void
-    {
-        $now = now();
-        $user = Auth::user();
-        
-        // Get session lifetime from config (in minutes)
-        $sessionLifetime = config('session-manager.session_lifetime', 120); // default 2 hours
-        
-        // Update session lifetime
-        config(['session.lifetime' => $sessionLifetime]);
-        
-        // Save activity info for tracking/demo purposes
-        session([
-            'last_activity_time' => $now,
-            'user_last_activity' => $now->timestamp,
-            'session_extended_by_middleware' => true,
-            'middleware_extension_count' => session('middleware_extension_count', 0) + 1,
-            'last_middleware_extension' => $now->toISOString(),
-        ]);
-        
-        // Optional: Update user's last_login_at (throttled to prevent too many DB updates)
-        $lastDbUpdate = session('last_db_update', 0);
-        $throttleSeconds = config('session-manager.db_update_throttle', 600);
-        
-        // Only update database according to throttle to avoid too many DB calls
-        if ($now->timestamp - $lastDbUpdate > $throttleSeconds) {
-            if ($user && $user->hasAttribute('last_login_at')) {
-                $user->update(['last_login_at' => $now]);
-                session(['last_db_update' => $now->timestamp]);
+        try {
+            // Only apply to authenticated users
+            if (Auth::check()) {
+                $success = $this->sessionService->extendSessionLifetime($request);
+                
+                if (!$success) {
+                    // ⚠️ MANDATORY: Log user activity for failed session extension
+                    $this->logActivity('session_extension_failed', [
+                        'user_id' => Auth::id(),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                        'route' => $request->route()?->getName() ?? 'unknown',
+                        'action' => 'session_extension_middleware',
+                    ]);
+                }
             }
-        }
-        
-        // Log if debug mode (optional)
-        if (config('session-manager.debug.log_extensions', false)) {
-            \Log::info('Session extended on user request', [
-                'user_id' => $user?->id,
-                'ip' => $request->ip(),
+
+            $response = $next($request);
+
+            // ⚠️ MANDATORY: Log operation performance
+            $this->logOperationPerformance('session_extension_middleware', $startTime, [
+                'user_id' => Auth::id(),
+                'ip_address' => $request->ip(),
                 'route' => $request->route()?->getName() ?? 'unknown',
-                'session_lifetime_minutes' => $sessionLifetime,
-                'timestamp' => $now->toISOString(),
+                'authenticated' => Auth::check(),
             ]);
+
+            return $response;
+
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'action' => 'session_extension_middleware',
+                'user_id' => Auth::id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'route' => $request->route()?->getName() ?? 'unknown',
+            ]);
+            
+            // Continue with request even if session extension fails
+            return $next($request);
         }
     }
 }
