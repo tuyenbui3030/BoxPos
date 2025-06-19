@@ -19,7 +19,7 @@
     
     @stack('styles')
 </head>
-<body class="layout-fluid">
+<body>
     <div class="page">
         <!-- Navbar -->
         <header class="navbar navbar-expand-md d-print-none">
@@ -97,35 +97,7 @@
                     </div>
                     
                     <!-- User Menu -->
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                            <span class="avatar avatar-sm" style="background-image: url('https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=random')"></span>
-                            <div class="d-none d-xl-block ps-2">
-                                <div>{{ auth()->user()->name ?? 'User' }}</div>
-                                <div class="mt-1 small text-muted">{{ auth()->user()->email ?? 'user@example.com' }}</div>
-                            </div>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="#" class="dropdown-item">Status</a>
-                            <a href="#" class="dropdown-item">Profile</a>
-                            <a href="{{ route('devices') }}" class="dropdown-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <rect x="7" y="4" width="10" height="16" rx="1"/>
-                                    <path d="M11 5h2"/>
-                                    <circle cx="12" cy="17" r="1"/>
-                                </svg>
-                                Manage Devices
-                            </a>
-                            <a href="#" class="dropdown-item">Feedback</a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">Settings</a>
-                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </div>
-                    </div>
+                    <livewire:user-dropdown />
                 </div>
                 
                 <!-- Horizontal Navigation -->
