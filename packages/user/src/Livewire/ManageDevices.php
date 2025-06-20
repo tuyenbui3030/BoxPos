@@ -33,16 +33,13 @@ class ManageDevices extends Component
     {
         $device = auth()->user()->devices()->findOrFail($deviceId);
         
-        $this->showDangerConfirmation(
-            'Remove Device',
-            "Are you sure you want to remove the device '{$device->device_name}'? This action cannot be undone.",
-            'removeDevice',
-            [$deviceId],
-            [
-                'confirmText' => 'Remove Device',
-                'confirmButtonClass' => 'btn-danger'
-            ]
-        );
+        $this->confirmation()
+            ->title('Remove Device')
+            ->message("Are you sure you want to remove the device '{$device->device_name}'? This action cannot be undone.")
+            ->danger()
+            ->action('removeDevice', [$deviceId])
+            ->confirmText('Remove Device')
+            ->show();
     }
 
     public function removeDevice($deviceId)
@@ -61,16 +58,14 @@ class ManageDevices extends Component
 
     public function confirmRevokeAllOtherDevices()
     {
-        $this->showWarningConfirmation(
-            'Revoke All Other Devices',
-            'Are you sure you want to revoke access for all other devices? This will log out all other sessions.',
-            'revokeAllOtherDevices',
-            [],
-            [
-                'confirmText' => 'Revoke All',
-                'confirmButtonClass' => 'btn-danger'
-            ]
-        );
+        $this->confirmation()
+            ->title('Revoke All Other Devices')
+            ->message('Are you sure you want to revoke access for all other devices? This will log out all other sessions.')
+            ->warning()
+            ->action('revokeAllOtherDevices')
+            ->confirmText('Revoke All')
+            ->buttonClass('btn-danger')
+            ->show();
     }
 
     public function revokeAllOtherDevices()

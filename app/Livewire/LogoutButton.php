@@ -4,43 +4,37 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Packages\Log\Traits\Loggable;
+use Packages\Appearance\Traits\HasConfirmationModal;
 
 class LogoutButton extends Component
 {
     use Loggable; // ⚠️ MANDATORY: Use Loggable trait
+    use HasConfirmationModal; // Use confirmation modal trait
     
     public $buttonText = 'Logout';
     public $buttonClass = 'dropdown-item';
     public $showIcon = true;
-    public $showConfirmModal = false;
 
     public function confirmLogout()
     {
-        $this->showConfirmModal = true;
-        
         // ⚠️ MANDATORY: Log user action
         $this->logActivity('logout_confirmation_shown', [
             'user_id' => auth()->user()?->id,
             'ip_address' => request()->ip(),
             'component' => 'LogoutButton',
         ]);
-    }
 
-    public function cancelLogout()
-    {
-        $this->showConfirmModal = false;
-        
-        // ⚠️ MANDATORY: Log user action
-        $this->logActivity('logout_cancelled', [
-            'user_id' => auth()->user()?->id,
-            'ip_address' => request()->ip(),
-            'component' => 'LogoutButton',
-        ]);
+        $this->confirmation()
+            ->title('Confirm Logout')
+            ->message('Are you sure you want to logout? You will need to login again to access your account.')
+            ->logout()
+            ->action('logout')
+            ->cancelText('Cancel')
+            ->show();
     }
 
     public function logout()
     {
-        $this->showConfirmModal = false;
         $user = auth()->user();
         
         // ⚠️ MANDATORY: Log user action

@@ -10,6 +10,8 @@
                 
                 @if($icon === 'danger')
                     <div class="modal-status bg-danger"></div>
+                @elseif($icon === 'logout')
+                    <div class="modal-status bg-danger"></div>
                 @elseif($icon === 'warning')
                     <div class="modal-status bg-warning"></div>
                 @elseif($icon === 'info')
@@ -24,6 +26,12 @@
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                             <path d="M12 9v2m0 4v.01"/>
                             <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
+                        </svg>
+                    @elseif($icon === 'logout')
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+                            <path d="M7 12h14l-3 -3m0 6l3 -3"/>
                         </svg>
                     @elseif($icon === 'warning')
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

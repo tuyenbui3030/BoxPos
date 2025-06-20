@@ -19,7 +19,7 @@ The `ConfirmationModal` component provides a reusable confirmation dialog that c
 
 #### Usage
 
-1. **Include the trait in your Livewire component:**
+**Builder Pattern:**
 ```php
 use Packages\Appearance\Traits\HasConfirmationModal;
 
@@ -29,13 +29,48 @@ class YourComponent extends Component
     
     public function dangerousAction()
     {
-        $this->showDangerConfirmation(
-            'Confirm Delete',
-            'Are you sure you want to delete this item?',
-            'performDelete',
-            [$itemId],
-            ['confirmText' => 'Delete', 'confirmButtonClass' => 'btn-danger']
-        );
+        $this->confirmation()
+            ->title('Confirm Delete')
+            ->message('Are you sure you want to delete this item? This action cannot be undone.')
+            ->danger()
+            ->action('performDelete', [$itemId])
+            ->confirmText('Delete Item')
+            ->show();
+    }
+    
+    // Warning confirmation example
+    public function warningAction()
+    {
+        $this->confirmation()
+            ->title('Warning')
+            ->message('This will affect other users. Continue?')
+            ->warning()
+            ->action('performAction')
+            ->confirmText('Continue')
+            ->large() // or ->small(), ->extraLarge()
+            ->show();
+    }
+    
+    // Info confirmation example
+    public function infoAction()
+    {
+        $this->confirmation()
+            ->title('Information')
+            ->message('Please confirm your selection.')
+            ->info()
+            ->action('confirmSelection', [$data])
+            ->show();
+    }
+    
+    // Logout confirmation example
+    public function confirmLogout()
+    {
+        $this->confirmation()
+            ->title('Confirm Logout')
+            ->message('Are you sure you want to logout?')
+            ->logout()
+            ->action('performLogout')
+            ->show();
     }
     
     public function performDelete($itemId)
@@ -45,13 +80,31 @@ class YourComponent extends Component
 }
 ```
 
-2. **Available confirmation types:**
-- `showConfirmation()` - Basic confirmation
-- `showDangerConfirmation()` - For destructive actions (red button)
-- `showWarningConfirmation()` - For warning actions (yellow button) 
-- `showInfoConfirmation()` - For informational confirmations (blue button)
+2. **Builder Pattern Methods:**
+- `confirmation()` - Create a new builder instance
+- `title(string)` - Set modal title
+- `message(string)` - Set modal message
+- `action(string, array)` - Set action method and parameters
+- `danger()` - Make it a danger confirmation (red)
+- `logout()` - Make it a logout confirmation (red with logout icon)
+- `warning()` - Make it a warning confirmation (yellow)
+- `info()` - Make it an info confirmation (blue)
+- `confirmText(string)` - Set confirm button text
+- `cancelText(string)` - Set cancel button text
+- `buttonClass(string)` - Set custom button class
+- `small()`, `large()`, `extraLarge()` - Set modal size
+- `show()` - Display the modal
 
-3. **The confirmation modal is automatically included in the main layout.**
+3. **Static Shortcuts:**
+```php
+// Quick danger confirmation
+ConfirmationBuilder::dangerConfirmation($this, 'Delete Item', 'Are you sure?', 'deleteItem', [$id])->show();
+
+// Quick warning confirmation  
+ConfirmationBuilder::warningConfirmation($this, 'Warning', 'This will affect others', 'performAction')->show();
+```
+
+4. **The confirmation modal is automatically included in the main layout.**
 
 ## Architecture
 
