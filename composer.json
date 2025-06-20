@@ -30,11 +30,11 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "Packages\\Customer\\": "packages/Customer/src/",
-            "Packages\\User\\": "packages/User/src/",
-            "Packages\\SessionManager\\": "packages/SessionManager/src/",
-            "Packages\\Appearance\\": "packages/Appearance/src/",
-            "Packages\\Log\\": "packages/Log/src/"
+            "Packages\\Customer\\": "packages/customer/src/",
+            "Packages\\User\\": "packages/user/src/",
+            "Packages\\SessionManager\\": "packages/session-manager/src/",
+            "Packages\\Appearance\\": "packages/appearance/src/",
+            "Packages\\Log\\": "packages/log/src/"
         }
     },
     "autoload-dev": {

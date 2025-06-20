@@ -608,4 +608,4 @@
     <livewire:create-customer />
 
     <!-- Customer Management Scripts and Styles -->
-    @vite(['packages/Customer/resources/css/customer-components.css', 'packages/Customer/resources/js/constants.js', 'packages/Customer/resources/js/alpine-components.js'])
+    @vite(['packages/customer/resources/css/customer-components.css', 'packages/customer/resources/js/constants.js', 'packages/customer/resources/js/alpine-components.js'])
