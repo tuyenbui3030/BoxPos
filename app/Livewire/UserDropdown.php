@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Packages\Log\Traits\Loggable;
 
 class UserDropdown extends Component
 {
+    use Loggable; // ⚠️ MANDATORY: Use Loggable trait
     public $isDropdownOpen = false;
 
     public function toggleDropdown()

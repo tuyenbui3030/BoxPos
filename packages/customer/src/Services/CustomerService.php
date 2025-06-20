@@ -248,10 +248,6 @@ class CustomerService
             throw $e;
         }
     }
-        event(new CustomerUpdated($updatedCustomer));
-        
-        return $updatedCustomer;
-    }
 
     /**
      * Delete customer
@@ -370,7 +366,6 @@ class CustomerService
             
             throw $e;
         }
-    }
     }
 
     /**
