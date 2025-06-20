@@ -9,6 +9,49 @@ This package provides comprehensive appearance management functionality for the 
 - **LocalStorage Sync**: Synchronized with browser storage
 - **Livewire Integration**: Reactive theme switching without page reload
 - **Bootstrap Integration**: Works with Bootstrap's `data-bs-theme` system
+- **Confirmation Modal**: Reusable confirmation dialog component for user actions
+
+## Components
+
+### Confirmation Modal
+
+The `ConfirmationModal` component provides a reusable confirmation dialog that can be used across the application for user confirmations.
+
+#### Usage
+
+1. **Include the trait in your Livewire component:**
+```php
+use Packages\Appearance\Traits\HasConfirmationModal;
+
+class YourComponent extends Component
+{
+    use HasConfirmationModal;
+    
+    public function dangerousAction()
+    {
+        $this->showDangerConfirmation(
+            'Confirm Delete',
+            'Are you sure you want to delete this item?',
+            'performDelete',
+            [$itemId],
+            ['confirmText' => 'Delete', 'confirmButtonClass' => 'btn-danger']
+        );
+    }
+    
+    public function performDelete($itemId)
+    {
+        // Your deletion logic here
+    }
+}
+```
+
+2. **Available confirmation types:**
+- `showConfirmation()` - Basic confirmation
+- `showDangerConfirmation()` - For destructive actions (red button)
+- `showWarningConfirmation()` - For warning actions (yellow button) 
+- `showInfoConfirmation()` - For informational confirmations (blue button)
+
+3. **The confirmation modal is automatically included in the main layout.**
 
 ## Architecture
 

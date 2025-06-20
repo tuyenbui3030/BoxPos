@@ -1,4 +1,4 @@
-<div>
+<div wire:id="manage-devices">
     <!-- Flash Messages -->
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -36,8 +36,7 @@
     <div class="row">
         <div class="col-auto ms-auto">
             <div class="btn-list">
-                <button wire:click="revokeAllOtherDevices" 
-                        wire:confirm="Are you sure you want to revoke access for all other devices? This will log out all other sessions."
+                <button wire:click="confirmRevokeAllOtherDevices" 
                         class="btn btn-outline-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -178,38 +177,4 @@
             </div>
         @endforelse
     </div>
-
-    <!-- Confirmation Modal -->
-    @if($showConfirmModal)
-        <div class="modal modal-blur fade show" style="display: block;" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <button type="button" class="btn-close" wire:click="closeModal" aria-label="Close"></button>
-                    <div class="modal-status bg-danger"></div>
-                    <div class="modal-body text-center py-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M12 9v2m0 4v.01"/>
-                            <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.48 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
-                        </svg>
-                        <h3>Are you sure?</h3>
-                        <div class="text-muted">This will remove the device and log out any active sessions on that device.</div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="w-100">
-                            <div class="row">
-                                <div class="col">
-                                    <button wire:click="closeModal" class="btn w-100">Cancel</button>
-                                </div>
-                                <div class="col">
-                                    <button wire:click="removeDevice" class="btn btn-danger w-100">Remove Device</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show"></div>
-    @endif
 </div>

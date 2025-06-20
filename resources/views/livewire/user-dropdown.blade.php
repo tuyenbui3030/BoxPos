@@ -8,16 +8,14 @@
             <span class="avatar avatar-sm" style="background-image: url('https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=random')"></span>
             <div class="d-none d-xl-block ps-2">
                 <div>{{ auth()->user()->name ?? 'User' }}</div>
-                <div class="mt-1 small text-muted">{{ auth()->user()->email ?? 'user@example.com' }}</div>
+                <div class="mt-1 small text-muted">{{ auth()->user()->email ?? 'user@theboxpos.com' }}</div>
             </div>
         </a>
         
         @if($isDropdownOpen)
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow show" 
              style="position: absolute; top: 100%; right: 0; z-index: 1050; display: block;">
-            <a href="#" class="dropdown-item" wire:click="closeDropdown">Status</a>
-            <a href="#" class="dropdown-item" wire:click="closeDropdown">Profile</a>
-            <a href="/devices" class="dropdown-item" wire:click="navigateToDevices">
+            <a href="/devices" class="dropdown-item" wire:navigate wire:click="closeDropdown">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                     <rect x="7" y="4" width="10" height="16" rx="1"/>
@@ -26,9 +24,7 @@
                 </svg>
                 Manage Devices
             </a>
-            <a href="#" class="dropdown-item" wire:click="closeDropdown">Feedback</a>
             <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item" wire:click="closeDropdown">Settings</a>
             <livewire:logout-button :button-class="'dropdown-item'" />
         </div>
         @endif

@@ -49,13 +49,17 @@ class AppearanceServiceProvider extends ServiceProvider
      */
     protected function registerLivewireComponents(): void
     {
-        // Register with new names
+        // Register appearance switcher components
         Livewire::component('appearance-switcher', \Packages\Appearance\Livewire\AppearanceSwitcher::class);
         Livewire::component('packages.appearance.livewire.appearance-switcher', \Packages\Appearance\Livewire\AppearanceSwitcher::class);
         
         // Keep backward compatibility aliases
         Livewire::component('theme-switcher', \Packages\Appearance\Livewire\AppearanceSwitcher::class);
         Livewire::component('packages.appearance.livewire.theme-switcher', \Packages\Appearance\Livewire\AppearanceSwitcher::class);
+        
+        // Register confirmation modal component
+        Livewire::component('confirmation-modal', \Packages\Appearance\Livewire\ConfirmationModal::class);
+        Livewire::component('packages.appearance.livewire.confirmation-modal', \Packages\Appearance\Livewire\ConfirmationModal::class);
     }
 
     /**

@@ -24,12 +24,6 @@ class UserDropdown extends Component
         \Log::info('UserDropdown closed');
     }
 
-    public function navigateToDevices()
-    {
-        $this->closeDropdown();
-        return $this->redirect(route('devices'), navigate: true);
-    }
-
     public function render()
     {
         return view('livewire.user-dropdown');

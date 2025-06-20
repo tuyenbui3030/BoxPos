@@ -12,9 +12,35 @@ class LogoutButton extends Component
     public $buttonText = 'Logout';
     public $buttonClass = 'dropdown-item';
     public $showIcon = true;
+    public $showConfirmModal = false;
+
+    public function confirmLogout()
+    {
+        $this->showConfirmModal = true;
+        
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('logout_confirmation_shown', [
+            'user_id' => auth()->user()?->id,
+            'ip_address' => request()->ip(),
+            'component' => 'LogoutButton',
+        ]);
+    }
+
+    public function cancelLogout()
+    {
+        $this->showConfirmModal = false;
+        
+        // ⚠️ MANDATORY: Log user action
+        $this->logActivity('logout_cancelled', [
+            'user_id' => auth()->user()?->id,
+            'ip_address' => request()->ip(),
+            'component' => 'LogoutButton',
+        ]);
+    }
 
     public function logout()
     {
+        $this->showConfirmModal = false;
         $user = auth()->user();
         
         // ⚠️ MANDATORY: Log user action
@@ -25,6 +51,9 @@ class LogoutButton extends Component
             'component' => 'LogoutButton',
         ]);
 
+        // Add a small delay for better UX (show "Processing..." for a moment)
+        sleep(1); // 1 second delay để user thấy loading state
+        
         try {
             auth()->logout();
             request()->session()->invalidate();

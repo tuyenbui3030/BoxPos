@@ -249,6 +249,71 @@ class SessionService
     }
 
     /**
+     * Set infinite session for the currently authenticated user
+     * This sets a very long session lifetime (1 year) for "remember me" functionality
+     *
+     * @return bool
+     */
+    public function setInfiniteSessionForActiveUser(): bool
+    {
+        // ⚠️ MANDATORY: Log operation performance start
+        $startTime = microtime(true);
+
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return false;
+            }
+
+            $now = now();
+            $infiniteSessionMinutes = 525600; // 1 year in minutes
+            
+            // ⚠️ MANDATORY: Log user activity
+            $this->logActivity('infinite_session_set', [
+                'target_user_id' => $user->id,
+                'user_email' => $user->email ?? null,
+                'user_name' => $user->name ?? null,
+                'session_id' => substr(Session::getId(), 0, 8) . '...',
+                'session_lifetime_minutes' => $infiniteSessionMinutes,
+                'action' => 'set_infinite_session',
+            ]);
+
+            // Update session lifetime configuration for this session
+            config(['session.lifetime' => $infiniteSessionMinutes]);
+            
+            // Save infinite session information
+            session([
+                'last_activity_time' => $now,
+                'user_last_activity' => $now->timestamp,
+                'infinite_session_enabled' => true,
+                'infinite_session_set_at' => $now->toISOString(),
+                'session_lifetime_minutes' => $infiniteSessionMinutes,
+            ]);
+
+            // Update user's last_login_at
+            $this->updateUserLoginTime($user, $now);
+
+            // ⚠️ MANDATORY: Log operation performance
+            $this->logOperationPerformance('set_infinite_session', $startTime, [
+                'target_user_id' => $user->id,
+                'session_lifetime_minutes' => $infiniteSessionMinutes,
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            // ⚠️ MANDATORY: Log error with context
+            $this->logError($e, [
+                'action' => 'set_infinite_session',
+                'user_id' => Auth::id(),
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
      * Check if user's login time should be updated (throttling)
      *
      * @param mixed $user

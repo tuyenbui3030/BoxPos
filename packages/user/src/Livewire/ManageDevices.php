@@ -5,11 +5,13 @@ namespace Packages\User\Livewire;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Packages\User\Models\UserDevice;
+use Packages\Appearance\Traits\HasConfirmationModal;
 
 class ManageDevices extends Component
 {
-    public $showConfirmModal = false;
-    public $deviceToRemove = null;
+    use HasConfirmationModal;
+
+    protected $listeners = ['revokeAllOtherDevices' => 'revokeAllOtherDevices'];
 
     public function trustDevice($deviceId)
     {
@@ -29,33 +31,46 @@ class ManageDevices extends Component
 
     public function confirmRemoveDevice($deviceId)
     {
-        $this->deviceToRemove = $deviceId;
-        $this->showConfirmModal = true;
+        $device = auth()->user()->devices()->findOrFail($deviceId);
+        
+        $this->showDangerConfirmation(
+            'Remove Device',
+            "Are you sure you want to remove the device '{$device->device_name}'? This action cannot be undone.",
+            'removeDevice',
+            [$deviceId],
+            [
+                'confirmText' => 'Remove Device',
+                'confirmButtonClass' => 'btn-danger'
+            ]
+        );
     }
 
-    public function removeDevice()
+    public function removeDevice($deviceId)
     {
-        if ($this->deviceToRemove) {
-            $device = auth()->user()->devices()->findOrFail($this->deviceToRemove);
-            
-            // Don't allow removing the current device
-            if ($device->is_current_device) {
-                session()->flash('error', 'You cannot remove the current device.');
-                $this->closeModal();
-                return;
-            }
-            
-            $device->delete();
-            session()->flash('success', 'Device removed successfully.');
+        $device = auth()->user()->devices()->findOrFail($deviceId);
+        
+        // Don't allow removing the current device
+        if ($device->is_current_device) {
+            session()->flash('error', 'You cannot remove the current device.');
+            return;
         }
         
-        $this->closeModal();
+        $device->delete();
+        session()->flash('success', 'Device removed successfully.');
     }
 
-    public function closeModal()
+    public function confirmRevokeAllOtherDevices()
     {
-        $this->showConfirmModal = false;
-        $this->deviceToRemove = null;
+        $this->showWarningConfirmation(
+            'Revoke All Other Devices',
+            'Are you sure you want to revoke access for all other devices? This will log out all other sessions.',
+            'revokeAllOtherDevices',
+            [],
+            [
+                'confirmText' => 'Revoke All',
+                'confirmButtonClass' => 'btn-danger'
+            ]
+        );
     }
 
     public function revokeAllOtherDevices()

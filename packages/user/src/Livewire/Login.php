@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Rule;
 use Packages\User\Services\DeviceDetectionService;
+use Packages\SessionManager\Services\SessionService;
 
 class Login extends Component
 {
@@ -48,7 +49,7 @@ class Login extends Component
                 $device = $deviceService->detectAndRecordDevice($user, $user->remember_token);
                 
                 // Activate infinite session for remember me users
-                $sessionManager = new \App\Services\SessionManagerService();
+                $sessionManager = app(SessionService::class);
                 $sessionManager->setInfiniteSessionForActiveUser();
                 
                 session()->flash('message', "Infinite session activated! Bạn sẽ không bao giờ bị logout trên thiết bị này ({$device->device_name}).");

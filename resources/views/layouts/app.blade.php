@@ -52,6 +52,9 @@
     
     <x-modals.search-modal />
     
+    <!-- Global Confirmation Modal -->
+    <livewire:confirmation-modal />
+    
     <!-- Vendor Libraries JS -->
     @vite('resources/js/vendors.js')
     
