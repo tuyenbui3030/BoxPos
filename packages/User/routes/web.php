@@ -1,13 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Packages\User\Http\Controllers\UserController;
 use Packages\User\Livewire\Login;
 use Packages\User\Livewire\Register;
 
-// Auth routes (guest only)
-Route::middleware(['guest'])->group(function () {
-    Route::get('/login', Login::class)->name('login');
-    Route::get('/register', Register::class)->name('register');
+// Protected user routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [UserController::class, 'changePassword'])->name('password.change');
+});
+
+// API routes for User package
+Route::middleware(['auth:api'])->prefix('api/user')->name('api.user.')->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/password', [UserController::class, 'changePassword'])->name('password.change');
 });
 
 // Logout route

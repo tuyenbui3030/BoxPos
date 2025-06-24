@@ -28,7 +28,7 @@ class CreateCustomer extends Component
     public $customer_type = 'individual';
 
     #[Validate('nullable|in:male,female,other')]
-    public $gender = '';
+    public $gender = null;
 
     #[Validate('nullable|date')]
     public $birthday = '';
@@ -56,7 +56,7 @@ class CreateCustomer extends Component
         $this->email = '';
         $this->address = '';
         $this->customer_type = 'individual';
-        $this->gender = '';
+        $this->gender = null;
         $this->birthday = '';
         $this->customer_group = '';
     }
@@ -65,18 +65,20 @@ class CreateCustomer extends Component
     {
         $this->validate();
 
-        Customer::create([
+        $customerData = [
             'customer_code' => Customer::generateCustomerCode(),
             'customer_name' => $this->customer_name,
-            'phone_number' => $this->phone_number,
-            'email' => $this->email,
-            'address' => $this->address,
+            'phone_number' => $this->phone_number ?: null,
+            'email' => $this->email ?: null,
+            'address' => $this->address ?: null,
             'customer_type' => $this->customer_type,
-            'gender' => $this->gender,
-            'birthday' => $this->birthday,
-            'customer_group' => $this->customer_group,
+            'gender' => ($this->gender && $this->gender !== '') ? $this->gender : null,
+            'birthday' => $this->birthday ?: null,
+            'customer_group' => $this->customer_group ?: null,
             'created_by' => auth()->id(),
-        ]);
+        ];
+
+        Customer::create($customerData);
 
         session()->flash('success', 'Customer created successfully!');
         $this->closeModal();

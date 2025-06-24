@@ -7,16 +7,24 @@
     
     <title>{{ config('app.name', 'Laravel') }}</title>
     
-    <!-- Tabler CSS -->
+    <!-- Tabler Core CSS -->
     <link rel="stylesheet" href="{{ asset('tabler/css/tabler.min.css') }}">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <!-- Tabler Vendor CSS -->
+    <link rel="stylesheet" href="{{ asset('tabler/css/tabler-flags.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('tabler/css/tabler-payments.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('tabler/css/tabler-vendors.min.css') }}">
+    
+    <!-- Custom Tabler overrides -->
+    <link rel="stylesheet" href="{{ asset('tabler/css/tabler-custom.css') }}">
+    
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Livewire Styles -->
     @livewireStyles
 </head>
-<body class="border-top-wide border-primary d-flex flex-column">
+<body class="border-top-wide border-primary d-flex flex-column theme-light">
     <div class="page page-center">
         <div class="container container-tight py-4">
             <div class="text-center mb-4">
@@ -25,7 +33,11 @@
                 </a>
             </div>
             
-            {{ $slot }}
+            @isset($slot)
+                {{ $slot }}
+            @else
+                @yield('content')
+            @endisset
         </div>
     </div>
     
