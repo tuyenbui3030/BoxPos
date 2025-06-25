@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,6 +13,25 @@ use Illuminate\Support\Facades\Route;
 | routes are handled by their respective service providers.
 |
 */
+
+// Language switching routes
+Route::get('/language/{locale}', [LanguageController::class, 'switch'])
+    ->name('language.switch')
+    ->where('locale', 'en|vi');
+
+// Example localization page (for testing)
+Route::get('/localization-example', function () {
+    return view('localization-example');
+})->name('localization.example');
+
+// Test localization in project layout
+Route::get('/localization-test', [TestController::class, 'localization'])
+    ->name('localization.test');
+
+// Language test page
+Route::get('/language-test', function () {
+    return view('language-test');
+})->name('language.test');
 
 // Root redirect
 Route::get('/', function () {

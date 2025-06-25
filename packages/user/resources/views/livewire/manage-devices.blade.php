@@ -43,7 +43,7 @@
                         <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
                         <path d="M9 12l6 0"/>
                     </svg>
-                    Revoke All Other Devices
+                    {{ __('app.revoke_all_other_devices') }}
                 </button>
             </div>
         </div>
@@ -78,13 +78,13 @@
                                 @endif
                             </div>
                             <div class="flex-fill">
-                                <div class="font-weight-medium">{{ $device->device_name ?: 'Unknown Device' }}</div>
+                                <div class="font-weight-medium">{{ $device->device_name ?: __('app.unknown_device') }}</div>
                                 <div class="text-muted">{{ $device->device_info }}</div>
                             </div>
                             @if($device->is_current_device)
-                                <span class="badge bg-green text-white">Current</span>
+                                <span class="badge bg-green text-white">{{ __('app.current_device') }}</span>
                             @elseif($device->is_trusted)
-                                <span class="badge bg-blue text-white">Trusted</span>
+                                <span class="badge bg-blue text-white">{{ __('app.trusted') }}</span>
                             @endif
                         </div>
 
@@ -106,7 +106,7 @@
                                     <circle cx="12" cy="12" r="9"/>
                                     <polyline points="12,7 12,12 15,15"/>
                                 </svg>
-                                Last active: {{ $device->last_activity ? $device->last_activity->diffForHumans() : 'Never' }}
+                                {{ __('app.last_activity') }}: {{ $device->last_activity ? $device->last_activity->diffForHumans() : __('app.never') }}
                             </small>
                         </div>
 
@@ -117,7 +117,7 @@
                                     <rect x="3" y="5" width="18" height="14" rx="2"/>
                                     <polyline points="3,7 12,13 21,7"/>
                                 </svg>
-                                Last login: {{ $device->last_login_at ? $device->last_login_at->diffForHumans() : 'Never' }}
+                                Last login: {{ $device->last_login_at ? $device->last_login_at->diffForHumans() : __('app.never') }}
                             </small>
                         </div>
 
@@ -130,7 +130,7 @@
                                             <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/>
                                             <path d="M9 12l2 2l4 -4"/>
                                         </svg>
-                                        Untrust
+                                        {{ __('app.untrust_device') }}
                                     </button>
                                 @else
                                     <button wire:click="trustDevice({{ $device->id }})" class="btn btn-sm btn-outline-primary">
@@ -138,7 +138,7 @@
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                             <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/>
                                         </svg>
-                                        Trust
+                                        {{ __('app.trust_device') }}
                                     </button>
                                 @endif
                                 
@@ -148,12 +148,12 @@
                                         <polyline points="3 6 5 6 21 6"/>
                                         <path d="M19 6v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-14m3 0v-2a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v2"/>
                                     </svg>
-                                    Remove
+                                    {{ __('app.revoke_device') }}
                                 </button>
                             </div>
                         @else
                             <div class="card-actions">
-                                <small class="text-muted">This is your current device</small>
+                                <small class="text-muted">{{ __('app.this_is_your_current_device') }}</small>
                             </div>
                         @endif
                     </div>
@@ -169,9 +169,9 @@
                             <line x1="9" y1="16" x2="15" y2="16"/>
                         </svg>
                     </div>
-                    <p class="empty-title">No devices found</p>
+                    <p class="empty-title">{{ __('app.no_other_devices') }}</p>
                     <p class="empty-subtitle text-muted">
-                        You haven't used "Remember me" on any devices yet.
+                        {{ __('app.you_havent_used_remember_me') }}
                     </p>
                 </div>
             </div>

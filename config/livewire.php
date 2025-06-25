@@ -13,7 +13,7 @@ return [
     |
     */
 
-    // 'class_namespace' => 'App\\Livewire', // Disabled since components are in packages
+    'class_namespace' => 'App\\Livewire',
 
     /*
     |---------------------------------------------------------------------------

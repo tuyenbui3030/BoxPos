@@ -1,12 +1,13 @@
 # Log Package
 
-A comprehensive logging package for Laravel applications optimized for local/VPS deployment with support for multiple log channels, SQL query tracking, and performance monitoring.
+A comprehensive logging package for Laravel applications optimized for local/VPS deployment with support for multiple log channels, SQL query tracking, performance monitoring, and Sentry integration.
 
 ## Features
 
 - **Separate Log Files**: Stores logs in separate files (laravel.log, error.log, sql.log)
 - **SQL Query Logging**: Track and analyze database queries with N+1 detection
 - **Performance Monitoring**: Monitor memory usage and execution time
+- **Sentry Integration**: Error tracking and performance monitoring with Sentry
 - **Log Rotation & Compression**: Automatic cleanup and compression of old logs
 - **Custom Channels**: Support for remote file storage and Slack notifications
 - **Request Tracking**: Log HTTP requests and responses with duration
@@ -63,6 +64,14 @@ LOG_SLOW_QUERIES=true
 SLOW_QUERY_THRESHOLD=500
 LOG_REQUESTS=true
 LOG_PERFORMANCE=true
+
+# Sentry Integration
+SENTRY_LARAVEL_DSN=your-sentry-dsn
+SENTRY_TRACES_SAMPLE_RATE=1.0
+SENTRY_PROFILES_SAMPLE_RATE=1.0
+SENTRY_ENVIRONMENT="${APP_ENV}"
+SENTRY_SEND_DEFAULT_PII=false
+SENTRY_CAPTURE_SQL_QUERIES=true
 
 # Storage Management
 LOG_RETENTION_DAYS=14

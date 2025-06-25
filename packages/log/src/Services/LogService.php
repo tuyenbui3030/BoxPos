@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 use Packages\Log\Services\LogFormatterService;
 use Packages\Log\Services\QueryPerformanceService;
+use Packages\Log\Services\SentryService;
 use Packages\Log\Exceptions\LoggingException;
 
 class LogService
 {
     protected LogFormatterService $formatter;
     protected QueryPerformanceService $queryPerformance;
+    protected ?SentryService $sentryService = null;
     protected ?string $requestId = null;
 
     public function __construct(
@@ -22,6 +24,11 @@ class LogService
         $this->formatter = $formatter;
         $this->queryPerformance = $queryPerformance;
         $this->requestId = $this->generateRequestId();
+        
+        // Initialize Sentry service if enabled
+        if (config('logging-package.sentry.enabled', false)) {
+            $this->sentryService = app(SentryService::class);
+        }
     }
 
     /**
@@ -61,6 +68,14 @@ class LogService
         
         Log::channel('error')->error($exception->getMessage(), $errorContext);
         
+        // Report to Sentry if enabled
+        if ($this->sentryService) {
+            $this->sentryService->reportException($exception, $errorContext, [
+                'error_type' => get_class($exception),
+                'request_id' => $this->requestId,
+            ]);
+        }
+        
         // Send to Slack if critical and enabled
         if ($this->isCriticalError($exception) && config('logging-package.slack.enabled', false)) {
             $this->sendToSlack($exception, $errorContext);
@@ -91,6 +106,11 @@ class LogService
         // Log as warning if slow query
         $threshold = config('logging-package.sql.threshold_ms', 500);
         $level = $time > $threshold ? 'warning' : 'debug';
+        
+        // Report slow queries to Sentry if enabled
+        if ($this->sentryService && $time > $threshold && config('logging-package.sentry.report_slow_queries', true)) {
+            $this->sentryService->logSlowQuery($context);
+        }
         
         if ($level === 'warning') {
             $context['slow_query'] = true;

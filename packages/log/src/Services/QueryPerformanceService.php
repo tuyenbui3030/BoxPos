@@ -5,6 +5,7 @@ namespace Packages\Log\Services;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Packages\Log\Services\SentryService;
 
 class QueryPerformanceService
 {
@@ -13,11 +14,17 @@ class QueryPerformanceService
     protected float $requestStartTime;
     protected bool $isTracking = false;
     protected string $requestId;
+    protected ?SentryService $sentryService = null;
 
     public function __construct()
     {
         $this->requestId = 'req_' . Str::random(10);
         $this->requestStartTime = microtime(true);
+        
+        // Initialize Sentry service if enabled
+        if (config('logging-package.sentry.enabled', false)) {
+            $this->sentryService = app(SentryService::class);
+        }
     }
 
     /**
@@ -199,30 +206,58 @@ class QueryPerformanceService
         // Too many queries
         $maxQueries = config('logging-package.sql.max_queries_per_request', 50);
         if ($analysis['total_queries'] > $maxQueries) {
-            $warnings[] = [
+            $warning = [
                 'type' => 'too_many_queries',
                 'message' => "Request executed {$analysis['total_queries']} queries (limit: {$maxQueries})",
                 'severity' => 'high',
             ];
+            $warnings[] = $warning;
+            
+            // Report to Sentry if enabled
+            if ($this->sentryService) {
+                $this->sentryService->reportMessage(
+                    $warning['message'],
+                    'warning',
+                    $analysis,
+                    ['performance_issue' => 'too_many_queries']
+                );
+            }
         }
 
         // Slow total time
         if ($analysis['total_time'] > 1000) { // 1 second
-            $warnings[] = [
+            $warning = [
                 'type' => 'slow_total_time',
                 'message' => "Total query time: {$analysis['total_time']}ms exceeds 1000ms",
                 'severity' => 'medium',
             ];
+            $warnings[] = $warning;
+            
+            // Report to Sentry if enabled
+            if ($this->sentryService) {
+                $this->sentryService->reportMessage(
+                    $warning['message'],
+                    'warning',
+                    $analysis,
+                    ['performance_issue' => 'slow_queries']
+                );
+            }
         }
 
         // N+1 patterns detected
         if (!empty($analysis['n_plus_one_patterns'])) {
             foreach ($analysis['n_plus_one_patterns'] as $pattern) {
-                $warnings[] = [
+                $warning = [
                     'type' => 'n_plus_one',
                     'message' => "Possible N+1 query on table '{$pattern['table_name']}' ({$pattern['count']} queries)",
                     'severity' => 'high',
                 ];
+                $warnings[] = $warning;
+                
+                // Report to Sentry if enabled
+                if ($this->sentryService && config('logging-package.sentry.report_n_plus_one', true)) {
+                    $this->sentryService->logNPlusOneQuery($pattern);
+                }
             }
         }
 
@@ -231,11 +266,22 @@ class QueryPerformanceService
             foreach ($analysis['duplicate_queries'] as $duplicates) {
                 $count = count($duplicates);
                 if ($count > 3) {
-                    $warnings[] = [
+                    $warning = [
                         'type' => 'duplicate_queries',
                         'message' => "Query executed {$count} times with same parameters",
                         'severity' => 'medium',
                     ];
+                    $warnings[] = $warning;
+                    
+                    // Report to Sentry if enabled
+                    if ($this->sentryService) {
+                        $this->sentryService->reportMessage(
+                            $warning['message'],
+                            'warning',
+                            ['duplicates' => $duplicates],
+                            ['performance_issue' => 'duplicate_queries']
+                        );
+                    }
                 }
             }
         }

@@ -4,10 +4,16 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Packages\Log\Traits\Loggable;
+use App\Traits\HandlesLocaleUpdates;
 
 class UserDropdown extends Component
 {
-    use Loggable; // ⚠️ MANDATORY: Use Loggable trait
+    use Loggable, HandlesLocaleUpdates; // ⚠️ MANDATORY: Use Loggable trait
+    
+    protected $listeners = [
+        'locale-updated' => 'handleLocaleUpdate'
+    ];
+    
     public $isDropdownOpen = false;
 
     public function toggleDropdown()

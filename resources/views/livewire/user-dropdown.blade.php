@@ -22,7 +22,7 @@
                     <path d="M11 5h2"/>
                     <circle cx="12" cy="17" r="1"/>
                 </svg>
-                Manage Devices
+                {{ __('app.manage_devices') }}
             </a>
             <div class="dropdown-divider"></div>
             <livewire:logout-button :button-class="'dropdown-item'" />

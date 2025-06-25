@@ -6,19 +6,23 @@ use Livewire\Component;
 use Livewire\Attributes\Title;
 use Packages\User\Models\UserDevice;
 use Packages\Appearance\Traits\HasConfirmationModal;
+use App\Traits\HandlesLocaleUpdates;
 
 class ManageDevices extends Component
 {
-    use HasConfirmationModal;
+    use HasConfirmationModal, HandlesLocaleUpdates;
 
-    protected $listeners = ['revokeAllOtherDevices' => 'revokeAllOtherDevices'];
+    protected $listeners = [
+        'revokeAllOtherDevices' => 'revokeAllOtherDevices',
+        'locale-updated' => 'handleLocaleUpdate'
+    ];
 
     public function trustDevice($deviceId)
     {
         $device = auth()->user()->devices()->findOrFail($deviceId);
         $device->update(['is_trusted' => true]);
         
-        session()->flash('success', 'Device marked as trusted.');
+        session()->flash('success', __('app.device_trusted'));
     }
 
     public function untrustDevice($deviceId)
@@ -26,7 +30,7 @@ class ManageDevices extends Component
         $device = auth()->user()->devices()->findOrFail($deviceId);
         $device->update(['is_trusted' => false]);
         
-        session()->flash('success', 'Device untrusted.');
+        session()->flash('success', __('app.device_untrusted'));
     }
 
     public function confirmRemoveDevice($deviceId)
@@ -34,11 +38,11 @@ class ManageDevices extends Component
         $device = auth()->user()->devices()->findOrFail($deviceId);
         
         $this->confirmation()
-            ->title('Remove Device')
-            ->message("Are you sure you want to remove the device '{$device->device_name}'? This action cannot be undone.")
+            ->title(__('app.revoke_device'))
+            ->message(__('app.are_you_sure_remove_device', ['device' => $device->device_name]))
             ->danger()
             ->action('removeDevice', [$deviceId])
-            ->confirmText('Remove Device')
+            ->confirmText(__('app.revoke_device'))
             ->show();
     }
 
@@ -48,22 +52,22 @@ class ManageDevices extends Component
         
         // Don't allow removing the current device
         if ($device->is_current_device) {
-            session()->flash('error', 'You cannot remove the current device.');
+            session()->flash('error', __('app.you_cannot_remove_current_device'));
             return;
         }
         
         $device->delete();
-        session()->flash('success', 'Device removed successfully.');
+        session()->flash('success', __('app.device_revoked'));
     }
 
     public function confirmRevokeAllOtherDevices()
     {
         $this->confirmation()
-            ->title('Revoke All Other Devices')
-            ->message('Are you sure you want to revoke access for all other devices? This will log out all other sessions.')
+            ->title(__('app.revoke_all_other_devices'))
+            ->message(__('app.are_you_sure_revoke_all'))
             ->warning()
             ->action('revokeAllOtherDevices')
-            ->confirmText('Revoke All')
+            ->confirmText(__('app.revoke_all'))
             ->buttonClass('btn-danger')
             ->show();
     }
@@ -79,7 +83,7 @@ class ManageDevices extends Component
             ->when($currentDevice, fn($query) => $query->where('id', '!=', $currentDevice->id))
             ->delete();
 
-        session()->flash('success', "Revoked access for {$count} other devices.");
+        session()->flash('success', __('app.devices_revoked', ['count' => $count]));
     }
 
     #[Title('Manage Devices')]
@@ -91,7 +95,7 @@ class ManageDevices extends Component
 
         return view('user::livewire.manage-devices', compact('devices'))
             ->layout('layouts.app', [
-                'header' => 'Manage Devices'
+                'header' => __('app.manage_devices')
             ]);
     }
 }

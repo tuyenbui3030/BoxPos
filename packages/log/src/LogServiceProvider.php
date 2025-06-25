@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Log;
 use Packages\Log\Services\LogService;
 use Packages\Log\Services\LogFormatterService;
 use Packages\Log\Services\QueryPerformanceService;
+use Packages\Log\Services\SentryService;
 use Packages\Log\Middleware\LogRequests;
 use Packages\Log\Middleware\LogSqlQueries;
 use Packages\Log\Middleware\LogPerformance;
+use Packages\Log\Middleware\SentryPerformanceMiddleware;
 use Packages\Log\Channels\RemoteFileChannel;
 use Packages\Log\Channels\SlackChannel;
+use Packages\Log\Console\TestSentryCommand;
 
 class LogServiceProvider extends ServiceProvider
 {
@@ -52,6 +55,21 @@ class LogServiceProvider extends ServiceProvider
 
         // Set up log cleanup scheduler
         $this->setupLogCleanup();
+
+        // Register console commands
+        $this->registerCommands();
+    }
+
+    /**
+     * Register console commands
+     */
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                TestSentryCommand::class,
+            ]);
+        }
     }
 
     /**
@@ -74,10 +92,15 @@ class LogServiceProvider extends ServiceProvider
             return new QueryPerformanceService();
         });
 
+        $this->app->singleton(SentryService::class, function ($app) {
+            return new SentryService();
+        });
+
         // Bind to shorter aliases for easier access
         $this->app->alias(LogService::class, 'log.service');
         $this->app->alias(LogFormatterService::class, 'log.formatter');
         $this->app->alias(QueryPerformanceService::class, 'log.query-performance');
+        $this->app->alias(SentryService::class, 'log.sentry');
     }
 
     /**
@@ -104,6 +127,7 @@ class LogServiceProvider extends ServiceProvider
         $router->aliasMiddleware('log.requests', LogRequests::class);
         $router->aliasMiddleware('log.sql', LogSqlQueries::class);
         $router->aliasMiddleware('log.performance', LogPerformance::class);
+        $router->aliasMiddleware('sentry.performance', SentryPerformanceMiddleware::class);
     }
 
     /**
@@ -189,9 +213,11 @@ class LogServiceProvider extends ServiceProvider
             LogService::class,
             LogFormatterService::class,
             QueryPerformanceService::class,
+            SentryService::class,
             'log.service',
             'log.formatter',
             'log.query-performance',
+            'log.sentry',
         ];
     }
 }

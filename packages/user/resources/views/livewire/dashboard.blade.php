@@ -5,22 +5,22 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="subheader">Sales</div>
+                        <div class="subheader">{{ __('app.sales') }}</div>
                         <div class="ms-auto lh-1">
                             <div class="dropdown">
                                 <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">Last 7 days</a>
+                                    aria-haspopup="true" aria-expanded="false">{{ __('app.last_7_days') }}</a>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item active" href="#">Last 7 days</a>
-                                    <a class="dropdown-item" href="#">Last 30 days</a>
-                                    <a class="dropdown-item" href="#">Last 3 months</a>
+                                    <a class="dropdown-item active" href="#">{{ __('app.last_7_days') }}</a>
+                                    <a class="dropdown-item" href="#">{{ __('app.last_30_days') }}</a>
+                                    <a class="dropdown-item" href="#">{{ __('app.last_3_months') }}</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="h1 mb-3">75%</div>
                     <div class="d-flex mb-2">
-                        <div>Conversion rate</div>
+                        <div>{{ __('app.conversion_rate') }}</div>
                         <div class="ms-auto">
                             <span class="text-green d-inline-flex align-items-center lh-1">
                                 7%

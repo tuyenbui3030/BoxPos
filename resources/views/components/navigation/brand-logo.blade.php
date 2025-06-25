@@ -7,4 +7,3 @@
         {{ config('app.name', 'BoxPos') }}
     </a>
 </div>
-

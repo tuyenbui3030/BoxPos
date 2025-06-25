@@ -32,7 +32,7 @@
                 
                 <x-navigation.header-tools />
                 
-                <x-navigation.main-navbar />
+                <livewire:main-navigation />
             </div>
         </header>
         
@@ -63,6 +63,50 @@
     
     <!-- Main JS (includes Tabler JS and Alpine.js) -->
     @vite('resources/js/app.js')
+
+    <!-- Global Language Switch Handler -->
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Listen for Livewire locale-updated events
+            Livewire.on('locale-updated', (event) => {
+                console.log('Livewire locale updated:', event);
+                
+                // Refresh all Livewire components on the page
+                setTimeout(() => {
+                    // Find all Livewire components and refresh them
+                    document.querySelectorAll('[wire\\:id]').forEach(element => {
+                        try {
+                            const wireId = element.getAttribute('wire:id');
+                            if (wireId && window.Livewire.find(wireId)) {
+                                window.Livewire.find(wireId).$refresh();
+                            }
+                        } catch (error) {
+                            console.log('Could not refresh component:', error);
+                        }
+                    });
+                }, 100); // Small delay to ensure the locale is properly set
+            });
+            
+            // Also listen for custom browser events
+            window.addEventListener('locale-updated', (event) => {
+                console.log('Browser locale updated:', event.detail);
+                
+                // Refresh all Livewire components on the page
+                setTimeout(() => {
+                    document.querySelectorAll('[wire\\:id]').forEach(element => {
+                        try {
+                            const wireId = element.getAttribute('wire:id');
+                            if (wireId && window.Livewire.find(wireId)) {
+                                window.Livewire.find(wireId).$refresh();
+                            }
+                        } catch (error) {
+                            console.log('Could not refresh component:', error);
+                        }
+                    });
+                }, 100);
+            });
+        });
+    </script>
     
     <!-- Session Keep Alive Script - Temporarily disabled -->
     {{-- <script src="{{ asset('js/session-keep-alive.js') }}"></script> --}}

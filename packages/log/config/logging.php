@@ -262,4 +262,27 @@ return [
         'flush_interval' => env('LOG_FLUSH_INTERVAL', 30), // seconds
         'log_group_prefix' => env('CLOUDWATCH_LOG_GROUP_PREFIX', 'boxpos'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sentry Integration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Sentry error reporting and performance monitoring.
+    | This integrates with the existing logging system to provide additional
+    | error tracking and performance insights.
+    |
+    */
+
+    'sentry' => [
+        'enabled' => env('SENTRY_LARAVEL_DSN') !== null,
+        'enable_local_tracking' => env('SENTRY_ENABLE_LOCAL_TRACKING', false),
+        'report_slow_queries' => env('SENTRY_REPORT_SLOW_QUERIES', true),
+        'report_n_plus_one' => env('SENTRY_REPORT_N_PLUS_ONE', true),
+        'report_performance_issues' => env('SENTRY_REPORT_PERFORMANCE_ISSUES', true),
+        'performance_thresholds' => [
+            'execution_time_ms' => env('SENTRY_EXECUTION_THRESHOLD_MS', 1000),
+            'memory_usage_mb' => env('SENTRY_MEMORY_THRESHOLD_MB', 100),
+        ],
+    ],
 ];
