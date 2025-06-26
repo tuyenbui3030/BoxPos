@@ -3,17 +3,17 @@
         $currentLang = get_current_language();
         $availableLangs = get_available_languages();
     @endphp
-    
+
     <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Language selector">
         <span class="me-2">{{ $currentLang['flag'] ?? '🌐' }}</span>
         <span class="d-none d-lg-inline">{{ $currentLang['native'] ?? __('app.language') }}</span>
     </a>
-    
+
     <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
         @foreach($availableLangs as $locale => $language)
-            <a 
-                class="dropdown-item {{ is_current_language($locale) ? 'active' : '' }}" 
-                href="{{ language_url($locale) }}"
+            <a
+                class="dropdown-item {{ is_current_language($locale) ? 'active' : '' }}"
+                href="{{ route('language.switch', ['locale' => $locale]) }}"
             >
                 <span class="me-2">{{ $language['flag'] }}</span>
                 <span>{{ $language['native'] }}</span>

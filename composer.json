@@ -38,7 +38,8 @@
             "Packages\\User\\": "packages/user/src/",
             "Packages\\SessionManager\\": "packages/session-manager/src/",
             "Packages\\Appearance\\": "packages/appearance/src/",
-            "Packages\\Log\\": "packages/log/src/"
+            "Packages\\Log\\": "packages/log/src/",
+            "Packages\\Localization\\": "packages/localization/src/"
         }
     },
     "autoload-dev": {

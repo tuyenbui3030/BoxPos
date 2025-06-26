@@ -10,10 +10,12 @@ class LogoutButton extends Component
 {
     use Loggable; // ⚠️ MANDATORY: Use Loggable trait
     use HasConfirmationModal; // Use confirmation modal trait
-    
+
     public $buttonText = 'Logout';
     public $buttonClass = 'dropdown-item';
     public $showIcon = true;
+
+    protected $listeners = ['logout'];
 
     public function confirmLogout()
     {
@@ -36,7 +38,7 @@ class LogoutButton extends Component
     public function logout()
     {
         $user = auth()->user();
-        
+
         // ⚠️ MANDATORY: Log user action
         $this->logActivity('user_logout_requested', [
             'user_id' => $user?->id,
@@ -47,7 +49,7 @@ class LogoutButton extends Component
 
         // Add a small delay for better UX (show "Processing..." for a moment)
         sleep(1); // 1 second delay để user thấy loading state
-        
+
         try {
             auth()->logout();
             request()->session()->invalidate();
@@ -60,7 +62,7 @@ class LogoutButton extends Component
                 'user_agent' => request()->userAgent(),
                 'component' => 'LogoutButton',
             ]);
-            
+
             // Use navigate for SPA-like experience, fallback to standard redirect
             return $this->redirect(route('login'), navigate: true);
         } catch (\Exception $e) {

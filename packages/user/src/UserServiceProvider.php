@@ -26,21 +26,21 @@ class UserServiceProvider extends ServiceProvider
         $this->app->alias(\Packages\User\Models\User::class, \App\Models\User::class);
         $this->app->alias(\Packages\User\Models\UserDevice::class, \App\Models\UserDevice::class);
         $this->app->alias(\Packages\User\Services\DeviceDetectionService::class, \App\Services\DeviceDetectionService::class);
-        
+
         // Register services
         $this->app->singleton(UserService::class, function ($app) {
             return new UserService($app->make(UserRepository::class));
         });
-        
+
         $this->app->singleton(\Packages\User\Services\DeviceDetectionService::class, function ($app) {
             return new \Packages\User\Services\DeviceDetectionService($app->make('request'));
         });
-        
+
         // Register repositories
         $this->app->singleton(UserRepository::class, function ($app) {
             return new UserRepository($app->make(\Packages\User\Models\User::class));
         });
-        
+
         // Merge configuration
         $this->mergeConfigFrom(
             __DIR__ . '/../config/user.php',
@@ -55,29 +55,37 @@ class UserServiceProvider extends ServiceProvider
     {
         // Register Livewire components
         $this->registerLivewireComponents();
-        
+
         // Register middleware
         $this->registerMiddleware();
-        
+
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
-        
+
         // Load routes
         $this->loadRoutes();
-        
+
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'user');
-        
+
+        // Load translations
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'user');
+
         // Publish migrations
         $this->publishes([
             __DIR__ . '/Database/Migrations' => database_path('migrations'),
         ], 'user-migrations');
-        
+
         // Publish configuration
         $this->publishes([
             __DIR__ . '/../config/user.php' => config_path('user.php'),
         ], 'user-config');
-        
+
+        // Publish translations
+        $this->publishes([
+            __DIR__ . '/../resources/lang' => $this->app->langPath('vendor/user'),
+        ], 'user-translations');
+
         // Register event listeners
         $this->registerEventListeners();
     }
@@ -132,7 +140,7 @@ class UserServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         $router = $this->app['router'];
-        
+
         // Register middleware aliases
         $router->aliasMiddleware('user.access', \Packages\User\Http\Middleware\EnsureUserAccess::class);
         $router->aliasMiddleware('user.auth.log', \Packages\User\Http\Middleware\LogUserAuthentication::class);

@@ -6,7 +6,7 @@ if (!function_exists('get_current_language')) {
      */
     function get_current_language(): array
     {
-        $controller = new \App\Http\Controllers\LanguageController();
+        $controller = new \Packages\Localization\Http\Controllers\LanguageController();
         return $controller->getCurrentLanguage();
     }
 }
@@ -17,7 +17,7 @@ if (!function_exists('get_available_languages')) {
      */
     function get_available_languages(): array
     {
-        $controller = new \App\Http\Controllers\LanguageController();
+        $controller = new \Packages\Localization\Http\Controllers\LanguageController();
         return $controller->getAvailableLanguages();
     }
 }
@@ -50,7 +50,7 @@ if (!function_exists('get_language_direction')) {
     {
         $rtlLanguages = ['ar', 'he', 'fa', 'ur'];
         $currentLocale = app()->getLocale();
-        
+
         return in_array($currentLocale, $rtlLanguages) ? 'rtl' : 'ltr';
     }
 }

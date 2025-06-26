@@ -34,14 +34,14 @@ return [
     'loading' => 'Đang tải...',
     'processing' => 'Đang xử lý...',
     'please_wait' => 'Vui lòng đợi...',
-    
+
     // Status messages
     'success' => 'Thành công',
     'error' => 'Lỗi',
     'warning' => 'Cảnh báo',
     'info' => 'Thông tin',
     'notice' => 'Thông báo',
-    
+
     // Form labels
     'name' => 'Tên',
     'email' => 'Email',
@@ -65,7 +65,7 @@ return [
     'subtotal' => 'Tổng phụ',
     'tax' => 'Thuế',
     'discount' => 'Giảm giá',
-    
+
     // Navigation & Menu
     'navigation' => 'Điều hướng',
     'menu' => 'Menu',
@@ -73,7 +73,7 @@ return [
     'main_menu' => 'Menu chính',
     'user_menu' => 'Menu người dùng',
     'admin_panel' => 'Panel quản trị',
-    
+
     // Data table
     'actions' => 'Hành động',
     'no_data' => 'Không có dữ liệu',
@@ -82,7 +82,7 @@ return [
     'entries' => 'mục',
     'show' => 'Hiển thị',
     'per_page' => 'mỗi trang',
-    
+
     // File operations
     'upload' => 'Tải lên',
     'download' => 'Tải xuống',
@@ -92,7 +92,7 @@ return [
     'files' => 'Các tệp',
     'image' => 'Hình ảnh',
     'images' => 'Các hình ảnh',
-    
+
     // Messages
     'operation_successful' => 'Thao tác thành công',
     'operation_failed' => 'Thao tác thất bại',
@@ -105,7 +105,7 @@ return [
     'permission_denied' => 'Không có quyền truy cập',
     'page_not_found' => 'Không tìm thấy trang',
     'session_expired' => 'Phiên làm việc đã hết hạn',
-    
+
     // Date and time
     'today' => 'Hôm nay',
     'yesterday' => 'Hôm qua',
@@ -116,14 +116,14 @@ return [
     'last_month' => 'Tháng trước',
     'this_year' => 'Năm nay',
     'last_year' => 'Năm trước',
-    
+
     // Common validations
     'required_field' => 'Trường này là bắt buộc',
     'invalid_email' => 'Vui lòng nhập địa chỉ email hợp lệ',
     'invalid_phone' => 'Vui lòng nhập số điện thoại hợp lệ',
     'password_mismatch' => 'Mật khẩu không khớp',
     'invalid_format' => 'Định dạng không hợp lệ',
-    
+
     // Language and localization
     'language' => 'Ngôn ngữ',
     'select_language' => 'Chọn ngôn ngữ',
@@ -151,7 +151,7 @@ return [
     'enter_your_message' => 'Nhập tin nhắn của bạn',
     'submit' => 'Gửi',
     'success' => 'Thành công',
-    
+
     // Quản lý Thiết bị
     'manage_devices' => 'Quản lý Thiết bị',
     'device_management' => 'Quản lý Thiết bị',
@@ -183,7 +183,7 @@ return [
     'are_you_sure_remove_device' => 'Bạn có chắc chắn muốn xóa thiết bị \':device\'? Hành động này không thể hoàn tác.',
     'are_you_sure_revoke_all' => 'Bạn có chắc chắn muốn thu hồi quyền truy cập cho tất cả thiết bị khác? Điều này sẽ đăng xuất tất cả phiên khác.',
     'revoke_all' => 'Thu hồi Tất cả',
-    
+
     // Dashboard terms
     'sales' => 'Doanh số',
     'last_7_days' => '7 ngày qua',
@@ -200,7 +200,7 @@ return [
     'pending_orders' => 'Đơn hàng chờ',
     'completed_orders' => 'Đơn hàng hoàn thành',
     'cancelled_orders' => 'Đơn hàng đã hủy',
-    
+
     // Menu items
     'menu_dashboard' => 'Bảng điều khiển',
     'menu_home' => 'Trang chủ',
@@ -214,5 +214,4 @@ return [
     'menu_settings' => 'Cài đặt',
     'menu_reports' => 'Báo cáo',
     'menu_analytics' => 'Phân tích',
-];
 ];

@@ -2,8 +2,8 @@
 <div class="collapse navbar-collapse" id="navbar-menu">
     <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
         <ul class="navbar-nav">
-            <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <a class="nav-link spa-link" href="{{ route('dashboard') }}" wire:navigate>
+            <li class="nav-item {{ is_current_route('dashboard') ? 'active' : '' }}">
+                <a class="nav-link spa-link" href="{{ localized_route('dashboard') }}" wire:navigate>
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -17,7 +17,7 @@
                     </span>
                 </a>
             </li>
-            
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -49,9 +49,9 @@
                     </div>
                 </div>
             </li>
-            
-            <li class="nav-item {{ request()->routeIs('customers') ? 'active' : '' }}">
-                <a class="nav-link spa-link" href="{{ route('customers') }}" wire:navigate>
+
+            <li class="nav-item {{ is_current_route('customers') ? 'active' : '' }}">
+                <a class="nav-link spa-link" href="{{ localized_route('customers') }}" wire:navigate>
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -66,7 +66,7 @@
                     </span>
                 </a>
             </li>
-            
+
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -84,7 +84,7 @@
                     </span>
                 </a>
             </li>
-            
+
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span class="nav-link-icon d-md-none d-lg-inline-block">

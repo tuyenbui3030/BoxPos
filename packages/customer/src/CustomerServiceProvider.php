@@ -15,18 +15,18 @@ class CustomerServiceProvider extends ServiceProvider
     {
         // Register aliases for backward compatibility
         $this->app->alias(\Packages\Customer\Models\Customer::class, \App\Models\Customer::class);
-        
+
         // Register services
         $this->app->bind(
             \Packages\Customer\Repositories\CustomerRepository::class,
             \Packages\Customer\Repositories\CustomerRepository::class
         );
-        
+
         $this->app->bind(
             \Packages\Customer\Services\CustomerService::class,
             \Packages\Customer\Services\CustomerService::class
         );
-        
+
         // Register configuration
         $this->mergeConfigFrom(__DIR__ . '/../config/customer.php', 'customer');
     }
@@ -38,29 +38,37 @@ class CustomerServiceProvider extends ServiceProvider
     {
         // Register Livewire components
         $this->registerLivewireComponents();
-        
+
         // Register middleware
         $this->registerMiddleware();
-        
+
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
-        
+
         // Load routes
         $this->loadRoutes();
-        
+
         // Load views from package
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'customer');
-        
+
+        // Load translations
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'customer');
+
         // Publish configuration
         $this->publishes([
             __DIR__ . '/../config/customer.php' => config_path('customer.php'),
         ], 'customer-config');
-        
+
         // Publish migrations
         $this->publishes([
             __DIR__ . '/Database/Migrations' => database_path('migrations'),
         ], 'customer-migrations');
-        
+
+        // Publish translations
+        $this->publishes([
+            __DIR__ . '/../resources/lang' => $this->app->langPath('vendor/customer'),
+        ], 'customer-translations');
+
         // Register event listeners
         $this->registerEventListeners();
     }
@@ -111,7 +119,7 @@ class CustomerServiceProvider extends ServiceProvider
     protected function registerMiddleware(): void
     {
         $router = $this->app['router'];
-        
+
         // Register middleware aliases
         $router->aliasMiddleware('customer.ownership', \Packages\Customer\Http\Middleware\EnsureCustomerOwnership::class);
         $router->aliasMiddleware('customer.logging', \Packages\Customer\Http\Middleware\LogCustomerActions::class);

@@ -21,16 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'log.performance' => \Packages\Log\Middleware\LogPerformance::class,
             'sentry.performance' => \Packages\Log\Middleware\SentryPerformanceMiddleware::class,
         ]);
-        
+
         // Add middleware to web group
-        $middleware->web(append: [
+        $middleware->web(prepend: [
             \App\Http\Middleware\LocalizationMiddleware::class,
+        ]);
+
+        $middleware->web(append: [
             \Packages\Appearance\Http\Middleware\AppearanceMiddleware::class,
             \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
-            // Add Log performance middleware to all web requests
-            \Packages\Log\Middleware\LogPerformance::class,
-            // Add Sentry performance middleware for production monitoring
-            \Packages\Log\Middleware\SentryPerformanceMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

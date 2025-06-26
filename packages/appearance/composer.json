@@ -17,22 +17,4 @@
             "providers": ["Packages\\Appearance\\AppearanceServiceProvider"]
         }
     }
-}ges/appearance",
-    "description": "Appearance management package for BoxPos",
-    "type": "library",
-    "autoload": {
-        "psr-4": {
-            "Packages\\Appearance\\": "src/"
-        }
-    },
-    "require": {
-        "php": "^8.2",
-        "illuminate/support": "^11.0",
-        "livewire/livewire": "^3.0"
-    },
-    "extra": {
-        "laravel": {
-            "providers": ["Packages\\Appearance\\AppearanceServiceProvider"]
-        }
-    }
 }

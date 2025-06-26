@@ -19,9 +19,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load locale helpers
+        require_once app_path('Helpers/LocaleHelper.php');
+
         // Set default Tabler UI pagination views for Laravel
         \Illuminate\Pagination\Paginator::useBootstrap();
-        
+
         // Share theme with all views
         view()->composer('*', function ($view) {
             $view->with('currentTheme', session('theme', 'light'));

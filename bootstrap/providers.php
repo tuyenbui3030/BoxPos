@@ -9,4 +9,5 @@ return [
     Packages\SessionManager\SessionManagerServiceProvider::class,
     Packages\Appearance\AppearanceServiceProvider::class,
     Packages\Log\LogServiceProvider::class,
+    Packages\Localization\LocalizationServiceProvider::class,
 ];

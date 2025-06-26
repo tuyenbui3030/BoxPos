@@ -89,14 +89,26 @@ return [
     | Available Locales
     |--------------------------------------------------------------------------
     |
-    | List of available locales supported by the application.
+    | List of all supported locales for the application
     |
     */
 
     'available_locales' => [
-        'en' => 'English',
-        'vi' => 'Tiếng Việt',
+        'en' => [
+            'name' => 'English',
+            'native' => 'English',
+            'flag' => '🇺🇸',
+            'direction' => 'ltr'
+        ],
+        'vi' => [
+            'name' => 'Vietnamese',
+            'native' => 'Tiếng Việt',
+            'flag' => '🇻🇳',
+            'direction' => 'ltr'
+        ]
     ],
+
+
 
     /*
     |--------------------------------------------------------------------------

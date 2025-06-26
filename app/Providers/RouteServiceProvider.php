@@ -32,10 +32,15 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
+            // Regular web routes (packages will register here)
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            // Fallback routes (redirect to localized)
+            Route::middleware('web')
+                ->group(base_path('routes/fallback.php'));
         });
-        
+
         // Register our custom middleware
         Route::aliasMiddleware('auth', EnsureUserIsAuthenticated::class);
     }

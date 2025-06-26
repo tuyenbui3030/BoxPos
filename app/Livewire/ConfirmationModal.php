@@ -8,7 +8,7 @@ use Packages\Log\Traits\Loggable;
 class ConfirmationModal extends Component
 {
     use Loggable; // ⚠️ MANDATORY: Use Loggable trait
-    
+
     // Modal properties
     public $show = false;
     public $title = 'Confirm Action';
@@ -18,12 +18,12 @@ class ConfirmationModal extends Component
     public $confirmButtonClass = 'btn-danger';
     public $icon = 'warning'; // warning, danger, info, success, question
     public $size = 'modal-sm'; // modal-sm, modal-lg, modal-xl
-    
+
     // Action properties
     public $action = null;
     public $actionParams = [];
     public $componentId = null;
-    
+
     protected $listeners = [
         'show-confirmation' => 'showConfirmation'
     ];
@@ -41,7 +41,7 @@ class ConfirmationModal extends Component
         $this->action = $data['action'] ?? null;
         $this->actionParams = $data['actionParams'] ?? [];
         $this->componentId = $data['componentId'] ?? null;
-        
+
         // ⚠️ MANDATORY: Log user action
         $this->logActivity('confirmation_modal_shown', [
             'user_id' => auth()->user()?->id,
@@ -55,7 +55,7 @@ class ConfirmationModal extends Component
     public function confirm()
     {
         $this->show = false;
-        
+
         // ⚠️ MANDATORY: Log user action
         $this->logActivity('confirmation_modal_confirmed', [
             'user_id' => auth()->user()?->id,
@@ -64,22 +64,19 @@ class ConfirmationModal extends Component
             'action' => $this->action,
             'component' => 'ConfirmationModal',
         ]);
-        
-        if ($this->action && $this->componentId) {
-            // Dispatch the action to the target component
-            $this->dispatch($this->action, ...$this->actionParams)->to($this->componentId);
-        } elseif ($this->action) {
-            // Dispatch globally if no specific component
+
+        if ($this->action) {
+            // Dispatch globally - Livewire will find the right component
             $this->dispatch($this->action, ...$this->actionParams);
         }
-        
+
         $this->reset(['action', 'actionParams', 'componentId']);
     }
 
     public function cancel()
     {
         $this->show = false;
-        
+
         // ⚠️ MANDATORY: Log user action
         $this->logActivity('confirmation_modal_cancelled', [
             'user_id' => auth()->user()?->id,
@@ -88,7 +85,7 @@ class ConfirmationModal extends Component
             'action' => $this->action,
             'component' => 'ConfirmationModal',
         ]);
-        
+
         $this->reset(['action', 'actionParams', 'componentId']);
     }
 

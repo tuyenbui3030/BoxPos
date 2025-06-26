@@ -12,52 +12,41 @@ class LocalizationMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Get the locale from URL parameter, session, or default
-        $locale = $this->getLocale($request);
-        
-        // Set the application locale
+        // Get locale from URL parameter first, then session, then default
+        $urlLocale = $request->route('locale');
+        $sessionLocale = Session::get('app_locale');
+        $defaultLocale = config('app.locale', 'en');
+
+        $locale = $urlLocale ?? $sessionLocale ?? $defaultLocale;
+
+        // Validate locale
+        $availableLocales = array_keys(config('app.available_locales', ['en' => []]));
+        if (!in_array($locale, $availableLocales)) {
+            $locale = $defaultLocale;
+        }
+
+        // If no URL locale but we have session locale, redirect to localized URL
+        if (!$urlLocale && $sessionLocale && $sessionLocale !== $defaultLocale) {
+            $path = $request->path();
+            // Don't redirect API, assets, or already localized paths
+            if (!str_starts_with($path, 'api/') &&
+                !str_starts_with($path, 'livewire/') &&
+                !str_starts_with($path, 'language/') &&
+                !str_contains($path, '.') &&
+                !preg_match('/^(en|vi)\//', $path)) {
+                return redirect("/$sessionLocale/$path");
+            }
+        }
+
+        // Set application locale and store in session
         App::setLocale($locale);
-        
-        // Store locale in session for persistence
-        Session::put('locale', $locale);
-        
+        Session::put('app_locale', $locale);
+
         return $next($request);
     }
-    
-    /**
-     * Get the locale from various sources
-     */
-    private function getLocale(Request $request): string
-    {
-        $supportedLocales = ['en', 'vi'];
-        $defaultLocale = config('app.locale', 'en');
-        
-        // Check if locale is set via URL parameter
-        if ($request->has('lang') && in_array($request->get('lang'), $supportedLocales)) {
-            return $request->get('lang');
-        }
-        
-        // Check if locale is set via route parameter
-        if ($request->route('locale') && in_array($request->route('locale'), $supportedLocales)) {
-            return $request->route('locale');
-        }
-        
-        // Check session
-        if (Session::has('locale') && in_array(Session::get('locale'), $supportedLocales)) {
-            return Session::get('locale');
-        }
-        
-        // Check browser preference
-        $preferredLanguage = $request->getPreferredLanguage($supportedLocales);
-        if ($preferredLanguage && in_array($preferredLanguage, $supportedLocales)) {
-            return $preferredLanguage;
-        }
-        
-        return $defaultLocale;
-    }
+
+
 }
