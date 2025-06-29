@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Add middleware to web group
         $middleware->web(prepend: [
-            \App\Http\Middleware\LocalizationMiddleware::class,
+            \App\Http\Middleware\LivewireLocalizationMiddleware::class,
         ]);
 
         $middleware->web(append: [
@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
             \Packages\Tenant\Middleware\TenantContext::class,
             \Packages\Tenant\Middleware\TenantDataIsolation::class,
+            \App\Http\Middleware\LocalizationMiddleware::class, // Move to end
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

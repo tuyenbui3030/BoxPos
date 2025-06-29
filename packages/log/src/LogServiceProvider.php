@@ -15,7 +15,7 @@ use Packages\Log\Middleware\LogPerformance;
 use Packages\Log\Middleware\SentryPerformanceMiddleware;
 use Packages\Log\Channels\RemoteFileChannel;
 use Packages\Log\Channels\SlackChannel;
-use Packages\Log\Console\TestSentryCommand;
+// TestSentryCommand removed - was test-only command
 
 class LogServiceProvider extends ServiceProvider
 {
@@ -67,7 +67,8 @@ class LogServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                TestSentryCommand::class,
+                // TestSentryCommand removed - was test-only command
+                // Production commands like CleanupLogsCommand are registered elsewhere
             ]);
         }
     }

@@ -12,52 +12,44 @@ use Symfony\Component\HttpFoundation\Response;
 class LocalizationMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Handle an incoming request - Đơn giản hóa cho /vi và /en
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Get locale from URL parameter first, then session, then default
-        $urlLocale = $request->route('locale');
-        $sessionLocale = Session::get('app_locale');
-        $defaultLocale = config('app.locale', 'en');
+        $path = $request->path();
+        $locale = 'en'; // Default
 
-        // Priority: URL locale > session locale > default locale
-        $locale = $urlLocale ?? $sessionLocale ?? $defaultLocale;
 
-        // Validate locale
-        $availableLocales = array_keys(config('app.available_locales', ['en' => []]));
-        if (!in_array($locale, $availableLocales)) {
-            $locale = $defaultLocale;
-        }
 
-        // If no URL locale but we have session locale, redirect to localized URL
-        if (!$urlLocale && $sessionLocale && $sessionLocale !== $defaultLocale) {
-            $path = $request->path();
-            // Don't redirect API, assets, Livewire, or already localized paths
+        // Kiểm tra URL có bắt đầu bằng /vi hoặc /en không
+        if (str_starts_with($path, 'vi/') || $path === 'vi') {
+            $locale = 'vi';
+        } elseif (str_starts_with($path, 'en/') || $path === 'en') {
+            $locale = 'en';
+        } else {
+            // Nếu không có locale trong URL, lấy từ session
+            $sessionLocale = Session::get('app_locale', 'en');
+            $locale = in_array($sessionLocale, ['vi', 'en']) ? $sessionLocale : 'en';
+
+            // Redirect đến URL có locale nếu không phải API hoặc asset
             if (!str_starts_with($path, 'api/') &&
                 !str_starts_with($path, 'livewire/') &&
-                !str_starts_with($path, 'language/') &&
-                !str_contains($path, '.') &&
-                !preg_match('/^(en|vi)\//', $path)) {
-                return redirect("/$sessionLocale/$path");
+                !str_contains($path, '.')) {
+
+                if ($path === '/') {
+                    return redirect("/$locale");
+                } else {
+                    return redirect("/$locale/$path");
+                }
             }
         }
 
-        // Set application locale and store in session
+        // Set application locale và lưu vào session
         App::setLocale($locale);
         Session::put('app_locale', $locale);
 
-        // Debug logging
-        Log::info('LocalizationMiddleware debug', [
-            'url_locale' => $urlLocale,
-            'session_locale' => $sessionLocale,
-            'final_locale' => $locale,
-            'request_path' => $request->path(),
-            'request_url' => $request->url()
-        ]);
+
 
         return $next($request);
     }
-
-
 }

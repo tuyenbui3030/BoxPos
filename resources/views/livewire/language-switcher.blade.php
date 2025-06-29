@@ -1,101 +1,54 @@
-<div class="nav-item dropdown"
-     x-data="{ isOpen: false }"
-     @click.away="isOpen = false">
-
+<div class="nav-item dropdown" x-data="{ isOpen: false }" @click.away="isOpen = false">
+    <!-- Hiển thị ngôn ngữ hiện tại -->
     <a href="#"
        class="nav-link d-flex lh-1 text-reset p-0"
-       aria-label="Language selector"
-       @click.prevent="isOpen = !isOpen"
-       :aria-expanded="isOpen ? 'true' : 'false'"
-       wire:loading.class="pe-none opacity-50"
-       wire:target="switchLanguage">
-
-        <span class="avatar avatar-sm"
-              wire:loading.style="opacity: 0.6"
-              wire:target="switchLanguage">
-            {{ $currentLanguage['flag'] ?? '🌐' }}
-        </span>
-
+       @click.prevent="isOpen = !isOpen">
+        <span class="avatar avatar-sm">{{ $currentLanguage['flag'] }}</span>
         <div class="d-none d-xl-block ps-2">
-            <div>{{ $currentLanguage['native'] ?? 'Language' }}</div>
-            <div wire:loading
-                 wire:target="switchLanguage"
-                 class="small text-muted">
-                {{ __('localization::language.switching') }}...
-            </div>
+            <div>{{ $currentLanguage['native'] }}</div>
         </div>
     </a>
 
+    <!-- Dropdown menu -->
     <div x-show="isOpen"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 scale-95"
-         x-transition:enter-end="opacity-100 scale-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 scale-100"
-         x-transition:leave-end="opacity-0 scale-95"
-         class="dropdown-menu dropdown-menu-arrow dropdown-menu-end"
-         :class="{ 'show': isOpen }"
-         style="position: absolute; top: 100%; right: 0; z-index: 1050;"
-         wire:loading.remove
-         wire:target="switchLanguage">
+         x-transition
+         class="dropdown-menu dropdown-menu-end show"
+         style="position: absolute; top: 100%; right: 0; z-index: 1050;">
 
-        <h6 class="dropdown-header">{{ __('localization::language.select_language') }}</h6>
+        <h6 class="dropdown-header">Chọn ngôn ngữ / Select Language</h6>
 
-        @foreach($availableLanguages as $locale => $language)
-            <a href="#"
-               class="dropdown-item {{ $currentLocale === $locale ? 'active' : '' }}"
-               @click="isOpen = false"
-               onclick="
-                   event.preventDefault();
-                   console.log('=== LANGUAGE SWITCH CLICKED ===');
-                   console.log('Target locale:', '{{ $locale }}');
-                   console.log('Current locale:', '{{ $currentLocale }}');
+        <!-- Tiếng Việt -->
+        @php
+            $viUrl = $this->buildLocalizedUrl(request()->path(), 'vi');
+        @endphp
+        <a href="{{ $viUrl }}"
+           class="dropdown-item {{ $currentLocale === 'vi' ? 'active' : '' }}"
+           @click="isOpen = false"
+           title="Chuyển sang tiếng Việt - {{ $viUrl }}">
+            <span class="me-2">🇻🇳</span>
+            <span>Tiếng Việt</span>
+            @if($currentLocale === 'vi')
+                <svg class="icon ms-auto text-success" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path d="M5 12l5 5l10 -10"/>
+                </svg>
+            @endif
+        </a>
 
-                   if ('{{ $locale }}' === '{{ $currentLocale }}') {
-                       console.log('Same locale, no action needed');
-                       return;
-                   }
-
-                   console.log('Fetching debug route...');
-                   fetch('/debug-language/{{ $locale }}')
-                   .then(response => {
-                       console.log('Response status:', response.status);
-                       return response.json();
-                   })
-                   .then(data => {
-                       console.log('=== LANGUAGE SWITCH RESPONSE ===');
-                       console.log('Full response:', data);
-                       if (data.success) {
-                           console.log('Success! Redirecting to:', data.redirect_to);
-                           window.location.href = data.redirect_to;
-                       } else {
-                           console.error('Language switch failed:', data);
-                       }
-                   })
-                   .catch(error => {
-                       console.error('=== LANGUAGE SWITCH ERROR ===');
-                       console.error('Error details:', error);
-                   });
-               "
-               wire:loading.class="pe-none opacity-50"
-               wire:target="switchLanguage('{{ $locale }}')">
-
-                <span class="me-2">{{ $language['flag'] ?? '🌐' }}</span>
-                <span>{{ $language['native'] ?? $language['name'] ?? $locale }}</span>
-
-                @if($currentLocale === $locale)
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-auto text-success" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M5 12l5 5l10 -10"/>
-                    </svg>
-                @endif
-
-                <span wire:loading
-                      wire:target="switchLanguage('{{ $locale }}')"
-                      class="ms-auto">
-                    <span class="spinner-border spinner-border-sm" role="status"></span>
-                </span>
-            </a>
-        @endforeach
+        <!-- English -->
+        @php
+            $enUrl = $this->buildLocalizedUrl(request()->path(), 'en');
+        @endphp
+        <a href="{{ $enUrl }}"
+           class="dropdown-item {{ $currentLocale === 'en' ? 'active' : '' }}"
+           @click="isOpen = false"
+           title="Switch to English - {{ $enUrl }}">
+            <span class="me-2">🇺🇸</span>
+            <span>English</span>
+            @if($currentLocale === 'en')
+                <svg class="icon ms-auto text-success" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                    <path d="M5 12l5 5l10 -10"/>
+                </svg>
+            @endif
+        </a>
     </div>
 </div>

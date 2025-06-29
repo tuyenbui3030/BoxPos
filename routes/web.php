@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\DashboardController;
 
 /*
@@ -17,48 +16,31 @@ use App\Http\Controllers\DashboardController;
 
 // Note: Language switching routes are now handled by Localization package
 
-// Example localization page (for testing)
-Route::get('/localization-example', function () {
-    return view('localization-example');
-})->name('localization.example');
+// Note: Language switching is handled by:
+// - Livewire LanguageSwitcher component in navigation
+// - /language/{locale} route for programmatic switching
+// - LocalizationMiddleware for URL-based locale detection
 
-// Test localization in project layout
-Route::get('/localization-test', [TestController::class, 'localization'])
-    ->name('localization.test');
 
-// Language test page
-Route::get('/language-test', function () {
-    return view('language-test');
-})->name('language.test');
 
-// Debug language switch
-Route::get('/debug-language/{locale}', function ($locale) {
-    session(['app_locale' => $locale]);
-    app()->setLocale($locale);
 
-    return response()->json([
-        'success' => true,
-        'locale' => $locale,
-        'session_locale' => session('app_locale'),
-        'app_locale' => app()->getLocale(),
-        'redirect_to' => "/$locale/dashboard"
-    ]);
-})->name('debug.language.switch');
+
+
 
 // Localized routes group
 Route::group([
     'prefix' => '{locale}',
-    'where' => ['locale' => 'en|vi'],
+    'where' => ['locale' => 'vi|en'],
     'middleware' => ['web']
 ], function () {
 
-    // Livewire routes for localized URLs
-    Route::post('/livewire/update', '\Livewire\Mechanisms\HandleRequests\HandleRequests@handleUpdate')
-        ->name('locale.livewire.update');
-    Route::post('/livewire/upload-file', '\Livewire\Features\SupportFileUploads\FileUploadController@handle')
-        ->name('locale.livewire.upload-file');
-    Route::get('/livewire/preview-file/{filename}', '\Livewire\Features\SupportFileUploads\FilePreviewController@handle')
-        ->name('locale.livewire.preview-file');
+    // Livewire routes for localized URLs (update route handled globally)
+    Route::post('/livewire/upload-file', '\Livewire\Features\SupportFileUploads\FileUploadController@handle');
+    Route::get('/livewire/preview-file/{filename}', '\Livewire\Features\SupportFileUploads\FilePreviewController@handle');
+
+
+
+
 
     // Home route redirects to dashboard
     Route::get('/', function ($locale) {
@@ -78,6 +60,12 @@ Route::group([
         })->name('locale.password.request');
     });
 
+
+
+
+
+
+
     // Authenticated routes
     Route::middleware(['auth', 'tenant.context', 'tenant.isolation'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('locale.dashboard');
@@ -88,6 +76,11 @@ Route::group([
 
         Route::get('/devices', \Packages\User\Livewire\ManageDevices::class)->name('locale.devices');
         Route::get('/customers', \Packages\Customer\Livewire\CustomerManagement::class)->name('locale.customers');
+
+        // Language test page
+        Route::get('/language-test', function () {
+            return view('language-test');
+        })->name('locale.language.test');
 
         // Project switching route (hybrid: config + database)
         Route::get('/store-switch', function(\Illuminate\Http\Request $request) {

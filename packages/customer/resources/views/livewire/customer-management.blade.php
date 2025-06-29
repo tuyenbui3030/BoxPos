@@ -61,7 +61,7 @@
                 x-transition:leave-end="opacity-0 transform -translate-x-4">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Filters</h3>
+                        <h3 class="card-title">{{ __('app.filters') }}</h3>
                         <div class="card-actions" x-data="{ isClearing: false }">
                             <button 
                                 x-on:click="isClearing = true; setTimeout(() => { $wire.clearFilters().finally(() => isClearing = false); $dispatch('clear-date-picker'); }, 500)"
@@ -93,7 +93,7 @@
                     <div class="card-body">
                         <!-- Search -->
                         <div class="mb-3">
-                            <label class="form-label">Search</label>
+                            <label class="form-label">{{ __('app.search') }}</label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
@@ -105,7 +105,7 @@
                                     </svg>
                                 </span>
                                 <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
-                                    placeholder="Search customers...">
+                                    placeholder="{{ __('customer::customer.search') }}">
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@
                         <div class="mb-3">
                             <label class="form-label">Customer Group</label>
                             <select wire:model.lazy="filterCustomerGroup" class="form-select">
-                                <option value="">All Groups</option>
+                                <option value="">{{ __('app.all_groups') }}</option>
                                 @foreach ($customerGroups as $group)
                                     <option value="{{ $group }}">{{ $group }}</option>
                                 @endforeach
@@ -156,8 +156,8 @@
                                             </span>
                                         </div>
                                         <div>
-                                            <strong>Individual</strong>
-                                            <div class="text-muted">Personal customers</div>
+                                            <strong>{{ __('app.individual') }}</strong>
+                                            <div class="text-muted">{{ __('app.personal_customers') }}</div>
                                         </div>
                                     </div>
                                 </label>
@@ -184,8 +184,8 @@
                                             </span>
                                         </div>
                                         <div>
-                                            <strong>Company</strong>
-                                            <div class="text-muted">Business customers</div>
+                                            <strong>{{ __('app.company') }}</strong>
+                                            <div class="text-muted">{{ __('app.business_customers') }}</div>
                                         </div>
                                     </div>
                                 </label>
@@ -196,10 +196,10 @@
                         <div class="mb-3">
                             <label class="form-label">Gender</label>
                             <select wire:model.lazy="filterGender" class="form-select">
-                                <option value="all">All Genders</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
+                                <option value="all">{{ __('app.all_genders') }}</option>
+                                <option value="male">{{ __('app.male') }}</option>
+                                <option value="female">{{ __('app.female') }}</option>
+                                <option value="other">{{ __('app.other') }}</option>
                             </select>
                         </div>
 
@@ -272,7 +272,7 @@
                                         </svg>
                                     </span>
                                     <input wire:model.live.debounce.300ms="search" type="text"
-                                        class="form-control" placeholder="Search customers...">
+                                        class="form-control" placeholder="{{ __('customer::customer.search') }}">
                                 </div>
                             @endif
                             <div class="btn-list">
@@ -284,7 +284,7 @@
                                         <path
                                             d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v5l-6 2v-7l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z" />
                                     </svg>
-                                    {{ $showFilters ? 'Hide Filters' : 'Show Filters' }}
+                                    {{ $showFilters ? __('app.hide_filters') : __('app.show_filters') }}
                                 </button>
                                 <button wire:click="importCustomers" class="btn btn-outline-secondary">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
@@ -297,7 +297,7 @@
                                         <path d="M12 11v6" />
                                         <path d="M9 14l3 -3l3 3" />
                                     </svg>
-                                    Import
+                                    {{ __('app.import') }}
                                 </button>
                                 <button wire:click="$dispatch('open-create-customer-modal')" class="btn btn-primary">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
@@ -307,7 +307,7 @@
                                         <path d="M12 5l0 14" />
                                         <path d="M5 12l14 0" />
                                     </svg>
-                                    Add Customer
+                                    {{ __('customer::customer.create') }}
                                 </button>
                                 <button @click="deleteSelected()" class="btn btn-danger" x-show="hasSelection()"
                                     x-cloak>
@@ -321,7 +321,7 @@
                                         <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
                                         <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                                     </svg>
-                                    Delete Selected
+                                    {{ __('app.delete_selected') }}
                                 </button>
                                 <div class="dropdown" x-data="{ open: false }">
                                     <button class="btn btn-outline-primary dropdown-toggle" type="button"
@@ -387,10 +387,10 @@
                                     <input class="form-check-input m-0 align-middle" type="checkbox"
                                         x-model="selectAll" @change="toggleAll()" aria-label="Select all customers">
                                 </th>
-                                <th>Customer</th>
-                                <th>Contact</th>
-                                <th>Debt</th>
-                                <th>Total Sales</th>
+                                <th>{{ __('customer::customer.customer') }}</th>
+                                <th>{{ __('app.contact') }}</th>
+                                <th>{{ __('app.debt') }}</th>
+                                <th>{{ __('app.total_sales') }}</th>
                                 <th class="w-1"></th>
                             </tr>
                         </thead>
@@ -479,7 +479,7 @@
                                         <div class="dropdown">
                                             <button class="btn btn-ghost-secondary btn-sm dropdown-toggle"
                                                 type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Actions
+                                                {{ __('customer::customer.actions') }}
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a wire:click="viewCustomer({{ $customer->id }})"
@@ -494,7 +494,7 @@
                                                         <path
                                                             d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                                     </svg>
-                                                    View Details
+                                                    {{ __('customer::customer.view') }}
                                                 </a>
                                                 <a wire:click="editCustomer({{ $customer->id }})"
                                                     class="dropdown-item" href="#">
@@ -510,7 +510,7 @@
                                                             d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                                                         <path d="M16 5l3 3" />
                                                     </svg>
-                                                    Edit Customer
+                                                    {{ __('customer::customer.edit') }}
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                                 @if ($customer->phone_number)
@@ -555,10 +555,9 @@
                                                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjEwOCIgdmlld0JveD0iMCAwIDE0NCAxMDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0yOC43NTE5IDYyLjEyOTNMNjkuNzUxOSAyMS4xMjkzQzcwLjE0MjQgMjAuNzM4OCA3MC4xNDI0IDIwLjEwNTYgNjkuNzUxOSAxOS43MTUxTDI4Ljc1MTkgLTIxLjI4NDlDMjguMzYxNCAtMjEuNjc1NCAyNy43MjgyIC0yMS42NzU0IDI3LjMzNzcgLTIxLjI4NDlMMjcuMzM3NyAyMC43MTUxQzI3LjcyODIgMjEuMTA1NiAyOC4zNjE0IDIxLjEwNTYgMjguNzUxOSAyMC43MTUxTDI5Ljc1MTkgMTkuNzE1MUwyOC43NTE5IDYyLjEyOTNaIiBmaWxsPSIjZjhmOWZhIi8+CjxwYXRoIGQ9Ik0xMTUuMjQ4IDYyLjEyOTNMNzQuMjQ4MSAyMS4xMjkzQzczLjg1NzYgMjAuNzM4OCA3My44NTc2IDIwLjEwNTYgNzQuMjQ4MSAxOS43MTUxTDExNS4yNDggLTIxLjI4NDlDMTE1LjYzOSAtMjEuNjc1NCAxMTYuMjcyIC0yMS42NzU0IDExNi42NjIgLTIxLjI4NDlMMTE2LjY2MiAyMC43MTUxQzExNi4yNzIgMjEuMTA1NiAxMTUuNjM5IDIxLjEwNTYgMTE1LjI0OCAyMC43MTUxTDExNC4yNDggMTkuNzE1MUwxMTUuMjQ4IDYyLjEyOTNaIiBmaWxsPSIjZjhmOWZhIi8+CjxwYXRoIGQ9Ik0xMDggNjBIODlWNjEuNUg4N0M4NiA2MS41IDg2IDYyIDg2IDYyLjVWNjNWNjMuNUM4NiA2NCA4NiA2NC41IDg3IDY0LjVIODlWNjZIMTA4VjY0LjVIMTEwQzExMSA2NC41IDExMSA2NCA4MSA2My41VjYzVjYyLjVDMTExIDYyIDExMSA2MS41IDExMCA2MS41SDEwOFY2MFoiIGZpbGw9IiNmOGY5ZmEiLz4KPC9zdmc+"
                                                     class="empty-img" alt="">
                                             </div>
-                                            <p class="empty-title">No customers found</p>
+                                            <p class="empty-title">{{ __('customer::customer.no_customers') }}</p>
                                             <p class="empty-subtitle text-muted">
-                                                Try adjusting your search or filter criteria, or add a new
-                                                customer to get started.
+                                                {{ __('app.try_adjusting_search') }}
                                             </p>
                                             <div class="empty-action">
                                                 <button wire:click="$dispatch('open-create-customer-modal')"

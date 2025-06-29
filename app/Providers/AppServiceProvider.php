@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,17 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function ($view) {
             $view->with('currentTheme', session('theme', 'light'));
         });
+
+        // Configure Livewire for localized routes
+        $this->configureLivewireForLocalization();
+    }
+
+    /**
+     * Configure Livewire to work with localized routes
+     */
+    protected function configureLivewireForLocalization(): void
+    {
+        // We'll use middleware approach instead of overriding routes
+        // This is handled in LivewireLocalizationMiddleware
     }
 }

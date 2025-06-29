@@ -11,40 +11,31 @@ class LanguageSwitcher extends Component
 {
     use Loggable; // ⚠️ MANDATORY: Use Loggable trait
 
-    public $isDropdownOpen = false;
     public $currentLocale;
-    public $availableLanguages = [];
-
-    protected $listeners = ['locale-updated' => 'handleLocaleUpdate'];
+    public $availableLanguages = [
+        'vi' => [
+            'name' => 'Vietnamese',
+            'native' => 'Tiếng Việt',
+            'flag' => '🇻🇳',
+            'direction' => 'ltr'
+        ],
+        'en' => [
+            'name' => 'English',
+            'native' => 'English',
+            'flag' => '🇺🇸',
+            'direction' => 'ltr'
+        ]
+    ];
 
     public function mount()
     {
         $this->currentLocale = app()->getLocale();
-        $this->availableLanguages = config('app.available_locales', []);
-    }
-
-    public function toggleDropdown()
-    {
-        $this->isDropdownOpen = !$this->isDropdownOpen;
-
-        // ⚠️ MANDATORY: Log user action
-        $this->logActivity('language_dropdown_toggled', [
-            'is_open' => $this->isDropdownOpen,
-            'user_id' => auth()->user()?->id,
-            'ip_address' => request()->ip(),
-            'component' => 'LanguageSwitcher',
-        ]);
-    }
-
-    public function closeDropdown()
-    {
-        $this->isDropdownOpen = false;
     }
 
     public function switchLanguage($locale)
     {
-        // Validate locale
-        if (!array_key_exists($locale, $this->availableLanguages)) {
+        // Validate locale - chỉ cho phép 'vi' và 'en'
+        if (!in_array($locale, ['vi', 'en'])) {
             // ⚠️ MANDATORY: Log error
             $this->logActivity('language_switch_invalid', [
                 'invalid_locale' => $locale,
@@ -64,7 +55,10 @@ class LanguageSwitcher extends Component
             'component' => 'LanguageSwitcher',
         ]);
 
-        $this->closeDropdown();
+        // Set session và app locale
+        session(['app_locale' => $locale]);
+        app()->setLocale($locale);
+        $this->currentLocale = $locale;
 
         // ⚠️ MANDATORY: Log successful switch
         $this->logActivity('language_switched_successfully', [
@@ -74,89 +68,37 @@ class LanguageSwitcher extends Component
             'component' => 'LanguageSwitcher',
         ]);
 
-        // Update current locale immediately for better UX
-        $this->currentLocale = $locale;
+        // Redirect đến URL với locale mới
+        $currentPath = request()->path();
+        $newUrl = $this->buildLocalizedUrl($currentPath, $locale);
 
-        // Set session and app locale immediately
-        session(['app_locale' => $locale]);
-        app()->setLocale($locale);
-
-        // Dispatch events to update other components
-        $this->dispatch('locale-updated', locale: $locale);
-
-        // Get current URL and build localized URL
-        $currentUrl = request()->url();
-        $localizedUrl = $this->getLocalizedUrl($currentUrl, $locale);
-
-        // Use JavaScript redirect to avoid Livewire navigation conflicts
-        $this->dispatch('redirect-to-url', url: $localizedUrl);
-    }
-
-    public function handleLocaleUpdate($locale)
-    {
-        $this->currentLocale = $locale;
-        $this->closeDropdown();
+        return redirect($newUrl);
     }
 
     public function getCurrentLanguage()
     {
-        // Ensure we have available languages
-        if (empty($this->availableLanguages)) {
-            $this->availableLanguages = config('app.available_locales', []);
-        }
-
-        // Get current language data
-        $currentLang = $this->availableLanguages[$this->currentLocale] ?? null;
-
-        // Fallback to English if current locale not found
-        if (!$currentLang) {
-            $currentLang = $this->availableLanguages['en'] ?? null;
-        }
-
-        // Final fallback
-        if (!$currentLang) {
-            $currentLang = [
-                'name' => 'English',
-                'native' => 'English',
-                'flag' => '🇺🇸',
-                'direction' => 'ltr'
-            ];
-        }
-
-        return $currentLang;
+        return $this->availableLanguages[$this->currentLocale] ?? $this->availableLanguages['en'];
     }
 
     /**
-     * Get localized URL by replacing locale prefix
+     * Tạo URL với locale prefix đơn giản - public để có thể gọi từ view
      */
-    private function getLocalizedUrl(string $url, string $locale): string
+    public function buildLocalizedUrl(string $currentPath, string $locale): string
     {
-        $parsedUrl = parse_url($url);
-        $path = $parsedUrl['path'] ?? '/';
-
-        // Remove existing locale prefix if any
-        $availableLocales = array_keys($this->availableLanguages);
-        foreach ($availableLocales as $existingLocale) {
-            if (str_starts_with($path, "/$existingLocale/") || $path === "/$existingLocale") {
-                $path = substr($path, strlen("/$existingLocale"));
-                break;
-            }
+        // Loại bỏ locale hiện tại khỏi path nếu có
+        $cleanPath = $currentPath;
+        if (preg_match('/^(vi|en)\/(.*)$/', $currentPath, $matches)) {
+            $cleanPath = $matches[2];
+        } elseif (preg_match('/^(vi|en)$/', $currentPath)) {
+            $cleanPath = '';
         }
 
-        // Ensure path starts with /
-        if (!str_starts_with($path, '/')) {
-            $path = '/' . $path;
+        // Tạo URL mới với locale
+        if (empty($cleanPath)) {
+            return "/$locale";
         }
 
-        // Add new locale prefix
-        $localizedPath = "/$locale" . $path;
-
-        // Rebuild URL
-        $scheme = $parsedUrl['scheme'] ?? 'http';
-        $host = $parsedUrl['host'] ?? request()->getHost();
-        $port = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
-
-        return "$scheme://$host$port$localizedPath";
+        return "/$locale/$cleanPath";
     }
 
     public function render()

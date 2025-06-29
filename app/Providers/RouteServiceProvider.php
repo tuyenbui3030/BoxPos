@@ -32,6 +32,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
+            // Simple language routes
+            Route::middleware('web')
+                ->group(base_path('routes/simple-language.php'));
+
             // Regular web routes (packages will register here)
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

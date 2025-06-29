@@ -47,7 +47,7 @@ class StoreServiceProvider extends ServiceProvider
             // Only register debug commands in debug mode
             if (config('app.debug')) {
                 $commands = [
-                    \Packages\Store\Console\Commands\TestStoreSelection::class,
+                    // TestStoreSelection removed - was test-only command
                     \Packages\Store\Console\Commands\TestStoreSwitching::class,
                     \Packages\Store\Console\Commands\DiagnoseStoreSwitching::class,
                 ];

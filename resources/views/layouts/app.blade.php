@@ -77,68 +77,46 @@
     <!-- Configure Livewire for localized routes -->
     @if(request()->route('locale'))
     <script>
-        console.log('Livewire localization script loaded for locale: {{ request()->route("locale") }}');
-
-        // Set global configuration
+        // Set Livewire configuration before it loads
         window.livewire_app_url = '/{{ request()->route("locale") }}';
         window.livewire_update_url = '/{{ request()->route("locale") }}/livewire/update';
 
-        console.log('Livewire app URL:', window.livewire_app_url);
-        console.log('Livewire update URL:', window.livewire_update_url);
-
-        // Try multiple approaches to configure Livewire
-
-        // Approach 1: Configure immediately if Livewire is already loaded
-        if (window.Livewire) {
-            console.log('Livewire found, configuring immediately');
+        // Configure Livewire immediately when available
+        if (typeof window.Livewire !== 'undefined') {
             window.Livewire.updateUrl = window.livewire_update_url;
         }
 
-        // Approach 2: Configure on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking for Livewire');
-            if (window.Livewire) {
-                console.log('Configuring Livewire on DOM ready');
-                window.Livewire.updateUrl = window.livewire_update_url;
-            }
-        });
-
-        // Approach 3: Configure on Livewire init
+        // Configure on Livewire init
         document.addEventListener('livewire:init', function() {
-            console.log('Livewire init event fired');
-            if (window.Livewire) {
-                console.log('Configuring Livewire on init');
-                window.Livewire.updateUrl = window.livewire_update_url;
+            console.log('Configuring Livewire for locale: {{ request()->route("locale") }}');
 
-                // Hook into requests
-                window.Livewire.hook('request', ({ uri, options, payload, respond, succeed, fail }) => {
-                    console.log('Original request URI:', uri);
-                    if (uri === '/livewire/update') {
-                        uri = window.livewire_update_url;
-                        console.log('Corrected request URI:', uri);
-                    }
-                    return { uri, options, payload, respond, succeed, fail };
-                });
+            if (window.Livewire) {
+                // Set the update URL directly
+                window.Livewire.updateUrl = window.livewire_update_url;
+                console.log('Livewire update URL set to:', window.livewire_update_url);
             }
         });
 
-        // Approach 4: Try to override after a delay
+        // Also try to set it after a short delay
         setTimeout(function() {
             if (window.Livewire) {
-                console.log('Configuring Livewire after delay');
                 window.Livewire.updateUrl = window.livewire_update_url;
+                console.log('Livewire update URL set (delayed) to:', window.livewire_update_url);
             }
-        }, 1000);
+        }, 100);
+    </script>
+    @endif
 
-        // Listen for redirect events from language switcher
+    <!-- Language switcher redirect handler -->
+    <script>
         document.addEventListener('livewire:init', function() {
             window.Livewire.on('redirect-to-url', (event) => {
-                console.log('Redirecting to:', event.url);
+                console.log('Language switch redirect to:', event.url);
+                // Use window.location.href for full page reload to avoid Livewire routing conflicts
                 window.location.href = event.url;
             });
         });
     </script>
-    @endif
 
     <!-- Main JS (includes Tabler JS and Alpine.js) -->
     @vite('resources/js/app.js')
