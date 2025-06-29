@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            \Packages\Store\Database\Seeders\StoreSeeder::class,
             \Packages\User\Database\Seeders\UserSeeder::class,
             \Packages\Customer\Database\Seeders\CustomerSeeder::class,
             // Add more seeders here as needed

@@ -11,42 +11,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add store_id to customers table if not already exists
         if (Schema::hasTable('customers') && !Schema::hasColumn('customers', 'store_id')) {
             Schema::table('customers', function (Blueprint $table) {
-                $table->foreignId('store_id')->after('id')->constrained('stores')->onDelete('cascade');
+                // 1. Thêm cột store_id cho phép NULL trước
+                $table->foreignId('store_id')->nullable()->after('id');
 
-                // Add indexes for better performance
+                // 2. Index tạm (tránh quên)
                 $table->index(['store_id']);
                 $table->index(['store_id', 'customer_code']);
                 $table->index(['store_id', 'email']);
             });
-        }
 
-        // Add store_id to other tables that need tenant isolation
-        // You can add more tables here as needed
+            // 3. Gán giá trị store_id cho các bản ghi cũ nếu cần
+            // Ví dụ gán tất cả về store_id = 1
+            DB::table('customers')->update(['store_id' => 1]);
 
-        // Example for products table (when created)
-        /*
-        if (Schema::hasTable('products') && !Schema::hasColumn('products', 'store_id')) {
-            Schema::table('products', function (Blueprint $table) {
-                $table->foreignId('store_id')->after('id')->constrained('stores')->onDelete('cascade');
-                $table->index(['store_id']);
-                $table->index(['store_id', 'product_code']);
+            // 4. Đảm bảo store_id = 1 tồn tại trong bảng stores
+            // Nếu chưa có thì thêm thủ công hoặc seed trước
+
+            // 5. Sửa cột store_id thành NOT NULL và thêm ràng buộc FK
+            Schema::table('customers', function (Blueprint $table) {
+                $table->foreignId('store_id')->nullable(false)->change();
+                $table->foreign('store_id')
+                    ->references('id')
+                    ->on('stores')
+                    ->onDelete('cascade');
             });
         }
-        */
 
-        // Example for orders table (when created)
-        /*
-        if (Schema::hasTable('orders') && !Schema::hasColumn('orders', 'store_id')) {
-            Schema::table('orders', function (Blueprint $table) {
-                $table->foreignId('store_id')->after('id')->constrained('stores')->onDelete('cascade');
-                $table->index(['store_id']);
-                $table->index(['store_id', 'order_number']);
-            });
-        }
-        */
+        // Bạn có thể copy logic tương tự cho các bảng khác
     }
 
     /**
@@ -54,23 +47,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove store_id from customers table
         if (Schema::hasTable('customers') && Schema::hasColumn('customers', 'store_id')) {
             Schema::table('customers', function (Blueprint $table) {
-                // Drop indexes first
+                $table->dropForeign(['store_id']);
                 $table->dropIndex(['store_id', 'email']);
                 $table->dropIndex(['store_id', 'customer_code']);
                 $table->dropIndex(['store_id']);
-
-                // Drop foreign key constraint
-                $table->dropForeign(['store_id']);
-
-                // Drop column
                 $table->dropColumn('store_id');
             });
         }
-
-        // Remove store_id from other tables
-        // Add corresponding rollback for other tables here
     }
 };

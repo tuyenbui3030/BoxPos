@@ -25,16 +25,7 @@
 
 
 
-    <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('store-switched-reload', (event) => {
-                console.log('Store switched event received:', event);
-                setTimeout(() => {
-                    window.location.href = event.redirectUrl;
-                }, 100);
-            });
-        });
-    </script>
+
 </head>
 <body>
     <div class="page">

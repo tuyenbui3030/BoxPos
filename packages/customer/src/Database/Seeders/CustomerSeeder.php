@@ -2,35 +2,36 @@
 
 namespace Packages\Customer\Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Packages\Customer\Models\Customer;
 use Packages\User\Models\User;
+use Packages\Store\Models\Store;
 use Faker\Factory as Faker;
 
 class CustomerSeeder extends Seeder
 {
-    /**
-     * Run the database seeder.
-     */
     public function run(): void
     {
         $faker = Faker::create();
         $users = User::all();
-        
-        // Create sample customer groups
+        $stores = Store::all();
+
+        if ($stores->isEmpty()) {
+            throw new \Exception("No stores found! Did you run StoreSeeder?");
+        }
+
         $customerGroups = ['VIP', 'Regular', 'New', 'Wholesale', 'Retail'];
-        
+
         for ($i = 1; $i <= 100; $i++) {
             $totalSales = $faker->randomFloat(2, 0, 50000);
-            $returns = $faker->randomFloat(2, 0, $totalSales * 0.1); // Max 10% returns
-            $debt = $faker->boolean(30) ? $faker->randomFloat(2, 0, 5000) : 0; // 30% chance of having debt
-            
+            $returns = $faker->randomFloat(2, 0, $totalSales * 0.1);
+            $debt = $faker->boolean(30) ? $faker->randomFloat(2, 0, 5000) : 0;
+
             Customer::create([
                 'customer_code' => 'CUS' . str_pad($i, 6, '0', STR_PAD_LEFT),
                 'customer_name' => $faker->name(),
                 'phone_number' => $faker->phoneNumber(),
-                'email' => $faker->email(),
+                'email' => $faker->unique()->safeEmail(),
                 'address' => $faker->address(),
                 'customer_type' => $faker->randomElement(['individual', 'company']),
                 'gender' => $faker->randomElement(['male', 'female', 'other']),
@@ -41,6 +42,7 @@ class CustomerSeeder extends Seeder
                 'total_sales_minus_returns' => $totalSales - $returns,
                 'last_transaction_at' => $faker->dateTimeBetween('-2 years', 'now'),
                 'created_by' => $users->isNotEmpty() ? $users->random()->id : null,
+                'store_id' => $stores->random()->id,  // 👈 PHẢI CÓ DÒNG NÀY
                 'created_at' => $faker->dateTimeBetween('-1 year', 'now'),
                 'updated_at' => now(),
             ]);

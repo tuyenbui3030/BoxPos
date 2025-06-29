@@ -28,6 +28,7 @@ class Customer extends Model
         'total_sales_minus_returns',
         'last_transaction_at',
         'created_by',
+        'store_id',
     ];
 
     protected $casts = [

@@ -136,13 +136,15 @@ $stores = Store::query()
 
 ## Events
 
-The package dispatches the following events:
+The package dispatches the following events (no default listeners registered):
 
 - `StoreCreated` - When a new store is created
 - `StoreUpdated` - When store information is updated
 - `StoreDeleted` - When a store is deleted
 - `UserAddedToStore` - When a user is added to a store
 - `UserRemovedFromStore` - When a user is removed from a store
+
+> **Note**: These events are dispatched but have no default listeners. You can register your own listeners in your application's service provider if needed.
 
 ## Roles and Permissions
 

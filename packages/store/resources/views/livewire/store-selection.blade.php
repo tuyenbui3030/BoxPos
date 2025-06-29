@@ -73,7 +73,7 @@
                                                     {{ $store->name }}
                                                 </div>
                                                 <div class="text-muted">
-                                                    {{ $this->getUserRole($store) }} access
+                                                    {{ $this->getUserRoleInStore($store) }} access
                                                 </div>
                                             </div>
                                             <div class="col-auto">

@@ -36,10 +36,27 @@ class StoreServiceProvider extends ServiceProvider
 
         // Load routes
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        // $this->loadRoutesFrom(__DIR__ . '/../routes/api.php'); // TODO: Create API controllers
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'store');
+
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $commands = [];
+
+            // Only register debug commands in debug mode
+            if (config('app.debug')) {
+                $commands = [
+                    \Packages\Store\Console\Commands\TestStoreSelection::class,
+                    \Packages\Store\Console\Commands\TestStoreSwitching::class,
+                    \Packages\Store\Console\Commands\DiagnoseStoreSwitching::class,
+                ];
+            }
+
+            if (!empty($commands)) {
+                $this->commands($commands);
+            }
+        }
 
         // Publish config
         $this->publishes([
@@ -65,7 +82,6 @@ class StoreServiceProvider extends ServiceProvider
      */
     protected function registerLivewireComponents(): void
     {
-        Livewire::component('store-switcher', \Packages\Store\Livewire\StoreSwitcher::class);
         Livewire::component('store-selection', \Packages\Store\Livewire\StoreSelection::class);
     }
 }

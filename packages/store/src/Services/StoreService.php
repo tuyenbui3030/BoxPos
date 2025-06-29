@@ -174,7 +174,6 @@ class StoreService
      */
     public function getStoreById(int $storeId): Store
     {
-        // Cache store data for 5 minutes to improve performance
         $cacheKey = "store_data_{$storeId}";
 
         $store = cache()->remember($cacheKey, 300, function () use ($storeId) {

@@ -31,6 +31,20 @@ class TenantServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('tenant.context', \Packages\Tenant\Middleware\TenantContext::class);
         $this->app['router']->aliasMiddleware('tenant.isolation', \Packages\Tenant\Middleware\TenantDataIsolation::class);
 
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $commands = [
+                \Packages\Tenant\Console\Commands\FixUserStoreRelationships::class,
+            ];
+
+            // Only register debug commands in debug mode
+            if (config('app.debug')) {
+                $commands[] = \Packages\Tenant\Console\Commands\CheckUserStoreAccess::class;
+            }
+
+            $this->commands($commands);
+        }
+
         // Publish config
         $this->publishes([
             __DIR__ . '/../config/tenant.php' => config_path('tenant.php'),

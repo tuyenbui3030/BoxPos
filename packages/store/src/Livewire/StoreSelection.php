@@ -39,6 +39,7 @@ class StoreSelection extends Component
     {
         return view('store::livewire.store-selection', [
             'filteredStores' => $this->getFilteredStores(),
+            'stores' => $this->availableStores,
         ])->layout('layouts.app');
     }
 
@@ -108,7 +109,7 @@ class StoreSelection extends Component
             session()->flash('success', "Successfully switched to {$newStore->name}");
 
             // Redirect to dashboard or intended page
-            $intendedUrl = session()->pull('url.intended', route('dashboard'));
+            $intendedUrl = session()->pull('url.intended', route('locale.dashboard', ['locale' => app()->getLocale()]));
             return redirect()->to($intendedUrl);
 
         } catch (\Exception $e) {
@@ -137,7 +138,7 @@ class StoreSelection extends Component
             'store_id' => $this->selectedStore->id,
         ]);
 
-        $intendedUrl = session()->pull('url.intended', route('dashboard'));
+        $intendedUrl = session()->pull('url.intended', route('locale.dashboard', ['locale' => app()->getLocale()]));
         return redirect()->to($intendedUrl);
     }
 
@@ -229,8 +230,69 @@ class StoreSelection extends Component
      */
     public function getCanManageStoresProperty(): bool
     {
-        return $this->tenantService->userHasPermission('manage_settings') || 
+        return $this->tenantService->userHasPermission('manage_settings') ||
                $this->tenantService->isAdmin();
+    }
+
+    /**
+     * Check if user can manage a specific store
+     */
+    public function canManageStore($store): bool
+    {
+        // Check if user has admin or manager role in this store
+        $userStore = auth()->user()->stores()->wherePivot('store_id', $store->id)->first();
+
+        if (!$userStore) {
+            return false;
+        }
+
+        return in_array($userStore->pivot->role, ['admin', 'manager']);
+    }
+
+    /**
+     * Navigate to store management for a specific store
+     */
+    public function manageStore(int $storeId)
+    {
+        $store = $this->availableStores->firstWhere('id', $storeId);
+
+        if (!$store || !$this->canManageStore($store)) {
+            session()->flash('error', 'You do not have permission to manage this store.');
+            return;
+        }
+
+        $this->logActivity('store_management_navigation', [
+            'user_id' => auth()->id(),
+            'store_id' => $storeId,
+        ]);
+
+        return redirect()->route('stores.show', $storeId);
+    }
+
+    /**
+     * Check if user can create new stores
+     */
+    public function canCreateStores(): bool
+    {
+        return $this->tenantService->userHasPermission('manage_settings') ||
+               $this->tenantService->isAdmin();
+    }
+
+    /**
+     * Navigate to create new store
+     */
+    public function createNewStore()
+    {
+        if (!$this->canCreateStores()) {
+            session()->flash('error', 'You do not have permission to create stores.');
+            return;
+        }
+
+        $this->logActivity('store_creation_navigation', [
+            'user_id' => auth()->id(),
+        ]);
+
+        return redirect()->route('stores.create');
     }
 
     /**
@@ -239,14 +301,6 @@ class StoreSelection extends Component
     public function getTotalStoresProperty(): int
     {
         return $this->availableStores->count();
-    }
-
-    /**
-     * Get active stores count
-     */
-    public function getActiveStoresProperty(): int
-    {
-        return $this->availableStores->where('status', 'active')->count();
     }
 
     /**

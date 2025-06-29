@@ -32,7 +32,7 @@ class TenantContext
 
         // Check if user has access to any store
         $currentStore = $this->tenantService->getCurrentStore();
-        
+
         if (!$currentStore && $this->requiresStoreAccess($request)) {
             // Redirect to store selection if no current store
             return redirect()->route('store.selection');
