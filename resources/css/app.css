@@ -7,4 +7,9 @@
 /* Custom Tabler overrides */
 /* Add your custom styles here */
 
+/* Alpine.js x-cloak directive - prevents flash of unstyled content */
+[x-cloak] {
+    display: none !important;
+}
+
 /* Tailwind CSS will be injected by Vite plugin */

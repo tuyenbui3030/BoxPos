@@ -33,6 +33,7 @@
         </div>
     </a>
     <div x-show="isOpen"
+         x-cloak
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100"
@@ -41,7 +42,7 @@
          x-transition:leave-end="opacity-0 scale-95"
          class="dropdown-menu dropdown-menu-arrow dropdown-menu-end"
          :class="{ 'show': isOpen }"
-         style="position: absolute; top: 100%; right: 0px; z-index: 1050;"
+         style="position: absolute; top: 100%; right: 0px; z-index: 1050; display: none;"
          @click.away="isOpen = false">
 
         <!-- Project Switcher Section -->

@@ -202,6 +202,24 @@ class StoreService
     }
 
     /**
+     * Get store by domain.
+     */
+    public function getStoreByDomain(string $domain): Store
+    {
+        $cacheKey = "store_domain_{$domain}";
+
+        $store = cache()->remember($cacheKey, 300, function () use ($domain) {
+            return $this->storeRepository->findByDomain($domain);
+        });
+
+        if (!$store) {
+            throw new StoreNotFoundException("Store with domain '{$domain}' not found");
+        }
+
+        return $store;
+    }
+
+    /**
      * Get stores for user.
      */
     public function getStoresForUser(int $userId): Collection

@@ -11,9 +11,10 @@
 
     <!-- Dropdown menu -->
     <div x-show="isOpen"
+         x-cloak
          x-transition
-         class="dropdown-menu dropdown-menu-end show"
-         style="position: absolute; top: 100%; right: 0; z-index: 1050;">
+         class="dropdown-menu dropdown-menu-end"
+         style="position: absolute; top: 100%; right: 0; z-index: 1050; display: none;">
 
         <h6 class="dropdown-header">Chọn ngôn ngữ / Select Language</h6>
 

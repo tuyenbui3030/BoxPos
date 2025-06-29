@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'log.performance' => \Packages\Log\Middleware\LogPerformance::class,
             'sentry.performance' => \Packages\Log\Middleware\SentryPerformanceMiddleware::class,
             // Tenant middleware aliases
+            'tenant.domain' => \Packages\Tenant\Middleware\DomainTenantResolver::class,
             'tenant.context' => \Packages\Tenant\Middleware\TenantContext::class,
             'tenant.isolation' => \Packages\Tenant\Middleware\TenantDataIsolation::class,
         ]);
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            \Packages\Tenant\Middleware\DomainTenantResolver::class, // First - resolve tenant from domain
             \Packages\Appearance\Http\Middleware\AppearanceMiddleware::class,
             \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
             \Packages\Tenant\Middleware\TenantContext::class,
