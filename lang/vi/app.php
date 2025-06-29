@@ -214,4 +214,36 @@ return [
     'menu_settings' => 'Cài đặt',
     'menu_reports' => 'Báo cáo',
     'menu_analytics' => 'Phân tích',
+
+    // Dashboard
+    'welcome_message' => 'Chào mừng đến với bảng điều khiển',
+    'dashboard_description' => 'Tại đây bạn có thể quản lý hoạt động kinh doanh và xem các chỉ số quan trọng.',
+    'current_project' => 'Dự án hiện tại',
+    'quick_actions' => 'Thao tác nhanh',
+    'manage_customers' => 'Quản lý khách hàng',
+    'manage_products' => 'Quản lý sản phẩm',
+    'manage_orders' => 'Xem và quản lý đơn hàng',
+    'view_reports' => 'Xem báo cáo kinh doanh',
+    'no_project_selected' => 'Chưa chọn dự án',
+    'no_project_description' => 'Vui lòng chọn một dự án từ menu để bắt đầu.',
+
+    // Stats
+    'total_customers' => 'Tổng khách hàng',
+    'total_orders' => 'Tổng đơn hàng',
+    'total_revenue' => 'Tổng doanh thu',
+    'active_users' => 'Người dùng hoạt động',
+    'last_7_days' => '7 ngày qua',
+    'last_30_days' => '30 ngày qua',
+    'last_3_months' => '3 tháng qua',
+    'conversion_rate' => 'Tỷ lệ chuyển đổi',
+    'growth_rate' => 'Tỷ lệ tăng trưởng',
+    'vs_previous_period' => 'so với kỳ trước',
+
+    // Search
+    'search' => 'Tìm kiếm',
+    'search_placeholder' => 'Tìm kiếm sản phẩm, khách hàng, đơn hàng...',
+    'searching' => 'Đang tìm kiếm',
+    'no_results_found' => 'Không tìm thấy kết quả',
+    'try_different_keywords' => 'Thử từ khóa khác hoặc kiểm tra chính tả',
+    'search_tip' => 'Mẹo: Sử dụng từ khóa như tên khách hàng, tên sản phẩm, hoặc số đơn hàng',
 ];

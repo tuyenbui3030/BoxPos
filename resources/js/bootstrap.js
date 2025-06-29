@@ -7,13 +7,24 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;
 
-// Make Bootstrap components available for Tabler
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    
-    // Initialize popovers
-    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+// Bootstrap initialization will be handled by Alpine.js components
+// This provides better integration with Livewire and reactive updates
+
+// Global Alpine.js directive for Bootstrap tooltips
+document.addEventListener('alpine:init', () => {
+    Alpine.directive('tooltip', (el, { expression }) => {
+        if (window.bootstrap && window.bootstrap.Tooltip) {
+            new window.bootstrap.Tooltip(el, {
+                title: expression || el.getAttribute('title')
+            });
+        }
+    });
+
+    Alpine.directive('popover', (el, { expression }) => {
+        if (window.bootstrap && window.bootstrap.Popover) {
+            new window.bootstrap.Popover(el, {
+                content: expression || el.getAttribute('data-bs-content')
+            });
+        }
+    });
 });

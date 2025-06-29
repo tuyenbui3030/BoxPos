@@ -36,6 +36,8 @@
             "Database\\Seeders\\": "database/seeders/",
             "Packages\\Customer\\": "packages/customer/src/",
             "Packages\\User\\": "packages/user/src/",
+            "Packages\\Store\\": "packages/store/src/",
+            "Packages\\Tenant\\": "packages/tenant/src/",
             "Packages\\SessionManager\\": "packages/session-manager/src/",
             "Packages\\Appearance\\": "packages/appearance/src/",
             "Packages\\Log\\": "packages/log/src/",

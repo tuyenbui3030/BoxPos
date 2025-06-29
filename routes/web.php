@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,20 @@ Route::get('/language-test', function () {
     return view('language-test');
 })->name('language.test');
 
+// Debug language switch
+Route::get('/debug-language/{locale}', function ($locale) {
+    session(['app_locale' => $locale]);
+    app()->setLocale($locale);
+
+    return response()->json([
+        'success' => true,
+        'locale' => $locale,
+        'session_locale' => session('app_locale'),
+        'app_locale' => app()->getLocale(),
+        'redirect_to' => "/$locale/dashboard"
+    ]);
+})->name('debug.language.switch');
+
 // Localized routes group
 Route::group([
     'prefix' => '{locale}',
@@ -36,9 +52,17 @@ Route::group([
     'middleware' => ['web']
 ], function () {
 
+    // Livewire routes for localized URLs
+    Route::post('/livewire/update', '\Livewire\Mechanisms\HandleRequests\HandleRequests@handleUpdate')
+        ->name('locale.livewire.update');
+    Route::post('/livewire/upload-file', '\Livewire\Features\SupportFileUploads\FileUploadController@handle')
+        ->name('locale.livewire.upload-file');
+    Route::get('/livewire/preview-file/{filename}', '\Livewire\Features\SupportFileUploads\FilePreviewController@handle')
+        ->name('locale.livewire.preview-file');
+
     // Home route redirects to dashboard
     Route::get('/', function ($locale) {
-        if (auth()->check()) {
+        if (Auth::check()) {
             return redirect("/$locale/dashboard");
         }
         return redirect("/$locale/login");
@@ -55,14 +79,51 @@ Route::group([
     });
 
     // Authenticated routes
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/dashboard', \Packages\User\Livewire\Dashboard::class)->name('locale.dashboard');
+    Route::middleware(['auth', 'tenant.context', 'tenant.isolation'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('locale.dashboard');
+        Route::get('/dashboard/business', [\App\Http\Controllers\DashboardController::class, 'business'])->name('locale.dashboard.business');
+        Route::get('/dashboard/coffee', [\App\Http\Controllers\DashboardController::class, 'coffee'])->name('locale.dashboard.coffee');
+
+
+
         Route::get('/devices', \Packages\User\Livewire\ManageDevices::class)->name('locale.devices');
         Route::get('/customers', \Packages\Customer\Livewire\CustomerManagement::class)->name('locale.customers');
 
+        // Project switching route (hybrid: config + database)
+        Route::get('/store-switch', function(\Illuminate\Http\Request $request) {
+            $projectId = $request->query('store_id');
+
+            if (!$projectId) {
+                session()->flash('error', 'Project ID is required');
+                return back();
+            }
+
+            try {
+                $projectService = app(\App\Services\ProjectService::class);
+
+                // Switch project (config for metadata, database for access)
+                $project = $projectService->switchProject((int) $projectId);
+
+                // Clear user-specific cache
+                $userId = auth()->id();
+                cache()->forget("user_project_access_{$userId}_{$projectId}");
+                cache()->forget("user_accessible_projects_{$userId}");
+                cache()->forget("user_project_role_{$userId}_{$projectId}");
+
+                session()->flash('success', "Switched to {$project['name']} {$project['icon']}");
+                return redirect()->route('locale.dashboard', ['locale' => app()->getLocale()]);
+
+            } catch (\Exception $e) {
+                session()->flash('error', 'Failed to switch project: ' . $e->getMessage());
+                return back();
+            }
+        })->name('locale.store.switch');
+
+
+
         // Logout
         Route::post('/logout', function () {
-            auth()->logout();
+            Auth::logout();
             session()->invalidate();
             session()->regenerateToken();
             return redirect()->route('locale.login', ['locale' => app()->getLocale()]);
@@ -77,6 +138,36 @@ Route::group([
         });
     });
 });
+
+// Multi-tenant demo route
+Route::get('/multi-tenant-demo', function () {
+    if (!Auth::check()) {
+        return redirect()->route('locale.login', ['locale' => 'en']);
+    }
+
+    $tenantService = app(\Packages\Tenant\Services\TenantService::class);
+    $user = Auth::user();
+
+    // Get user stores with proper pivot data
+    $userStores = $user->stores()->withPivot(['role', 'permissions', 'is_active', 'joined_at'])->get();
+
+    $data = [
+        'user' => $user,
+        'currentStore' => $tenantService->getCurrentStore(),
+        'userStores' => $userStores,
+        'userRole' => $tenantService->getUserRole(),
+        'permissions' => [
+            'view_dashboard' => $tenantService->userHasPermission('view_dashboard'),
+            'manage_customers' => $tenantService->userHasPermission('manage_customers'),
+            'manage_products' => $tenantService->userHasPermission('manage_products'),
+            'manage_settings' => $tenantService->userHasPermission('manage_settings'),
+            'manage_users' => $tenantService->userHasPermission('manage_users'),
+        ],
+        'customers' => \Packages\Customer\Models\Customer::all(),
+    ];
+
+    return view('multi-tenant-demo', $data);
+})->middleware(['auth', 'tenant.context', 'tenant.isolation'])->name('multi-tenant-demo');
 
 // Note: Package routes will still be available without locale prefix
 // Fallback routes will redirect them to localized versions

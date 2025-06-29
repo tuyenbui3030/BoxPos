@@ -1,13 +1,12 @@
 <div class="nav-item dropdown"
-     x-data="{ isOpen: @entangle('isDropdownOpen').live }"
-     x-on:click.away="$wire.closeDropdown()"
-     wire:ignore.self>
+     x-data="{ isOpen: false }"
+     @click.away="isOpen = false">
 
     <a href="#"
        class="nav-link d-flex lh-1 text-reset p-0"
        aria-label="Language selector"
-       wire:click="toggleDropdown"
-       x-bind:aria-expanded="isOpen"
+       @click.prevent="isOpen = !isOpen"
+       :aria-expanded="isOpen ? 'true' : 'false'"
        wire:loading.class="pe-none opacity-50"
        wire:target="switchLanguage">
 
@@ -34,7 +33,8 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
-         class="dropdown-menu dropdown-menu-arrow dropdown-menu-end show"
+         class="dropdown-menu dropdown-menu-arrow dropdown-menu-end"
+         :class="{ 'show': isOpen }"
          style="position: absolute; top: 100%; right: 0; z-index: 1050;"
          wire:loading.remove
          wire:target="switchLanguage">
@@ -44,7 +44,39 @@
         @foreach($availableLanguages as $locale => $language)
             <a href="#"
                class="dropdown-item {{ $currentLocale === $locale ? 'active' : '' }}"
-               wire:click="switchLanguage('{{ $locale }}')"
+               @click="isOpen = false"
+               onclick="
+                   event.preventDefault();
+                   console.log('=== LANGUAGE SWITCH CLICKED ===');
+                   console.log('Target locale:', '{{ $locale }}');
+                   console.log('Current locale:', '{{ $currentLocale }}');
+
+                   if ('{{ $locale }}' === '{{ $currentLocale }}') {
+                       console.log('Same locale, no action needed');
+                       return;
+                   }
+
+                   console.log('Fetching debug route...');
+                   fetch('/debug-language/{{ $locale }}')
+                   .then(response => {
+                       console.log('Response status:', response.status);
+                       return response.json();
+                   })
+                   .then(data => {
+                       console.log('=== LANGUAGE SWITCH RESPONSE ===');
+                       console.log('Full response:', data);
+                       if (data.success) {
+                           console.log('Success! Redirecting to:', data.redirect_to);
+                           window.location.href = data.redirect_to;
+                       } else {
+                           console.error('Language switch failed:', data);
+                       }
+                   })
+                   .catch(error => {
+                       console.error('=== LANGUAGE SWITCH ERROR ===');
+                       console.error('Error details:', error);
+                   });
+               "
                wire:loading.class="pe-none opacity-50"
                wire:target="switchLanguage('{{ $locale }}')">
 

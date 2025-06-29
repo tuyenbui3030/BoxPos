@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'log.sql' => \Packages\Log\Middleware\LogSqlQueries::class,
             'log.performance' => \Packages\Log\Middleware\LogPerformance::class,
             'sentry.performance' => \Packages\Log\Middleware\SentryPerformanceMiddleware::class,
+            // Tenant middleware aliases
+            'tenant.context' => \Packages\Tenant\Middleware\TenantContext::class,
+            'tenant.isolation' => \Packages\Tenant\Middleware\TenantDataIsolation::class,
         ]);
 
         // Add middleware to web group
@@ -30,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \Packages\Appearance\Http\Middleware\AppearanceMiddleware::class,
             \Packages\SessionManager\Http\Middleware\ExtendSessionOnActivity::class,
+            \Packages\Tenant\Middleware\TenantContext::class,
+            \Packages\Tenant\Middleware\TenantDataIsolation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

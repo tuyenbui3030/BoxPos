@@ -74,11 +74,22 @@ class LanguageSwitcher extends Component
             'component' => 'LanguageSwitcher',
         ]);
 
+        // Update current locale immediately for better UX
+        $this->currentLocale = $locale;
+
+        // Set session and app locale immediately
+        session(['app_locale' => $locale]);
+        app()->setLocale($locale);
+
         // Dispatch events to update other components
         $this->dispatch('locale-updated', locale: $locale);
 
-        // Redirect to language switch route (handles session + redirect)
-        return $this->redirect(route('language.switch', ['locale' => $locale]));
+        // Get current URL and build localized URL
+        $currentUrl = request()->url();
+        $localizedUrl = $this->getLocalizedUrl($currentUrl, $locale);
+
+        // Use JavaScript redirect to avoid Livewire navigation conflicts
+        $this->dispatch('redirect-to-url', url: $localizedUrl);
     }
 
     public function handleLocaleUpdate($locale)
@@ -113,6 +124,39 @@ class LanguageSwitcher extends Component
         }
 
         return $currentLang;
+    }
+
+    /**
+     * Get localized URL by replacing locale prefix
+     */
+    private function getLocalizedUrl(string $url, string $locale): string
+    {
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '/';
+
+        // Remove existing locale prefix if any
+        $availableLocales = array_keys($this->availableLanguages);
+        foreach ($availableLocales as $existingLocale) {
+            if (str_starts_with($path, "/$existingLocale/") || $path === "/$existingLocale") {
+                $path = substr($path, strlen("/$existingLocale"));
+                break;
+            }
+        }
+
+        // Ensure path starts with /
+        if (!str_starts_with($path, '/')) {
+            $path = '/' . $path;
+        }
+
+        // Add new locale prefix
+        $localizedPath = "/$locale" . $path;
+
+        // Rebuild URL
+        $scheme = $parsedUrl['scheme'] ?? 'http';
+        $host = $parsedUrl['host'] ?? request()->getHost();
+        $port = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+
+        return "$scheme://$host$port$localizedPath";
     }
 
     public function render()

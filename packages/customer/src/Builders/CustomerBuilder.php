@@ -7,6 +7,22 @@ use Illuminate\Database\Eloquent\Builder;
 class CustomerBuilder extends Builder
 {
     /**
+     * Filter customers by store
+     */
+    public function forStore(int $storeId): self
+    {
+        return $this->where('store_id', $storeId);
+    }
+
+    /**
+     * Filter customers for multiple stores
+     */
+    public function forStores(array $storeIds): self
+    {
+        return $this->whereIn('store_id', $storeIds);
+    }
+
+    /**
      * Search customers by code, name, or phone number
      */
     public function search(string $search): self
@@ -14,7 +30,8 @@ class CustomerBuilder extends Builder
         return $this->where(function ($query) use ($search) {
             $query->where('customer_code', 'like', "%{$search}%")
                   ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('phone_number', 'like', "%{$search}%");
+                  ->orWhere('phone_number', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
         });
     }
 
@@ -156,7 +173,7 @@ class CustomerBuilder extends Builder
     {
         $startOfWeek = now()->startOfWeek();
         $endOfWeek = now()->endOfWeek();
-        
+
         return $this->whereBetween('birthday', [$startOfWeek, $endOfWeek]);
     }
 
@@ -271,10 +288,10 @@ class CustomerBuilder extends Builder
                 'min_sales' => $this->salesAbove($value),
                 'max_debt' => $this->debtBelow($value),
                 'active_days' => $this->activeInLastDays($value),
-                'sales_range' => is_array($value) && count($value) === 2 
-                    ? $this->salesBetween($value[0], $value[1]) 
+                'sales_range' => is_array($value) && count($value) === 2
+                    ? $this->salesBetween($value[0], $value[1])
                     : $this,
-                'debt_range' => is_array($value) && count($value) === 2 
+                'debt_range' => is_array($value) && count($value) === 2
                     ? $this->where('current_debt', '>=', $value[0])->where('current_debt', '<=', $value[1])
                     : $this,
                 default => $this,

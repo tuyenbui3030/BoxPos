@@ -73,6 +73,25 @@ class LanguageController extends Controller
             $currentUrl = $request->header('referer', '/');
             $localizedUrl = $this->getLocalizedUrl($currentUrl, $locale);
 
+            // Debug logging
+            \Log::info('Language switch debug', [
+                'locale' => $locale,
+                'current_url' => $currentUrl,
+                'localized_url' => $localizedUrl,
+                'session_locale' => Session::get('app_locale'),
+                'app_locale' => App::getLocale()
+            ]);
+
+            // Check if this is a Livewire request (SPA navigation)
+            if ($request->hasHeader('X-Livewire')) {
+                return response()->json([
+                    'success' => true,
+                    'locale' => $locale,
+                    'redirect' => $localizedUrl,
+                    'message' => __('localization::language.switched_successfully')
+                ]);
+            }
+
             return redirect($localizedUrl)
                 ->with('success', __('localization::language.switched_successfully'));
 

@@ -24,7 +24,12 @@ class CustomerServiceProvider extends ServiceProvider
 
         $this->app->bind(
             \Packages\Customer\Services\CustomerService::class,
-            \Packages\Customer\Services\CustomerService::class
+            function ($app) {
+                return new \Packages\Customer\Services\CustomerService(
+                    $app->make(\Packages\Customer\Repositories\CustomerRepository::class),
+                    $app->make(\Packages\Tenant\Services\TenantService::class)
+                );
+            }
         );
 
         // Register configuration
@@ -79,7 +84,7 @@ class CustomerServiceProvider extends ServiceProvider
     protected function loadRoutes(): void
     {
         Route::group([
-            'middleware' => ['web'],
+            'middleware' => ['web', 'auth', 'tenant.context', 'tenant.isolation'],
         ], function () {
             $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         });

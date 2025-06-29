@@ -1,9 +1,11 @@
 import './bootstrap';
 
-// Make Alpine available globally
+// Import global Alpine.js components and utilities
+import './alpine-global';
 
 // Import Tabler JavaScript
 import '@tabler/core/dist/js/tabler.min.js';
 
-// Theme switching is now handled by Livewire ThemeSwitcher component
+// Alpine.js is already available through Livewire
+// All interactive features prioritize Livewire + Alpine.js approach
 

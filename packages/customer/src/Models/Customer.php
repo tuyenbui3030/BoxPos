@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Packages\Customer\Builders\CustomerBuilder;
 use Packages\User\Models\User;
+use Packages\Tenant\Traits\HasTenantScope;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTenantScope;
 
     protected $fillable = [
+        'store_id',
         'customer_code',
         'customer_name',
         'phone_number',

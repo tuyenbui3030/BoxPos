@@ -9,13 +9,15 @@ use Packages\Customer\Events\CustomerUpdated;
 use Packages\Customer\Events\CustomerDeleted;
 use Packages\Customer\Exceptions\CustomerNotFoundException;
 use Packages\Log\Traits\Loggable;
+use Packages\Tenant\Services\TenantService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Customer Service Class
- * 
+ *
  * Handles all business logic related to customer operations.
  * Acts as a layer between controllers and data access.
  */
@@ -31,13 +33,22 @@ class CustomerService
     protected CustomerRepository $customerRepository;
 
     /**
+     * Tenant service instance
+     *
+     * @var TenantService
+     */
+    protected TenantService $tenantService;
+
+    /**
      * Constructor
      *
      * @param CustomerRepository $customerRepository
+     * @param TenantService $tenantService
      */
-    public function __construct(CustomerRepository $customerRepository)
+    public function __construct(CustomerRepository $customerRepository, TenantService $tenantService)
     {
         $this->customerRepository = $customerRepository;
+        $this->tenantService = $tenantService;
     }
 
     /**
@@ -50,7 +61,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('customers_list_viewed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'per_page' => $perPage,
             'action' => 'get_all_customers',
         ]);
@@ -61,10 +72,10 @@ class CustomerService
             // ⚠️ MANDATORY: Log errors with context
             $this->logError($e, [
                 'action' => 'get_all_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'per_page' => $perPage,
             ]);
-            
+
             throw $e;
         }
     }
@@ -80,14 +91,14 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('customer_viewed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'customer_id' => $id,
             'action' => 'get_customer_by_id',
         ]);
 
         try {
             $customer = $this->customerRepository->findById($id);
-            
+
             if (!$customer) {
                 throw new CustomerNotFoundException("Customer with ID {$id} not found");
             }
@@ -97,20 +108,20 @@ class CustomerService
             // ⚠️ MANDATORY: Log business exception
             $this->logError($e, [
                 'action' => 'get_customer_by_id',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'customer_id' => $id,
                 'error_type' => 'customer_not_found',
             ]);
-            
+
             throw $e;
         } catch (\Exception $e) {
             // ⚠️ MANDATORY: Log errors with context
             $this->logError($e, [
                 'action' => 'get_customer_by_id',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'customer_id' => $id,
             ]);
-            
+
             throw $e;
         }
     }
@@ -127,7 +138,7 @@ class CustomerService
 
         // ⚠️ MANDATORY: Log operation start
         $this->logActivity('customer_creation_started', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'data_keys' => array_keys($data),
             'action' => 'create_customer',
         ]);
@@ -135,44 +146,57 @@ class CustomerService
         DB::beginTransaction();
 
         try {
+            // Automatically set store_id from current tenant context
+            if (!isset($data['store_id'])) {
+                $currentStoreId = $this->tenantService->getCurrentStoreId();
+                if ($currentStoreId) {
+                    $data['store_id'] = $currentStoreId;
+                }
+            }
+
+            // Set created_by if not provided
+            if (!isset($data['created_by']) && Auth::id()) {
+                $data['created_by'] = Auth::id();
+            }
+
             $customer = $this->customerRepository->create($data);
-            
+
             // ⚠️ MANDATORY: Log successful operation
             $this->logActivity('customer_created', [
                 'customer_id' => $customer->id,
                 'customer_email' => $customer->email ?? null,
                 'customer_name' => $customer->name ?? null,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'action' => 'create_customer',
             ]);
 
             // ⚠️ MANDATORY: Log model event
             $this->logModelEvent('created', $customer, [
                 'created_fields' => array_keys($data),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             // ⚠️ MANDATORY: Log operation performance
             $this->logOperationPerformance('customer_creation', $startTime, [
                 'customer_id' => $customer->id,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
-            
+
             // Dispatch customer created event
             event(new CustomerCreated($customer));
-            
+
             DB::commit();
             return $customer;
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'create_customer',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'data' => array_diff_key($data, array_flip(['password'])), // Exclude sensitive data
             ]);
-            
+
             throw $e;
         }
     }
@@ -191,7 +215,7 @@ class CustomerService
 
         // ⚠️ MANDATORY: Log operation start
         $this->logActivity('customer_update_started', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'customer_id' => $id,
             'data_keys' => array_keys($data),
             'action' => 'update_customer',
@@ -202,15 +226,15 @@ class CustomerService
         try {
             $customer = $this->getCustomerById($id);
             $originalData = $customer->toArray();
-            
+
             $updatedCustomer = $this->customerRepository->update($customer, $data);
-            
+
             // ⚠️ MANDATORY: Log successful operation
             $this->logActivity('customer_updated', [
                 'customer_id' => $updatedCustomer->id,
                 'customer_email' => $updatedCustomer->email ?? null,
                 'customer_name' => $updatedCustomer->name ?? null,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'updated_fields' => array_keys($data),
                 'action' => 'update_customer',
             ]);
@@ -220,31 +244,31 @@ class CustomerService
                 'updated_fields' => array_keys($data),
                 'original_data' => array_intersect_key($originalData, $data),
                 'new_data' => array_intersect_key($updatedCustomer->toArray(), $data),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             // ⚠️ MANDATORY: Log operation performance
             $this->logOperationPerformance('customer_update', $startTime, [
                 'customer_id' => $updatedCustomer->id,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
-            
+
             // Dispatch customer updated event
             event(new CustomerUpdated($updatedCustomer));
-            
+
             DB::commit();
             return $updatedCustomer;
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'update_customer',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'customer_id' => $id,
                 'data' => array_diff_key($data, array_flip(['password'])), // Exclude sensitive data
             ]);
-            
+
             throw $e;
         }
     }
@@ -262,7 +286,7 @@ class CustomerService
 
         // ⚠️ MANDATORY: Log operation start
         $this->logActivity('customer_deletion_started', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'customer_id' => $id,
             'action' => 'delete_customer',
         ]);
@@ -272,47 +296,47 @@ class CustomerService
         try {
             $customer = $this->getCustomerById($id);
             $customerData = $customer->toArray();
-            
+
             $result = $this->customerRepository->delete($customer);
-            
+
             if ($result) {
                 // ⚠️ MANDATORY: Log successful operation
                 $this->logActivity('customer_deleted', [
                     'customer_id' => $id,
                     'customer_email' => $customerData['email'] ?? null,
                     'customer_name' => $customerData['name'] ?? null,
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'action' => 'delete_customer',
                 ]);
 
                 // ⚠️ MANDATORY: Log model event
                 $this->logModelEvent('deleted', $customer, [
                     'deleted_data' => $customerData,
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                 ]);
 
                 // ⚠️ MANDATORY: Log operation performance
                 $this->logOperationPerformance('customer_deletion', $startTime, [
                     'customer_id' => $id,
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                 ]);
-                
+
                 // Dispatch customer deleted event
                 event(new CustomerDeleted($customer));
             }
-            
+
             DB::commit();
             return $result;
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'delete_customer',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'customer_id' => $id,
             ]);
-            
+
             throw $e;
         }
     }
@@ -329,7 +353,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('customers_search_performed', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'search_term' => $search,
             'filters' => array_filter($filters), // Only log non-empty filters
             'per_page' => $perPage,
@@ -339,13 +363,13 @@ class CustomerService
         try {
             // Prepare criteria for repository
             $criteria = array_merge($filters, ['search' => $search]);
-            
+
             // Repository handles the Builder Pattern, Service handles pagination
             $result = $this->customerRepository->searchWithPagination($criteria, $perPage);
 
             // ⚠️ MANDATORY: Log search results
             $this->logActivity('customers_search_completed', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'search_term' => $search,
                 'results_count' => $result->total(),
                 'per_page' => $perPage,
@@ -358,12 +382,12 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'search_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'search_term' => $search,
                 'filters' => $filters,
                 'per_page' => $perPage,
             ]);
-            
+
             throw $e;
         }
     }
@@ -379,7 +403,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('vip_customers_retrieved', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'min_sales' => $minSales,
             'max_debt' => $maxDebt,
             'action' => 'get_vip_customers',
@@ -390,7 +414,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log results
             $this->logActivity('vip_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'min_sales' => $minSales,
                 'max_debt' => $maxDebt,
@@ -401,11 +425,11 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_vip_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'min_sales' => $minSales,
                 'max_debt' => $maxDebt,
             ]);
-            
+
             throw $e;
         }
     }
@@ -421,7 +445,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('at_risk_customers_analysis', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'min_debt' => $minDebt,
             'inactive_days' => $inactiveDays,
             'action' => 'get_at_risk_customers',
@@ -432,7 +456,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log analysis results
             $this->logActivity('at_risk_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'min_debt' => $minDebt,
                 'inactive_days' => $inactiveDays,
@@ -443,11 +467,11 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_at_risk_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'min_debt' => $minDebt,
                 'inactive_days' => $inactiveDays,
             ]);
-            
+
             throw $e;
         }
     }
@@ -461,7 +485,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('upcoming_birthdays_retrieved', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'action' => 'get_upcoming_birthdays',
         ]);
 
@@ -470,7 +494,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log results
             $this->logActivity('upcoming_birthdays_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
             ]);
 
@@ -479,9 +503,9 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_upcoming_birthdays',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
-            
+
             throw $e;
         }
     }
@@ -496,7 +520,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('top_customers_analysis', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'limit' => $limit,
             'action' => 'get_top_customers',
         ]);
@@ -506,7 +530,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log analysis results
             $this->logActivity('top_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'limit' => $limit,
             ]);
@@ -516,10 +540,10 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_top_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'limit' => $limit,
             ]);
-            
+
             throw $e;
         }
     }
@@ -534,7 +558,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('debt_customers_analysis', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'order_by' => $orderBy,
             'action' => 'get_customers_with_debt',
         ]);
@@ -544,7 +568,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log analysis results
             $this->logActivity('debt_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'order_by' => $orderBy,
             ]);
@@ -554,10 +578,10 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_customers_with_debt',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'order_by' => $orderBy,
             ]);
-            
+
             throw $e;
         }
     }
@@ -572,7 +596,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('active_customers_analysis', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'days' => $days,
             'action' => 'get_active_customers',
         ]);
@@ -582,7 +606,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log analysis results
             $this->logActivity('active_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'days' => $days,
             ]);
@@ -592,10 +616,10 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_active_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'days' => $days,
             ]);
-            
+
             throw $e;
         }
     }
@@ -610,7 +634,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('inactive_customers_analysis', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'days' => $days,
             'action' => 'get_inactive_customers',
         ]);
@@ -620,7 +644,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log analysis results
             $this->logActivity('inactive_customers_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'count' => $customers->count(),
                 'days' => $days,
             ]);
@@ -630,10 +654,10 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_inactive_customers',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'days' => $days,
             ]);
-            
+
             throw $e;
         }
     }
@@ -649,7 +673,7 @@ class CustomerService
     {
         // ⚠️ MANDATORY: Log business operation
         $this->logActivity('customers_by_group_retrieved', [
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'group' => $group,
             'filters' => array_filter($filters),
             'action' => 'get_customers_by_group',
@@ -660,7 +684,7 @@ class CustomerService
 
             // ⚠️ MANDATORY: Log results
             $this->logActivity('customers_by_group_found', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'group' => $group,
                 'count' => $customers->count(),
                 'filters_applied' => count(array_filter($filters)),
@@ -671,11 +695,11 @@ class CustomerService
             // ⚠️ MANDATORY: Log error with context
             $this->logError($e, [
                 'action' => 'get_customers_by_group',
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'group' => $group,
                 'filters' => $filters,
             ]);
-            
+
             throw $e;
         }
     }

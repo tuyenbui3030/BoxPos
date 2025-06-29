@@ -34,14 +34,14 @@ return [
     'loading' => 'Loading...',
     'processing' => 'Processing...',
     'please_wait' => 'Please wait...',
-    
+
     // Status messages
     'success' => 'Success',
     'error' => 'Error',
     'warning' => 'Warning',
     'info' => 'Information',
     'notice' => 'Notice',
-    
+
     // Form labels
     'name' => 'Name',
     'email' => 'Email',
@@ -65,7 +65,7 @@ return [
     'subtotal' => 'Subtotal',
     'tax' => 'Tax',
     'discount' => 'Discount',
-    
+
     // Navigation & Menu
     'navigation' => 'Navigation',
     'menu' => 'Menu',
@@ -73,7 +73,7 @@ return [
     'main_menu' => 'Main Menu',
     'user_menu' => 'User Menu',
     'admin_panel' => 'Admin Panel',
-    
+
     // Data table
     'actions' => 'Actions',
     'no_data' => 'No data available',
@@ -82,7 +82,7 @@ return [
     'entries' => 'entries',
     'show' => 'Show',
     'per_page' => 'per page',
-    
+
     // File operations
     'upload' => 'Upload',
     'download' => 'Download',
@@ -92,7 +92,7 @@ return [
     'files' => 'Files',
     'image' => 'Image',
     'images' => 'Images',
-    
+
     // Messages
     'operation_successful' => 'Operation completed successfully',
     'operation_failed' => 'Operation failed',
@@ -105,7 +105,7 @@ return [
     'permission_denied' => 'Permission denied',
     'page_not_found' => 'Page not found',
     'session_expired' => 'Your session has expired',
-    
+
     // Date and time
     'today' => 'Today',
     'yesterday' => 'Yesterday',
@@ -116,14 +116,14 @@ return [
     'last_month' => 'Last Month',
     'this_year' => 'This Year',
     'last_year' => 'Last Year',
-    
+
     // Common validations
     'required_field' => 'This field is required',
     'invalid_email' => 'Please enter a valid email address',
     'invalid_phone' => 'Please enter a valid phone number',
     'password_mismatch' => 'Passwords do not match',
     'invalid_format' => 'Invalid format',
-    
+
     // Language and localization
     'language' => 'Language',
     'select_language' => 'Select Language',
@@ -149,7 +149,7 @@ return [
     'enter_your_name' => 'Enter your name',
     'enter_your_email' => 'Enter your email address',
     'enter_your_message' => 'Enter your message',
-    
+
     // Devices Management
     'manage_devices' => 'Manage Devices',
     'device_management' => 'Device Management',
@@ -181,7 +181,7 @@ return [
     'are_you_sure_remove_device' => 'Are you sure you want to remove the device \':device\'? This action cannot be undone.',
     'are_you_sure_revoke_all' => 'Are you sure you want to revoke access for all other devices? This will log out all other sessions.',
     'revoke_all' => 'Revoke All',
-    
+
     // Dashboard terms
     'sales' => 'Sales',
     'last_7_days' => 'Last 7 days',
@@ -198,7 +198,7 @@ return [
     'pending_orders' => 'Pending orders',
     'completed_orders' => 'Completed orders',
     'cancelled_orders' => 'Cancelled orders',
-    
+
     // Menu items
     'menu_dashboard' => 'Dashboard',
     'menu_home' => 'Home',
@@ -212,4 +212,36 @@ return [
     'menu_settings' => 'Settings',
     'menu_reports' => 'Reports',
     'menu_analytics' => 'Analytics',
+
+    // Dashboard
+    'welcome_message' => 'Welcome to your dashboard',
+    'dashboard_description' => 'Here you can manage your business operations and view important metrics.',
+    'current_project' => 'Current Project',
+    'quick_actions' => 'Quick Actions',
+    'manage_customers' => 'Manage your customers',
+    'manage_products' => 'Manage your products',
+    'manage_orders' => 'View and manage orders',
+    'view_reports' => 'View business reports',
+    'no_project_selected' => 'No project selected',
+    'no_project_description' => 'Please select a project from the menu to get started.',
+
+    // Stats
+    'total_customers' => 'Total Customers',
+    'total_orders' => 'Total Orders',
+    'total_revenue' => 'Total Revenue',
+    'active_users' => 'Active Users',
+    'last_7_days' => 'Last 7 days',
+    'last_30_days' => 'Last 30 days',
+    'last_3_months' => 'Last 3 months',
+    'conversion_rate' => 'Conversion rate',
+    'growth_rate' => 'Growth rate',
+    'vs_previous_period' => 'vs. previous period',
+
+    // Search
+    'search' => 'Search',
+    'search_placeholder' => 'Search for products, customers, orders...',
+    'searching' => 'Searching',
+    'no_results_found' => 'No results found',
+    'try_different_keywords' => 'Try different keywords or check your spelling',
+    'search_tip' => 'Tip: Use keywords like customer names, product names, or order numbers',
 ];
