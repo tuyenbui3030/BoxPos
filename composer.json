@@ -41,7 +41,14 @@
             "Packages\\SessionManager\\": "packages/session-manager/src/",
             "Packages\\Appearance\\": "packages/appearance/src/",
             "Packages\\Log\\": "packages/log/src/",
-            "Packages\\Localization\\": "packages/localization/src/"
+            "Packages\\Localization\\": "packages/localization/src/",
+            "Packages\\Product\\": "packages/product/src/",
+            "Packages\\Inventory\\": "packages/inventory/src/",
+            "Packages\\Employee\\": "packages/employee/src/",
+            "Packages\\Finance\\": "packages/finance/src/",
+            "Packages\\Order\\": "packages/order/src/",
+            "Packages\\Report\\": "packages/report/src/",
+            "Packages\\Archive\\": "packages/archive/src/"
         }
     },
     "autoload-dev": {

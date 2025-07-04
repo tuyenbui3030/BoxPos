@@ -132,6 +132,38 @@ Route::group([
     });
 });
 
+// Store demo routes - Easy access for local development
+Route::get('/demo', function () {
+    $stores = \Packages\Store\Models\Store::all();
+    return view('demo.store-selector', compact('stores'));
+})->name('demo.stores');
+
+Route::get('/demo/vat-lieu', function () {
+    $store = \Packages\Store\Models\Store::where('slug', 'vat-lieu-xay-dung')->first();
+    if (!$store) abort(404, 'Store not found');
+
+    // Switch to this store context
+    session(['current_store_id' => $store->id]);
+
+    $categories = \DB::table('product_categories')->where('store_id', $store->id)->get();
+    $products = \DB::table('products')->where('store_id', $store->id)->get();
+
+    return view('demo.materials', compact('store', 'categories', 'products'));
+})->name('demo.materials');
+
+Route::get('/demo/ca-phe', function () {
+    $store = \Packages\Store\Models\Store::where('slug', 'kho-ca-phe')->first();
+    if (!$store) abort(404, 'Store not found');
+
+    // Switch to this store context
+    session(['current_store_id' => $store->id]);
+
+    $categories = \DB::table('product_categories')->where('store_id', $store->id)->get();
+    $products = \DB::table('products')->where('store_id', $store->id)->get();
+
+    return view('demo.coffee', compact('store', 'categories', 'products'));
+})->name('demo.coffee');
+
 // Multi-tenant demo route
 Route::get('/multi-tenant-demo', function () {
     if (!Auth::check()) {

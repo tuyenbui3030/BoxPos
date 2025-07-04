@@ -12,4 +12,11 @@ return [
     Packages\Appearance\AppearanceServiceProvider::class,
     Packages\Log\LogServiceProvider::class,
     Packages\Localization\LocalizationServiceProvider::class,
+    Packages\Product\ProductServiceProvider::class,
+    Packages\Inventory\InventoryServiceProvider::class,
+    Packages\Employee\EmployeeServiceProvider::class,
+    Packages\Finance\FinanceServiceProvider::class,
+    Packages\Order\OrderServiceProvider::class,
+    Packages\Report\ReportServiceProvider::class,
+    Packages\Archive\ArchiveServiceProvider::class,
 ];
