@@ -329,7 +329,7 @@ class LogFormatterService
     /**
      * Format log entry based on configured format
      */
-    public function format(array $data, string $format = null): string
+    public function format(array $data, ?string $format = null): string
     {
         $format = $format ?: config('logging-package.formatters.default', 'line');
 

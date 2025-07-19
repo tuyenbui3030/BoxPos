@@ -14,11 +14,22 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Core seeders
             \Packages\Store\Database\Seeders\StoreSeeder::class,
             \Packages\User\Database\Seeders\UserSeeder::class,
             \Packages\User\Database\Seeders\UserStoreSeeder::class, // Assign users to stores
             \Packages\Customer\Database\Seeders\CustomerSeeder::class,
-            // Add more seeders here as needed
+
+            // Material Management seeders (in dependency order)
+            \Packages\MaterialCatalog\Database\Seeders\MaterialUnitsSeeder::class,
+            \Packages\MaterialCatalog\Database\Seeders\MaterialCategoriesSeeder::class,
+            \Packages\MaterialSuppliers\Database\Seeders\MaterialSuppliersSeeder::class,
+            \Packages\MaterialCatalog\Database\Seeders\BuildingMaterialsSeeder::class,
+            \Packages\MaterialCatalog\Database\Seeders\MaterialSpecificationsSeeder::class,
+            \Packages\MaterialSuppliers\Database\Seeders\SupplierContactsSeeder::class,
+            \Packages\MaterialInventory\Database\Seeders\MaterialInventorySeeder::class,
+            \Packages\MaterialPurchasing\Database\Seeders\MaterialPurchaseOrdersSeeder::class,
+            \Packages\MaterialPricing\Database\Seeders\MaterialPricingSeeder::class,
         ]);
     }
 }

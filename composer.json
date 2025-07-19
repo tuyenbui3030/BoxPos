@@ -41,7 +41,12 @@
             "Packages\\SessionManager\\": "packages/session-manager/src/",
             "Packages\\Appearance\\": "packages/appearance/src/",
             "Packages\\Log\\": "packages/log/src/",
-            "Packages\\Localization\\": "packages/localization/src/"
+            "Packages\\Localization\\": "packages/localization/src/",
+            "Packages\\MaterialCatalog\\": "packages/material-catalog/src/",
+            "Packages\\MaterialSuppliers\\": "packages/material-suppliers/src/",
+            "Packages\\MaterialInventory\\": "packages/material-inventory/src/",
+            "Packages\\MaterialPurchasing\\": "packages/material-purchasing/src/",
+            "Packages\\MaterialPricing\\": "packages/material-pricing/src/"
         }
     },
     "autoload-dev": {

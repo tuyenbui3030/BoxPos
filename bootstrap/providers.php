@@ -12,4 +12,11 @@ return [
     Packages\Appearance\AppearanceServiceProvider::class,
     Packages\Log\LogServiceProvider::class,
     Packages\Localization\LocalizationServiceProvider::class,
+
+    // Material Management Packages
+    Packages\MaterialCatalog\MaterialCatalogServiceProvider::class,
+    Packages\MaterialSuppliers\MaterialSuppliersServiceProvider::class,
+    Packages\MaterialInventory\MaterialInventoryServiceProvider::class,
+    Packages\MaterialPurchasing\MaterialPurchasingServiceProvider::class,
+    Packages\MaterialPricing\MaterialPricingServiceProvider::class,
 ];
