@@ -161,10 +161,10 @@ class UserController extends Controller
         ]);
 
         try {
-            $user = $this->userService->authenticate(
-                $request->input('email'),
-                $request->input('password')
-            );
+            $user = $this->userService->authenticate([
+                'email' => $request->input('email'),
+                'password' => $request->input('password')
+            ]);
 
             Auth::login($user, $request->boolean('remember'));
 

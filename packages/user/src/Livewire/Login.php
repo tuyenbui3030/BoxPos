@@ -19,8 +19,24 @@ class Login extends Component
 
     public $remember = false;
 
+    public function mount()
+    {
+        \Log::info('Login component mounted');
+
+        // Redirect if already authenticated
+        if (Auth::check()) {
+            \Log::info('User already authenticated, redirecting to dashboard');
+            return redirect()->route('dashboard');
+        }
+    }
+
     public function login()
     {
+        \Log::info('Livewire login method called', [
+            'email' => $this->email,
+            'remember' => $this->remember
+        ]);
+
         // Check if user is locked out
         $lockoutTime = session()->get('login_lockout_time');
         if ($lockoutTime && now()->lt($lockoutTime)) {
@@ -28,41 +44,52 @@ class Login extends Component
             $this->addError('email', "Account temporarily locked. Try again in {$remainingMinutes} minutes.");
             return;
         }
-        
+
         $this->validate();
 
         // Attempt authentication with remember me functionality
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             session()->regenerate();
-            
+
             $user = Auth::user();
-            
+
+            \Log::info('User authenticated successfully in Livewire', [
+                'user_id' => $user->id,
+                'user_email' => $user->email
+            ]);
+
             // Update basic login tracking
             $user->update([
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip(),
             ]);
-            
+
             // Record device information if remember me is enabled
             if ($this->remember) {
                 $deviceService = app(DeviceDetectionService::class);
                 $device = $deviceService->detectAndRecordDevice($user, $user->remember_token);
-                
+
                 // Activate infinite session for remember me users
                 $sessionManager = app(SessionService::class);
                 $sessionManager->setInfiniteSessionForActiveUser();
-                
+
                 session()->flash('message', "Infinite session activated! Bạn sẽ không bao giờ bị logout trên thiết bị này ({$device->device_name}).");
             }
-            
+
             // Clear any previous failed login attempts
             session()->forget(['login_attempts', 'login_lockout_time']);
-            
-            return redirect()->intended(route('dashboard'));
-        }
 
-        // Handle failed login attempts
-        $this->handleFailedLogin();
+            \Log::info('Redirecting to dashboard', [
+                'dashboard_route' => route('dashboard')
+            ]);
+
+            // Redirect to dashboard using standard redirect (no navigate)
+            $this->redirect(route('dashboard'));
+
+        } else {
+            // Handle failed login attempts
+            $this->handleFailedLogin();
+        }
     }
     
     private function handleFailedLogin()

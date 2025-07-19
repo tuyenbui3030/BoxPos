@@ -110,6 +110,7 @@ sail up -d
 ```bash
 sail artisan migrate
 sail artisan db:seed
+# This will create users, stores, and proper user-store relationships
 ```
 
 6. **Frontend assets:**
@@ -118,12 +119,19 @@ sail npm install
 sail npm run dev
 ```
 
+7. **Livewire assets (IMPORTANT):**
+```bash
+# Publish Livewire assets to avoid 404 errors
+# Note: public/vendor/livewire is tracked in git to prevent asset issues
+sail artisan livewire:publish --assets
+```
+
 ### Service Access
 - **Application**: http://localhost
 - **MySQL**: localhost:3306
 - **Redis**: localhost:6379
 - **Mailpit**: http://localhost:8025
-- **Vite Dev Server**: http://localhost:5173
+- **Vite Dev Server**: http://localhost:5173 (may auto-switch to 5174 if port conflicts)
 
 ## 🔧 Development Workflow
 
@@ -132,27 +140,102 @@ sail npm run dev
 **Always use Laravel Sail for consistency:**
 
 ```bash
-# Artisan commands
+# Method 1: Using Sail wrapper (recommended)
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan make:model Customer
+./vendor/bin/sail composer install
+
+# Method 2: Create alias for convenience
+alias sail='./vendor/bin/sail'
 sail artisan migrate
-sail artisan make:model Customer
-sail artisan queue:work
-
-# Composer commands
 sail composer install
-sail composer require package/name
-
-# Node/NPM commands
-sail npm install
 sail npm run dev
-sail npm run build
+
+# Method 3: Direct docker exec (if needed)
+docker exec boxpos-app-1 php artisan migrate
+docker exec boxpos-app-1 php artisan make:model Customer
+docker exec boxpos-app-1 composer install
+
+# Common commands
+sail artisan config:cache
+sail artisan migrate
+sail npm run dev
+sail composer install
 
 # Testing
-sail test
-sail test --filter CustomerTest
+sail artisan test
+sail artisan test --filter CustomerTest
+```
 
-# Code quality
-sail composer pint      # Code formatting
-sail composer phpstan   # Static analysis
+### ⚠️ Common Issues & Solutions
+
+#### Livewire JavaScript 404 Error
+**Problem**: Login form not working, console shows error `GET /livewire/livewire.js 404 (Not Found)`
+
+**Root Cause**: Livewire assets not published or missing after update
+
+**Solution**:
+```bash
+# 1. Publish Livewire assets
+sail artisan livewire:publish --assets
+
+# 2. Clear caches
+sail artisan config:clear
+sail artisan route:clear
+
+# 3. Rebuild frontend assets
+sail npm run build
+```
+
+**Verification**: File `public/vendor/livewire/livewire.js` must exist
+
+**Prevention**: Always run `livewire:publish --assets` after:
+- New project setup
+- Livewire package update
+- Production deployment
+- Alpine.js loading errors
+
+**Note**: `public/vendor/livewire/` is tracked in git to prevent asset issues, but should still be republished after Livewire updates.
+
+#### Port 5173 Already in Use
+**Problem**: `Bind for 0.0.0.0:5173 failed: port is already allocated` when starting Sail
+
+**Root Cause**: Old container still running and occupying port 5173
+
+**Solution**:
+```bash
+# 1. Check running containers
+docker ps
+
+# 2. Stop and remove old container
+docker stop <old-container-name>
+docker rm <old-container-name>
+
+# 3. Or stop all project containers
+./vendor/bin/sail down
+
+# 4. Restart Sail
+./vendor/bin/sail up -d
+```
+
+#### Vite Permission Error
+**Problem**: `Error: EACCES: permission denied, rmdir node_modules/.vite/deps/...`
+
+**Root Cause**: Docker container creates files with different permissions than host user
+
+**Solution**:
+```bash
+# Method 1: Using host machine (if running npm directly)
+sudo rm -rf node_modules/.vite
+npm run dev
+
+# Method 2: Using Sail (if running through Docker)
+sail exec app rm -rf node_modules/.vite
+sail npm install
+sail npm run dev
+
+# Method 3: Fix permissions (if needed)
+sail exec app chown -R sail:sail node_modules
 ```
 
 ### Code Quality Standards
@@ -239,6 +322,27 @@ The application is designed for VPS/dedicated server deployment with:
 - Nginx reverse proxy for multi-tenancy
 - Automated log rotation and cleanup
 - Environment-specific configurations
+
+**Deployment Checklist:**
+```bash
+# 1. Install dependencies
+composer install --optimize-autoloader --no-dev
+
+# 2. Publish all assets
+php artisan livewire:publish --assets
+php artisan vendor:publish --all
+
+# 3. Build frontend
+npm run build
+
+# 4. Clear and cache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 5. Run migrations
+php artisan migrate --force
+```
 
 ### Scaling Considerations
 - **Horizontal scaling** with load balancers

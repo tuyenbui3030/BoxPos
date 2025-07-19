@@ -15,12 +15,9 @@
     <link rel="stylesheet" href="{{ asset('tabler/css/tabler-payments.min.css') }}">
     <link rel="stylesheet" href="{{ asset('tabler/css/tabler-vendors.min.css') }}">
     
-    <!-- Custom Tabler overrides -->
-    <link rel="stylesheet" href="{{ asset('tabler/css/tabler-custom.css') }}">
-    
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <!-- Livewire Styles -->
     @livewireStyles
 </head>
@@ -32,7 +29,7 @@
                     <h1>{{ config('app.name', 'Laravel') }}</h1>
                 </a>
             </div>
-            
+
             @isset($slot)
                 {{ $slot }}
             @else
@@ -40,14 +37,11 @@
             @endisset
         </div>
     </div>
-    
-    <!-- Tabler JS -->
-    <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- Livewire Scripts -->
     @livewireScripts
+
+    <!-- Vite JS (includes Alpine.js and all dependencies) -->
+    @vite(['resources/js/app.js'])
 </body>
 </html>

@@ -230,46 +230,63 @@ document.addEventListener('alpine:init', () => {
                 .format(new Date(date));
         }
     }));
-});
 
-// Global utility functions
-window.Alpine.store('utils', {
-    // Debounce function
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
+    // Global utility functions store
+    Alpine.store('utils', {
+        // Debounce function
+        debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
                 clearTimeout(timeout);
-                func(...args);
+                timeout = setTimeout(later, wait);
             };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    },
+        },
 
-    // Generate unique ID
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    },
+        // Generate unique ID
+        generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        },
 
-    // Copy to clipboard
-    async copyToClipboard(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            Alpine.store('notifications').addNotification({
-                type: 'success',
-                message: 'Copied to clipboard!',
-                duration: 2000
-            });
-        } catch (err) {
-            console.error('Failed to copy: ', err);
-            Alpine.store('notifications').addNotification({
-                type: 'error',
-                message: 'Failed to copy to clipboard',
-                duration: 3000
+        // Copy to clipboard
+        async copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const notificationStore = Alpine.store('notifications');
+                if (notificationStore && notificationStore.addNotification) {
+                    notificationStore.addNotification({
+                        type: 'success',
+                        message: 'Copied to clipboard!',
+                        duration: 2000
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                const notificationStore = Alpine.store('notifications');
+                if (notificationStore && notificationStore.addNotification) {
+                    notificationStore.addNotification({
+                        type: 'error',
+                        message: 'Failed to copy to clipboard',
+                        duration: 3000
+                    });
+                }
+            }
+        }
+    });
+
+    // Global store to manage dropdown states and prevent flash
+    Alpine.store('dropdowns', {
+        closeAllDropdowns() {
+            // Remove show class from all dropdown menus
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
             });
         }
-    }
+    });
+
 });
 
 // Global function to ensure all internal links use SPA navigation
@@ -309,15 +326,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-    // Global store to manage dropdown states and prevent flash
-    Alpine.store('dropdowns', {
-        closeAllDropdowns() {
-            // Remove show class from all dropdown menus
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                menu.classList.remove('show');
-            });
-        }
-    });
 
 console.log('Global Alpine.js components and SPA navigation loaded successfully');

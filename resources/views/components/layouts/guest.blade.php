@@ -9,12 +9,9 @@
     
     <title>{{ $title }}</title>
     
-    <!-- Tabler CSS -->
-    <link rel="stylesheet" href="{{ asset('tabler/css/tabler.min.css') }}">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <!-- Livewire Styles -->
     @livewireStyles
 </head>
@@ -26,18 +23,15 @@
                     <h1>{{ config('app.name', 'Laravel') }}</h1>
                 </a>
             </div>
-            
+
             {{ $slot }}
         </div>
     </div>
-    
-    <!-- Tabler JS -->
-    <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- Livewire Scripts -->
     @livewireScripts
+
+    <!-- Vite JS (includes Alpine.js and all dependencies) -->
+    @vite(['resources/js/app.js'])
 </body>
 </html>

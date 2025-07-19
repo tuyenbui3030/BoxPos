@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             \Packages\Store\Database\Seeders\StoreSeeder::class,
             \Packages\User\Database\Seeders\UserSeeder::class,
+            \Packages\User\Database\Seeders\UserStoreSeeder::class, // Assign users to stores
             \Packages\Customer\Database\Seeders\CustomerSeeder::class,
             // Add more seeders here as needed
         ]);
