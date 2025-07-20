@@ -19,7 +19,11 @@
             </li>
 
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+        <a class="nav-link dropdown-toggle"
+           href="#"
+           wire:click="toggleProductsDropdown"
+           role="button"
+           aria-expanded="{{ $showProductsDropdown ? 'true' : 'false' }}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -33,14 +37,53 @@
                 {{ __('app.menu_products') }}
             </span>
         </a>
-        <div class="dropdown-menu">
+        <div class="dropdown-menu"
+             style="display: {{ $showProductsDropdown ? 'block' : 'none' }};"
+             wire:click.away="closeProductsDropdown">
             <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
+                    <h6 class="dropdown-header">Danh mục vật liệu</h6>
+                    <a class="dropdown-item spa-link" href="/{{ app()->getLocale() }}/material-catalog/categories" wire:navigate>
+                        <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M4 4h6v6h-6z"/>
+                                <path d="M14 4h6v6h-6z"/>
+                                <path d="M4 14h6v6h-6z"/>
+                                <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                            </svg>
+                        </span>
+                        Danh mục vật liệu
+                    </a>
+                    <a class="dropdown-item spa-link" href="/{{ app()->getLocale() }}/material-catalog/materials" wire:navigate>
+                        <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 21l18 0"/>
+                                <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/>
+                                <path d="M9 9l0 4"/>
+                                <path d="M12 7l0 6"/>
+                                <path d="M15 11l0 2"/>
+                            </svg>
+                        </span>
+                        Vật liệu xây dựng
+                    </a>
+                    <a class="dropdown-item spa-link" href="/{{ app()->getLocale() }}/material-catalog/units" wire:navigate>
+                        <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/>
+                                <path d="M12 12l8 -4.5"/>
+                                <path d="M12 12l0 9"/>
+                                <path d="M12 12l-8 -4.5"/>
+                            </svg>
+                        </span>
+                        Đơn vị tính
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <h6 class="dropdown-header">Khác</h6>
                     <a class="dropdown-item" href="#" onclick="alert('Products page - Coming soon!')">
                         {{ __('app.menu_all_products') }}
-                    </a>
-                    <a class="dropdown-item" href="#" onclick="alert('Categories page - Coming soon!')">
-                        {{ __('app.menu_categories') }}
                     </a>
                     <a class="dropdown-item" href="#" onclick="alert('Inventory page - Coming soon!')">
                         {{ __('app.menu_inventory') }}
@@ -104,3 +147,5 @@
         </ul>
     </div>
 </div>
+
+

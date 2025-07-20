@@ -51,6 +51,13 @@ class MaterialCatalogServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/material-catalog'),
         ], 'material-catalog-lang');
 
+        $this->publishes([
+            __DIR__ . '/../resources/js' => resource_path('js/vendor/material-catalog'),
+        ], 'material-catalog-js');
+
+        // Register Livewire components
+        $this->registerLivewireComponents();
+
         // Register commands if running in console
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -85,6 +92,22 @@ class MaterialCatalogServiceProvider extends ServiceProvider
             \Packages\MaterialCatalog\Repositories\MaterialSpecificationRepository::class
         );
 
+        // Register repositories
+        $this->app->bind(
+            \Packages\MaterialCatalog\Repositories\MaterialUnitRepository::class,
+            \Packages\MaterialCatalog\Repositories\MaterialUnitRepository::class
+        );
+
+        $this->app->bind(
+            \Packages\MaterialCatalog\Repositories\MaterialCategoryRepository::class,
+            \Packages\MaterialCatalog\Repositories\MaterialCategoryRepository::class
+        );
+
+        $this->app->bind(
+            \Packages\MaterialCatalog\Repositories\BuildingMaterialRepository::class,
+            \Packages\MaterialCatalog\Repositories\BuildingMaterialRepository::class
+        );
+
         // Register services
         $this->app->bind(
             \Packages\MaterialCatalog\Services\MaterialUnitService::class,
@@ -105,6 +128,29 @@ class MaterialCatalogServiceProvider extends ServiceProvider
             \Packages\MaterialCatalog\Services\MaterialSpecificationService::class,
             \Packages\MaterialCatalog\Services\MaterialSpecificationService::class
         );
+    }
+
+    /**
+     * Register Livewire components.
+     */
+    protected function registerLivewireComponents(): void
+    {
+        if (class_exists(\Livewire\Livewire::class)) {
+            \Livewire\Livewire::component(
+                'material-catalog.material-units.management',
+                \Packages\MaterialCatalog\Livewire\MaterialUnits\MaterialUnitsManagement::class
+            );
+
+            \Livewire\Livewire::component(
+                'material-catalog.material-categories.management',
+                \Packages\MaterialCatalog\Livewire\MaterialCategories\MaterialCategoriesManagement::class
+            );
+
+            \Livewire\Livewire::component(
+                'material-catalog.building-materials.management',
+                \Packages\MaterialCatalog\Livewire\BuildingMaterials\BuildingMaterialsManagement::class
+            );
+        }
     }
 
     /**

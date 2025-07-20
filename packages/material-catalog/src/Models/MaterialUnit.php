@@ -100,6 +100,24 @@ class MaterialUnit extends Model
     }
 
     /**
+     * Scope to order by type and name.
+     */
+    public function scopeOrderByTypeAndName($query)
+    {
+        return $query->orderBy('type')
+                    ->orderBy('name');
+    }
+
+    /**
+     * Scope for dropdown selection.
+     */
+    public function scopeForDropdown($query)
+    {
+        return $query->select('id', 'code', 'name', 'symbol', 'type')
+                    ->orderByTypeAndName();
+    }
+
+    /**
      * Convert quantity from this unit to another unit.
      */
     public function convertTo(MaterialUnit $targetUnit, float $quantity): float
