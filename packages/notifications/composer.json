@@ -1,0 +1,23 @@
+{
+    "name": "packages/notifications",
+    "description": "Notifications and Communication Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Notifications\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Notifications\\NotificationsServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "name": "packages/loyalty",
+    "description": "Customer Loyalty Program Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*",
+        "packages/customer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Loyalty\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Loyalty\\LoyaltyServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "name": "packages/sales-orders",
+    "description": "Sales Orders Management Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/customer": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\SalesOrders\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\SalesOrders\\SalesOrdersServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "name": "packages/products",
+    "description": "Products and Services Management Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Products\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Products\\ProductsServiceProvider"
+            ]
+        }
+    }
+}

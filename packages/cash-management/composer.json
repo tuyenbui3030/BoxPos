@@ -1,0 +1,23 @@
+{
+    "name": "packages/cash-management",
+    "description": "Cash Management Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\CashManagement\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\CashManagement\\CashManagementServiceProvider"
+            ]
+        }
+    }
+}

@@ -19,4 +19,28 @@ return [
     Packages\MaterialInventory\MaterialInventoryServiceProvider::class,
     Packages\MaterialPurchasing\MaterialPurchasingServiceProvider::class,
     Packages\MaterialPricing\MaterialPricingServiceProvider::class,
+
+    // Product Management
+    Packages\Products\ProductsServiceProvider::class,
+
+    // Warehouse Management
+    Packages\Warehouse\WarehouseServiceProvider::class,
+
+    // Employee Management
+    Packages\Employees\EmployeesServiceProvider::class,
+
+    // Sales & Orders
+    Packages\SalesOrders\SalesOrdersServiceProvider::class,
+
+    // Financial Management
+    Packages\CashManagement\CashManagementServiceProvider::class,
+    Packages\Payments\PaymentsServiceProvider::class,
+
+    // Marketing & Customer Engagement
+    Packages\Promotions\PromotionsServiceProvider::class,
+    Packages\Loyalty\LoyaltyServiceProvider::class,
+
+    // Communication & Reporting
+    Packages\Notifications\NotificationsServiceProvider::class,
+    Packages\Reports\ReportsServiceProvider::class,
 ];

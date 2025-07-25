@@ -1,0 +1,23 @@
+{
+    "name": "packages/reports",
+    "description": "Reports and Analytics Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Reports\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Reports\\ReportsServiceProvider"
+            ]
+        }
+    }
+}

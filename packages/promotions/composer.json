@@ -1,0 +1,25 @@
+{
+    "name": "packages/promotions",
+    "description": "Promotions and Discounts Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*",
+        "packages/customer": "*",
+        "packages/products": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Promotions\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Promotions\\PromotionsServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "name": "packages/payments",
+    "description": "Payment Methods and Transactions Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Payments\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Payments\\PaymentsServiceProvider"
+            ]
+        }
+    }
+}

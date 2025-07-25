@@ -46,7 +46,17 @@
             "Packages\\MaterialSuppliers\\": "packages/material-suppliers/src/",
             "Packages\\MaterialInventory\\": "packages/material-inventory/src/",
             "Packages\\MaterialPurchasing\\": "packages/material-purchasing/src/",
-            "Packages\\MaterialPricing\\": "packages/material-pricing/src/"
+            "Packages\\MaterialPricing\\": "packages/material-pricing/src/",
+            "Packages\\SalesOrders\\": "packages/sales-orders/src/",
+            "Packages\\Employees\\": "packages/employees/src/",
+            "Packages\\CashManagement\\": "packages/cash-management/src/",
+            "Packages\\Warehouse\\": "packages/warehouse/src/",
+            "Packages\\Products\\": "packages/products/src/",
+            "Packages\\Reports\\": "packages/reports/src/",
+            "Packages\\Promotions\\": "packages/promotions/src/",
+            "Packages\\Loyalty\\": "packages/loyalty/src/",
+            "Packages\\Payments\\": "packages/payments/src/",
+            "Packages\\Notifications\\": "packages/notifications/src/"
         }
     },
     "autoload-dev": {

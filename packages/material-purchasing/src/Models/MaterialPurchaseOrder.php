@@ -5,6 +5,7 @@ namespace Packages\MaterialPurchasing\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Packages\MaterialSuppliers\Models\MaterialSupplier;
 use Packages\Store\Models\Store;
 use Packages\User\Models\User;
@@ -117,6 +118,14 @@ class MaterialPurchaseOrder extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Get the items for this purchase order.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(MaterialPurchaseOrderItem::class, 'purchase_order_id');
     }
 
     /**

@@ -1,0 +1,25 @@
+{
+    "name": "packages/warehouse",
+    "description": "Warehouse Management Package for BoxPos",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "packages/store": "*",
+        "packages/user": "*",
+        "packages/material-catalog": "*",
+        "packages/material-inventory": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Packages\\Warehouse\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Packages\\Warehouse\\WarehouseServiceProvider"
+            ]
+        }
+    }
+}
