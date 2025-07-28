@@ -96,4 +96,12 @@ class SalesOrderItem extends Model
     {
         return $this->delivered_quantity > $this->returned_quantity;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\SalesOrderItemFactory::new();
+    }
 }

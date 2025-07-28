@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Packages\Store\Models\Store;
 use Packages\Tenant\Traits\HasTenantScope;
 use Packages\User\Models\User;
+use Packages\Employees\Database\Factories\DepartmentFactory;
 
 class Department extends Model
 {
@@ -121,5 +122,13 @@ class Department extends Model
         }
         
         return $childrenIds;
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return DepartmentFactory::new();
     }
 }

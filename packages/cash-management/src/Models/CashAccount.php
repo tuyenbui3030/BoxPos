@@ -125,13 +125,11 @@ class CashAccount extends Model
             default => 'ACCT'
         };
 
-        $lastAccount = static::where('store_id', $storeId)
-            ->where('account_code', 'like', "{$prefix}%")
-            ->orderBy('id', 'desc')
-            ->first();
+        // Use store ID and random number to ensure uniqueness
+        $storePrefix = str_pad($storeId, 2, '0', STR_PAD_LEFT);
+        $random = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         
-        $number = $lastAccount ? (intval(substr($lastAccount->account_code, -4)) + 1) : 1;
-        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        return $prefix . $storePrefix . $random;
     }
 
     public function updateBalance(float $amount, string $type = 'add'): void

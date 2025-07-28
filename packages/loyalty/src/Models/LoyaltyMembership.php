@@ -12,31 +12,72 @@ class LoyaltyMembership extends Model
 {
     protected $fillable = [
         'store_id',
-        'loyalty_program_id',
+        'program_id',
         'customer_id',
         'membership_number',
         'status',
-        'joined_date',
-        'current_points',
-        'lifetime_points',
-        'points_redeemed',
-        'current_tier',
-        'tier_progress',
+        'enrolled_date',
         'last_activity_date',
         'expiry_date',
-        'notes',
+        'total_points_earned',
+        'total_points_redeemed',
+        'current_points_balance',
+        'pending_points',
+        'expired_points',
+        'current_tier',
+        'tier_points',
+        'next_tier_points',
+        'tier_achieved_date',
+        'tier_expiry_date',
+        'total_transactions',
+        'total_spent',
+        'average_transaction',
+        'visits_count',
+        'first_purchase_date',
+        'last_purchase_date',
+        'total_cashback_earned',
+        'total_cashback_redeemed',
+        'current_cashback_balance',
+        'referrals_made',
+        'referral_points_earned',
+        'referred_by',
+        'email_notifications',
+        'sms_notifications',
+        'push_notifications',
+        'marketing_emails',
+        'preferences',
         'metadata',
-        'created_by',
     ];
 
     protected $casts = [
-        'joined_date' => 'datetime',
-        'last_activity_date' => 'datetime',
-        'expiry_date' => 'datetime',
-        'current_points' => 'integer',
-        'lifetime_points' => 'integer',
-        'points_redeemed' => 'integer',
-        'tier_progress' => 'decimal:2',
+        'enrolled_date' => 'date',
+        'last_activity_date' => 'date',
+        'expiry_date' => 'date',
+        'tier_achieved_date' => 'date',
+        'tier_expiry_date' => 'date',
+        'first_purchase_date' => 'date',
+        'last_purchase_date' => 'date',
+        'total_points_earned' => 'integer',
+        'total_points_redeemed' => 'integer',
+        'current_points_balance' => 'integer',
+        'pending_points' => 'integer',
+        'expired_points' => 'integer',
+        'tier_points' => 'integer',
+        'next_tier_points' => 'integer',
+        'total_transactions' => 'integer',
+        'visits_count' => 'integer',
+        'referrals_made' => 'integer',
+        'referral_points_earned' => 'integer',
+        'total_spent' => 'decimal:2',
+        'average_transaction' => 'decimal:2',
+        'total_cashback_earned' => 'decimal:2',
+        'total_cashback_redeemed' => 'decimal:2',
+        'current_cashback_balance' => 'decimal:2',
+        'email_notifications' => 'boolean',
+        'sms_notifications' => 'boolean',
+        'push_notifications' => 'boolean',
+        'marketing_emails' => 'boolean',
+        'preferences' => 'array',
         'metadata' => 'array',
     ];
 
@@ -53,7 +94,15 @@ class LoyaltyMembership extends Model
      */
     public function loyaltyProgram(): BelongsTo
     {
-        return $this->belongsTo(LoyaltyProgram::class);
+        return $this->belongsTo(LoyaltyProgram::class, 'program_id');
+    }
+
+    /**
+     * Get the loyalty program (alias).
+     */
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(LoyaltyProgram::class, 'program_id');
     }
 
     /**

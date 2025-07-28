@@ -274,4 +274,12 @@ class Product extends Model
         
         return 'Còn hàng';
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Products\Database\Factories\ProductFactory::new();
+    }
 }

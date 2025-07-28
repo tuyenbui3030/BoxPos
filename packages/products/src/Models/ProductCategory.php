@@ -121,4 +121,12 @@ class ProductCategory extends Model
     {
         return $this->active_products_count + $this->active_services_count;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Products\Database\Factories\ProductCategoryFactory::new();
+    }
 }

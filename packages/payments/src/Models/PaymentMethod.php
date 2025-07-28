@@ -2,6 +2,7 @@
 
 namespace Packages\Payments\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +11,8 @@ use Packages\User\Models\User;
 
 class PaymentMethod extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'store_id',
         'code',
@@ -174,5 +177,13 @@ class PaymentMethod extends Model
         }
 
         return true;
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Payments\Database\Factories\PaymentMethodFactory::new();
     }
 }

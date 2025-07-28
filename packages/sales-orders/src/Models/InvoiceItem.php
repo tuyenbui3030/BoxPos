@@ -83,4 +83,12 @@ class InvoiceItem extends Model
     {
         return $this->line_total > 0 ? ($this->profit / $this->line_total) * 100 : 0;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\InvoiceItemFactory::new();
+    }
 }

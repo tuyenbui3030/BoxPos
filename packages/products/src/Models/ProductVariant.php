@@ -190,4 +190,12 @@ class ProductVariant extends Model
         
         return (($this->current_price - $this->cost_price) / $this->current_price) * 100;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Products\Database\Factories\ProductVariantFactory::new();
+    }
 }

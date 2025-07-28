@@ -2,6 +2,7 @@
 
 namespace Packages\Payments\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -10,6 +11,8 @@ use Packages\User\Models\User;
 
 class Payment extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'store_id',
         'payment_method_id',
@@ -178,12 +181,20 @@ class Payment extends Model
     /**
      * Mark payment as failed.
      */
-    public function markAsFailed(string $reason = null): bool
+    public function markAsFailed(?string $reason = null): bool
     {
         return $this->update([
             'status' => 'failed',
             'failure_reason' => $reason,
             'processed_at' => now(),
         ]);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Payments\Database\Factories\PaymentFactory::new();
     }
 }

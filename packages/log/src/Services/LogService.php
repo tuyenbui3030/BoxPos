@@ -335,7 +335,16 @@ class LogService
         return str_replace(
             array_fill(0, count($bindings), '?'),
             array_map(function ($binding) {
-                return is_string($binding) ? "'{$binding}'" : $binding;
+                if (is_string($binding)) {
+                    return "'{$binding}'";
+                } elseif ($binding instanceof \DateTime || $binding instanceof \DateTimeInterface) {
+                    return "'{$binding->format('Y-m-d H:i:s')}'";
+                } elseif (is_null($binding)) {
+                    return 'NULL';
+                } elseif (is_bool($binding)) {
+                    return $binding ? '1' : '0';
+                }
+                return $binding;
             }, $bindings),
             $query
         );

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Packages\Store\Models\Store;
 use Packages\Tenant\Traits\HasTenantScope;
 use Packages\User\Models\User;
+use Packages\CashManagement\Database\Factories\CashTransactionFactory;
 
 class CashTransaction extends Model
 {
@@ -260,5 +261,13 @@ class CashTransaction extends Model
         
         return $this->related_document_number ?: 
                ($this->related_document_type . ' #' . $this->related_document_id);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return CashTransactionFactory::new();
     }
 }

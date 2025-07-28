@@ -65,4 +65,12 @@ class UserDevice extends Model
     {
         return $query->where('is_trusted', true);
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\User\Database\Factories\UserDeviceFactory::new();
+    }
 }

@@ -272,4 +272,12 @@ class MaterialCategory extends Model
 
         return $slug;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\MaterialCatalog\Database\Factories\MaterialCategoryFactory::new();
+    }
 }

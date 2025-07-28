@@ -152,4 +152,12 @@ class SalesReturn extends Model
     {
         return $this->refund_status === 'completed';
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\SalesReturnFactory::new();
+    }
 }

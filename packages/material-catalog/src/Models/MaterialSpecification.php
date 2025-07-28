@@ -106,4 +106,12 @@ class MaterialSpecification extends Model
     {
         return $this->show_in_listing;
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\MaterialCatalog\Database\Factories\MaterialSpecificationFactory::new();
+    }
 }

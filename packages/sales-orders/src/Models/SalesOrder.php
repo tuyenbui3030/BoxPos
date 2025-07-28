@@ -164,4 +164,12 @@ class SalesOrder extends Model
     {
         return in_array($this->status, ['draft', 'pending', 'confirmed']);
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\SalesOrderFactory::new();
+    }
 }

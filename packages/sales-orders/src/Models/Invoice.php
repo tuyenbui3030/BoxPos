@@ -173,4 +173,12 @@ class Invoice extends Model
     {
         return in_array($this->status, ['draft', 'sent']) && $this->payment_status === 'pending';
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\InvoiceFactory::new();
+    }
 }

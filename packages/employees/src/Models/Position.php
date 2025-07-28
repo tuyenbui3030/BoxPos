@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Packages\Store\Models\Store;
 use Packages\Tenant\Traits\HasTenantScope;
+use Packages\Employees\Database\Factories\PositionFactory;
 
 class Position extends Model
 {
@@ -88,5 +89,13 @@ class Position extends Model
     public function isSeniorLevel(): bool
     {
         return in_array($this->level, ['senior', 'lead', 'manager', 'director', 'executive']);
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return PositionFactory::new();
     }
 }

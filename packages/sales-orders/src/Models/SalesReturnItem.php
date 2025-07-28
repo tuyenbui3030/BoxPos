@@ -90,4 +90,12 @@ class SalesReturnItem extends Model
                $this->salesReturn->restock_items && 
                in_array($this->item_condition, ['new', 'good']);
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\SalesOrders\Database\Factories\SalesReturnItemFactory::new();
+    }
 }

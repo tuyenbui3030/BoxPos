@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Packages\MaterialCatalog\Models\BuildingMaterial;
 use Packages\Store\Models\Store;
 use Packages\Tenant\Traits\HasTenantScope;
+use Packages\MaterialInventory\Database\Factories\MaterialInventoryFactory;
 
 class MaterialInventory extends Model
 {
@@ -263,5 +264,13 @@ class MaterialInventory extends Model
     {
         $this->decrement('quantity_reserved', $quantity);
         $this->updateAvailableQuantity();
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return MaterialInventoryFactory::new();
     }
 }

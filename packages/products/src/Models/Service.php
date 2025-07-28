@@ -269,4 +269,12 @@ class Service extends Model
             default => $this->billing_type
         };
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\Products\Database\Factories\ServiceFactory::new();
+    }
 }

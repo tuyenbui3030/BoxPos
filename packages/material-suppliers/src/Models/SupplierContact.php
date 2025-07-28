@@ -110,4 +110,12 @@ class SupplierContact extends Model
         
         return '';
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Packages\MaterialSuppliers\Database\Factories\SupplierContactFactory::new();
+    }
 }
