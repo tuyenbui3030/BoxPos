@@ -161,10 +161,48 @@ class BuildingMaterial extends Model
     public function getPrimaryImageUrlAttribute(): string
     {
         if ($this->images && count($this->images) > 0) {
-            return asset('storage/' . $this->images[0]);
+            $firstImage = $this->images[0];
+            
+            // Check if it's R2 format (array with url key)
+            if (is_array($firstImage) && isset($firstImage['url'])) {
+                return $firstImage['url'];
+            }
+            
+            // Check if it's already a full URL (R2 or external)
+            if (filter_var($firstImage, FILTER_VALIDATE_URL)) {
+                return $firstImage;
+            }
+            
+            // Fallback to local storage
+            return asset('storage/' . $firstImage);
         }
         
         return asset('images/default-material.png');
+    }
+
+    /**
+     * Get all image URLs.
+     */
+    public function getImageUrlsAttribute(): array
+    {
+        if (!$this->images || !is_array($this->images)) {
+            return [];
+        }
+
+        return collect($this->images)->map(function ($image) {
+            // Check if it's R2 format (array with url key)
+            if (is_array($image) && isset($image['url'])) {
+                return $image['url'];
+            }
+            
+            // Check if it's already a full URL (R2 or external)
+            if (filter_var($image, FILTER_VALIDATE_URL)) {
+                return $image;
+            }
+            
+            // Fallback to local storage
+            return asset('storage/' . $image);
+        })->toArray();
     }
 
     /**

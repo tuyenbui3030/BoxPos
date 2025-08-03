@@ -61,7 +61,8 @@ class MaterialCatalogServiceProvider extends ServiceProvider
         // Register commands if running in console
         if ($this->app->runningInConsole()) {
             $this->commands([
-                // Add console commands here if needed
+                \Packages\MaterialCatalog\Console\Commands\TestR2Connection::class,
+                \Packages\MaterialCatalog\Console\Commands\MigrateImagesToR2::class,
             ]);
         }
     }
@@ -127,6 +128,11 @@ class MaterialCatalogServiceProvider extends ServiceProvider
         $this->app->bind(
             \Packages\MaterialCatalog\Services\MaterialSpecificationService::class,
             \Packages\MaterialCatalog\Services\MaterialSpecificationService::class
+        );
+
+        $this->app->bind(
+            \Packages\MaterialCatalog\Services\CloudflareR2Service::class,
+            \Packages\MaterialCatalog\Services\CloudflareR2Service::class
         );
     }
 

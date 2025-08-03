@@ -244,6 +244,30 @@ class BuildingMaterialsManagement extends Component
         $this->resetForm();
     }
 
+    public function removeImage($index)
+    {
+        if (isset($this->images[$index])) {
+            unset($this->images[$index]);
+            $this->images = array_values($this->images); // Re-index array
+        }
+    }
+
+    public function removeExistingImage($index)
+    {
+        if ($this->selectedMaterial && isset($this->selectedMaterial->images[$index])) {
+            $images = $this->selectedMaterial->images;
+            unset($images[$index]);
+            $this->selectedMaterial->images = array_values($images);
+            $this->selectedMaterial->save();
+            
+            $this->logActivity('building_material_image_removed', [
+                'material_id' => $this->selectedMaterial->id,
+                'image_index' => $index,
+                'user_id' => auth()->id(),
+            ]);
+        }
+    }
+
     public function save()
     {
         $this->validate([

@@ -21,11 +21,10 @@ use App\Http\Controllers\DashboardController;
 // - /language/{locale} route for programmatic switching
 // - LocalizationMiddleware for URL-based locale detection
 
-
-
-
-
-
+// Debug route to test Livewire preview
+Route::get('/debug-livewire/{filename}', function($filename) {
+    return "Debug: filename = $filename";
+});
 
 // Localized routes group
 Route::group([
@@ -33,10 +32,6 @@ Route::group([
     'where' => ['locale' => 'vi|en'],
     'middleware' => ['web']
 ], function () {
-
-    // Livewire routes for localized URLs (update route handled globally)
-    Route::post('/livewire/upload-file', '\Livewire\Features\SupportFileUploads\FileUploadController@handle');
-    Route::get('/livewire/preview-file/{filename}', '\Livewire\Features\SupportFileUploads\FilePreviewController@handle');
 
 
 
@@ -151,6 +146,11 @@ Route::get('/multi-tenant-demo', function () {
 
     return view('multi-tenant-demo', $data);
 })->middleware(['auth', 'tenant.context', 'tenant.isolation'])->name('multi-tenant-demo');
+
+// Test route for debugging
+Route::get('/test-livewire', function() {
+    return 'Livewire test route works';
+});
 
 // Note: Package routes will still be available without locale prefix
 // Fallback routes will redirect them to localized versions

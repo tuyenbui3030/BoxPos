@@ -490,7 +490,50 @@
                                 @error('images.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-hint">Chọn nhiều hình ảnh (tối đa 2MB/ảnh)</small>
+                                <small class="form-hint">Chọn nhiều hình ảnh (tối đa 2MB/ảnh). Hình ảnh sẽ được upload lên Cloudflare R2.</small>
+                                
+                                {{-- Preview uploaded images --}}
+                                @if($images)
+                                    <div class="row mt-3">
+                                        @foreach($images as $index => $image)
+                                            <div class="col-md-3 mb-2">
+                                                <div class="card">
+                                                    <img src="{{ $image->temporaryUrl() }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Preview">
+                                                    <div class="card-body p-2">
+                                                        <small class="text-muted">{{ $image->getClientOriginalName() }}</small>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger float-end" 
+                                                                wire:click="removeImage({{ $index }})">
+                                                            <i class="ti ti-x"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- Show existing images when editing --}}
+                                @if($showEditModal && $selectedMaterial && $selectedMaterial->images)
+                                    <div class="mt-3">
+                                        <label class="form-label">Hình ảnh hiện tại</label>
+                                        <div class="row">
+                                            @foreach($selectedMaterial->image_urls as $index => $imageUrl)
+                                                <div class="col-md-3 mb-2">
+                                                    <div class="card">
+                                                        <img src="{{ $imageUrl }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Current image">
+                                                        <div class="card-body p-2">
+                                                            <small class="text-muted">Hình {{ $index + 1 }}</small>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger float-end" 
+                                                                    wire:click="removeExistingImage({{ $index }})">
+                                                                <i class="ti ti-x"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <div class="row">
                                 <div class="col-md-12">

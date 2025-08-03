@@ -4,6 +4,7 @@ namespace Packages\MaterialCatalog\Services;
 
 use Packages\MaterialCatalog\Models\BuildingMaterial;
 use Packages\MaterialCatalog\Repositories\BuildingMaterialRepository;
+use Packages\MaterialCatalog\Services\CloudflareR2Service;
 use Packages\Log\Traits\Loggable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -14,10 +15,14 @@ class BuildingMaterialService
     use Loggable;
 
     protected BuildingMaterialRepository $buildingMaterialRepository;
+    protected CloudflareR2Service $r2Service;
 
-    public function __construct(BuildingMaterialRepository $buildingMaterialRepository)
-    {
+    public function __construct(
+        BuildingMaterialRepository $buildingMaterialRepository,
+        CloudflareR2Service $r2Service
+    ) {
         $this->buildingMaterialRepository = $buildingMaterialRepository;
+        $this->r2Service = $r2Service;
     }
 
     /**
@@ -47,7 +52,9 @@ class BuildingMaterialService
 
             // Handle image uploads
             if (!empty($images)) {
-                $data['images'] = $this->uploadImages($images);
+                $data['images'] = $this->r2Service->isConfigured() 
+                    ? $this->r2Service->uploadImages($images)
+                    : $this->uploadImages($images);
             }
 
             $material = $this->buildingMaterialRepository->create($data);
@@ -66,7 +73,11 @@ class BuildingMaterialService
 
             // Clean up uploaded images on error
             if (isset($data['images'])) {
-                $this->cleanupImages($data['images']);
+                if ($this->r2Service->isConfigured()) {
+                    $this->r2Service->deleteImages($data['images']);
+                } else {
+                    $this->cleanupImages($data['images']);
+                }
             }
 
             $this->logError($e, [
@@ -105,7 +116,9 @@ class BuildingMaterialService
             // Handle image uploads
             $oldImages = $material->images ?? [];
             if (!empty($images)) {
-                $newImages = $this->uploadImages($images);
+                $newImages = $this->r2Service->isConfigured() 
+                    ? $this->r2Service->uploadImages($images)
+                    : $this->uploadImages($images);
                 $data['images'] = array_merge($oldImages, $newImages);
             }
 
@@ -125,7 +138,11 @@ class BuildingMaterialService
 
             // Clean up newly uploaded images on error
             if (isset($newImages)) {
-                $this->cleanupImages($newImages);
+                if ($this->r2Service->isConfigured()) {
+                    $this->r2Service->deleteImages($newImages);
+                } else {
+                    $this->cleanupImages($newImages);
+                }
             }
 
             $this->logError($e, [
@@ -164,7 +181,11 @@ class BuildingMaterialService
 
             // Clean up images
             if (!empty($imagesToDelete)) {
-                $this->cleanupImages($imagesToDelete);
+                if ($this->r2Service->isConfigured()) {
+                    $this->r2Service->deleteImages($imagesToDelete);
+                } else {
+                    $this->cleanupImages($imagesToDelete);
+                }
             }
 
             DB::commit();
