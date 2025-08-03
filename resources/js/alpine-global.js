@@ -157,34 +157,6 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    // Global theme management (works with Livewire ThemeSwitcher)
-    Alpine.data('themeManager', () => ({
-        theme: document.documentElement.getAttribute('data-bs-theme') || 'light',
-
-        init() {
-            // Listen for theme changes from Livewire
-            Livewire.on('theme-changed', (event) => {
-                this.theme = event.theme;
-                this.applyTheme(event.theme);
-            });
-        },
-
-        applyTheme(theme) {
-            document.documentElement.setAttribute('data-bs-theme', theme);
-
-            // Store in localStorage for persistence
-            localStorage.setItem('theme', theme);
-
-            // Dispatch event for other components
-            this.$dispatch('theme-updated', { theme });
-        },
-
-        toggleTheme() {
-            const newTheme = this.theme === 'light' ? 'dark' : 'light';
-            this.$wire.call('setTheme', newTheme);
-        }
-    }));
-
     // Global form utilities
     Alpine.data('formUtils', () => ({
         init() {
@@ -290,9 +262,9 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Global function to ensure all internal links use SPA navigation
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Add wire:navigate to all internal links that don't have it
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const link = e.target.closest('a');
 
         if (!link) return;

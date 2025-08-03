@@ -4,7 +4,7 @@ return [
     // General application terms
     'welcome' => 'Chào mừng',
     'dashboard' => 'Bảng điều khiển',
-    'settings' => 'Cài đặt',
+    'settings' => 'Cài đặt giao diện',
     'profile' => 'Hồ sơ',
     'logout' => 'Đăng xuất',
     'login' => 'Đăng nhập',
@@ -233,4 +233,19 @@ return [
     'menu_settings' => 'Cài đặt',
     'menu_reports' => 'Báo cáo',
     'menu_analytics' => 'Phân tích',
+    
+    // Product menu sections
+    'material_management' => 'Quản lý vật liệu',
+    'material_categories' => 'Danh mục vật liệu',
+    'construction_materials' => 'Vật liệu xây dựng',
+    'units_of_measure' => 'Đơn vị tính',
+    'product_operations' => 'Vận hành sản phẩm',
+    'product_reports' => 'Báo cáo sản phẩm',
+    
+    // Settings related
+    'setting_theme' => 'Cài đặt giao diện',
+    'light_theme' => 'Giao diện sáng',
+    'dark_theme' => 'Giao diện tối',
+    'light_theme_desc' => 'Giao diện sáng và sạch sẽ',
+    'dark_theme_desc' => 'Giao diện tối dễ nhìn',
 ];

@@ -23,10 +23,6 @@ class CustomerSelectionService {
         return this.getAllCustomerCheckboxes().length;
     }
     
-    static isCustomerSelected(customerId, selectedCustomers) {
-        return selectedCustomers.includes(customerId);
-    }
-    
     static shouldSelectAll(selectedCount, totalCount) {
         return selectedCount === totalCount;
     }
@@ -92,10 +88,6 @@ window.customerManagement = function() {
         },
         
         toggleCustomer(customerId) {
-            this.isCustomerSelected(customerId) 
-                ? this.removeCustomer(customerId)
-                : this.addCustomer(customerId);
-            
             this.updateSelectAllState();
             console.log('Toggle customer:', customerId, this.selectedCustomers);
         },
@@ -109,10 +101,6 @@ window.customerManagement = function() {
             if (index > -1) {
                 this.selectedCustomers.splice(index, 1);
             }
-        },
-        
-        isCustomerSelected(customerId) {
-            return CustomerSelectionService.isCustomerSelected(customerId, this.selectedCustomers);
         },
         
         clearSelection() {

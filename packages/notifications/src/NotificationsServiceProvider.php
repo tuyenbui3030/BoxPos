@@ -3,6 +3,10 @@
 namespace Packages\Notifications;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Packages\Notifications\Livewire\NotificationCenter;
+use Packages\Notifications\Services\NotificationService;
+use Packages\Notifications\Repositories\NotificationRepository;
 
 class NotificationsServiceProvider extends ServiceProvider
 {
@@ -11,7 +15,11 @@ class NotificationsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register package services
+        // Register repository
+        $this->app->bind(NotificationRepository::class);
+        
+        // Register service
+        $this->app->bind(NotificationService::class);
     }
 
     /**
@@ -19,8 +27,14 @@ class NotificationsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load views
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'notifications');
+        
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
+
+        // Register Livewire components
+        Livewire::component('notification-center', NotificationCenter::class);
 
         // Publish migrations and seeders if needed
         if ($this->app->runningInConsole()) {
@@ -31,6 +45,10 @@ class NotificationsServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/Database/Seeders' => database_path('seeders'),
             ], 'notifications-seeders');
+            
+            $this->publishes([
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/notifications'),
+            ], 'notifications-views');
         }
     }
 }

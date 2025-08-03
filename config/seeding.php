@@ -182,8 +182,8 @@ return [
     'execution_order' => [
         // Core system seeders (no store dependency)
         'core' => [
-            'Database\Seeders\UserSeeder',
             'Database\Seeders\StoreSeeder',
+            'Database\Seeders\UserSeeder',
         ],
 
         // Business seeders (store dependent) - Level 1

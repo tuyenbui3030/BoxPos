@@ -122,20 +122,11 @@ class MaterialCategory extends Model
     }
 
     /**
-     * Scope by level.
-     */
-    public function scopeByLevel($query, int $level)
-    {
-        return $query->where('level', $level);
-    }
-
-    /**
      * Scope to order by hierarchy (level, sort_order, name).
      */
     public function scopeOrderByHierarchy($query)
     {
-        return $query->orderBy('level')
-                    ->orderBy('sort_order')
+        return $query->orderBy('sort_order')
                     ->orderBy('name');
     }
 

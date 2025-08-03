@@ -60,19 +60,11 @@ Route::group([
         })->name('locale.password.request');
     });
 
-
-
-
-
-
-
     // Authenticated routes
     Route::middleware(['auth', 'tenant.context', 'tenant.isolation'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('locale.dashboard');
         Route::get('/dashboard/business', [\App\Http\Controllers\DashboardController::class, 'business'])->name('locale.dashboard.business');
         Route::get('/dashboard/coffee', [\App\Http\Controllers\DashboardController::class, 'coffee'])->name('locale.dashboard.coffee');
-
-
 
         Route::get('/devices', \Packages\User\Livewire\ManageDevices::class)->name('locale.devices');
         Route::get('/customers', \Packages\Customer\Livewire\CustomerManagement::class)->name('locale.customers');
@@ -112,10 +104,8 @@ Route::group([
             }
         })->name('locale.store.switch');
 
-
-
         // Logout
-        Route::post('/logout', function () {
+        Route::get('/logout', function () {
             Auth::logout();
             session()->invalidate();
             session()->regenerateToken();

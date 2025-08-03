@@ -53,86 +53,6 @@
         </div>
     @endif
 
-    <!-- Page Header -->
-    <div class="page-header d-print-none mb-4">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">
-                        Quản lý danh mục
-                    </div>
-                    <h2 class="page-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 4h6v6h-6z"/>
-                            <path d="M14 4h6v6h-6z"/>
-                            <path d="M4 14h6v6h-6z"/>
-                            <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
-                        </svg>
-                        Danh mục vật liệu
-                    </h2>
-                    <div class="text-muted mt-1">Quản lý phân loại vật liệu xây dựng</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overview Section -->
-    <div class="row row-deck row-cards mb-3">
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Tổng danh mục</div>
-                    </div>
-                    <div class="h1 mb-3">{{ $this->getTotalCategories() }}</div>
-                    <div class="d-flex mb-2">
-                        <div>Danh mục trong hệ thống</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Đang hoạt động</div>
-                    </div>
-                    <div class="h1 mb-3 text-green">{{ $this->getActiveCategories() }}</div>
-                    <div class="d-flex mb-2">
-                        <div>Danh mục đang sử dụng</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Danh mục gốc</div>
-                    </div>
-                    <div class="h1 mb-3 text-blue">{{ $this->getRootCategories() }}</div>
-                    <div class="d-flex mb-2">
-                        <div>Danh mục cấp 1</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Cấp độ sâu</div>
-                    </div>
-                    <div class="h1 mb-3 text-yellow">{{ $this->getMaxLevel() }}</div>
-                    <div class="d-flex mb-2">
-                        <div>Cấp độ tối đa</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Content Layout -->
     <div class="row">
         <!-- Filter Sidebar -->
@@ -226,90 +146,6 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Level Filter -->
-                        <div class="mb-3">
-                            <label class="form-label">Cấp độ</label>
-                            <div class="form-selectgroup">
-                                <label class="form-selectgroup-item">
-                                    <input type="radio" name="level_filter" value="" class="form-selectgroup-input"
-                                           wire:model.live="filters.level" {{ $filters['level'] === '' ? 'checked' : '' }} />
-                                    <span class="form-selectgroup-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M4 4h6v6h-6z"/>
-                                            <path d="M14 4h6v6h-6z"/>
-                                            <path d="M4 14h6v6h-6z"/>
-                                            <path d="M14 14h6v6h-6z"/>
-                                        </svg>
-                                        Tất cả
-                                    </span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="radio" name="level_filter" value="0" class="form-selectgroup-input"
-                                           wire:model.live="filters.level" {{ $filters['level'] === '0' ? 'checked' : '' }} />
-                                    <span class="form-selectgroup-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/>
-                                            <path d="M12 12l8 -4.5"/>
-                                            <path d="M12 12l0 9"/>
-                                            <path d="M12 12l-8 -4.5"/>
-                                        </svg>
-                                        Cấp 1
-                                    </span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="radio" name="level_filter" value="1" class="form-selectgroup-input"
-                                           wire:model.live="filters.level" {{ $filters['level'] === '1' ? 'checked' : '' }} />
-                                    <span class="form-selectgroup-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/>
-                                            <path d="M12 12l8 -4.5"/>
-                                            <path d="M12 12l0 9"/>
-                                            <path d="M12 12l-8 -4.5"/>
-                                            <path d="M8 9.5l0 4.5l4 2.25l4 -2.25l0 -4.5"/>
-                                        </svg>
-                                        Cấp 2
-                                    </span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="radio" name="level_filter" value="2" class="form-selectgroup-input"
-                                           wire:model.live="filters.level" {{ $filters['level'] === '2' ? 'checked' : '' }} />
-                                    <span class="form-selectgroup-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M3 21l18 0"/>
-                                            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/>
-                                            <path d="M9 9l0 4"/>
-                                            <path d="M12 7l0 6"/>
-                                            <path d="M15 11l0 2"/>
-                                        </svg>
-                                        Cấp 3
-                                    </span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="radio" name="level_filter" value="3" class="form-selectgroup-input"
-                                           wire:model.live="filters.level" {{ $filters['level'] === '3' ? 'checked' : '' }} />
-                                    <span class="form-selectgroup-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M3 21l18 0"/>
-                                            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/>
-                                            <path d="M9 9l0 4"/>
-                                            <path d="M12 7l0 6"/>
-                                            <path d="M15 11l0 2"/>
-                                            <path d="M9 21v-4"/>
-                                            <path d="M12 21v-6"/>
-                                            <path d="M15 21v-2"/>
-                                        </svg>
-                                        Cấp 4
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
@@ -361,7 +197,6 @@
                                 <th>Danh mục</th>
                                 <th>Mã</th>
                                 <th>Danh mục cha</th>
-                                <th>Cấp độ</th>
                                 <th>Thứ tự</th>
                                 <th>Trạng thái</th>
                                 <th class="w-1">Thao tác</th>
@@ -399,9 +234,6 @@
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary-lt">Cấp {{ $category->level + 1 }}</span>
                                     </td>
                                     <td>
                                         {{ $category->sort_order }}

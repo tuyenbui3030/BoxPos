@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add middleware to web group
         $middleware->web(prepend: [
             \App\Http\Middleware\LivewireLocalizationMiddleware::class,
+            \App\Http\Middleware\StoreCurrentPath::class,
         ]);
 
         $middleware->web(append: [

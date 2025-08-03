@@ -398,6 +398,76 @@ class StoreService
     }
 
     /**
+     * Switch current store for authenticated user.
+     */
+    public function switchStore(int $storeId): bool
+    {
+        if (!Auth::check()) {
+            $this->logError(new \Exception('User not authenticated'), [
+                'action' => 'switch_store',
+                'store_id' => $storeId
+            ]);
+            return false;
+        }
+
+        $user = Auth::user();
+        
+        // Check if user has access to the store
+        if (!$user->hasAccessToStore($storeId)) {
+            $this->logSecurityEvent('unauthorized_store_access_attempt', [
+                'user_id' => $user->id,
+                'attempted_store_id' => $storeId,
+                'current_store_id' => $user->current_store_id
+            ]);
+            return false;
+        }
+
+        $this->logActivity('store_switch_started', [
+            'user_id' => $user->id,
+            'previous_store_id' => $user->current_store_id,
+            'new_store_id' => $storeId
+        ]);
+
+        try {
+            $user->setCurrentStore($storeId);
+            
+            $this->logActivity('store_switched', [
+                'user_id' => $user->id,
+                'new_store_id' => $storeId
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this->logError($e, [
+                'action' => 'switch_store',
+                'user_id' => $user->id,
+                'store_id' => $storeId
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Get current store for authenticated user.
+     */
+    public function getCurrentStore(): ?Store
+    {
+        if (!Auth::check() || !Auth::user()->current_store_id) {
+            return null;
+        }
+
+        try {
+            return $this->getStoreById(Auth::user()->current_store_id);
+        } catch (StoreNotFoundException $e) {
+            // Clear invalid current store
+            Auth::user()->clearCurrentStore();
+            return null;
+        }
+    }
+
+    /**
      * Get store repository instance.
      */
     public function getStoreRepository(): StoreRepository

@@ -394,6 +394,8 @@ class BuildingMaterialsManagement extends Component
             'categories' => $this->categories,
             'units' => $this->units,
             'brands' => $this->brands,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app', [
+            'header' => 'Sản phẩm trong kho'
+        ]);
     }
 }

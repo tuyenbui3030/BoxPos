@@ -195,6 +195,15 @@ class EmployeeSeeder extends BasePackageSeeder
         ]);
 
         foreach ($this->standardDepartments as $departmentData) {
+            // Check if department already exists
+            $existingDepartment = Department::where('store_id', $store->id)
+                ->where('code', $departmentData['code'])
+                ->first();
+
+            if ($existingDepartment) {
+                continue; // Skip if department already exists
+            }
+
             Department::create(array_merge($departmentData, [
                 'store_id' => $store->id,
                 'is_active' => true,
@@ -220,6 +229,15 @@ class EmployeeSeeder extends BasePackageSeeder
             if (!$department) continue;
 
             foreach ($positions as $index => $positionData) {
+                // Check if position already exists
+                $existingPosition = Position::where('store_id', $store->id)
+                    ->where('code', $positionData['code'])
+                    ->first();
+
+                if ($existingPosition) {
+                    continue; // Skip if position already exists
+                }
+
                 Position::create(array_merge($positionData, [
                     'store_id' => $store->id,
                     'department_id' => $department->id,
@@ -333,6 +351,16 @@ class EmployeeSeeder extends BasePackageSeeder
                     continue;
                 }
 
+                // Check if schedule already exists for this date (prevent duplicates)
+                $existingSchedule = EmployeeSchedule::where('store_id', $store->id)
+                    ->where('employee_id', $employee->id)
+                    ->where('schedule_date', $scheduleDate)
+                    ->first();
+
+                if ($existingSchedule) {
+                    continue; // Skip if schedule already exists
+                }
+
                 $shiftType = $this->getShiftType($employee->department->code);
                 $workingHours = $this->getWorkingHoursForShift($shiftType);
 
@@ -385,6 +413,16 @@ class EmployeeSeeder extends BasePackageSeeder
                 // Skip weekends for most employees
                 if ($workDate->isWeekend() && rand(0, 3) > 0) {
                     continue;
+                }
+
+                // Check if timesheet already exists for this date
+                $existingTimesheet = EmployeeTimesheet::where('store_id', $store->id)
+                    ->where('employee_id', $employee->id)
+                    ->where('work_date', $workDate)
+                    ->first();
+
+                if ($existingTimesheet) {
+                    continue; // Skip if timesheet already exists
                 }
 
                 // Some employees might be absent
@@ -460,40 +498,59 @@ class EmployeeSeeder extends BasePackageSeeder
                 $periodStart = now()->subMonths($i)->startOfMonth();
                 $periodEnd = now()->subMonths($i)->endOfMonth();
 
+                // Check if commission already exists for this period
+                $existingCommission = EmployeeCommission::where('store_id', $store->id)
+                    ->where('employee_id', $employee->id)
+                    ->where('period_start_date', $periodStart)
+                    ->where('period_end_date', $periodEnd)
+                    ->first();
+
+                if ($existingCommission) {
+                    continue; // Skip if commission already exists
+                }
+
                 $totalSales = rand(50000000, 200000000); // 50M to 200M VND
                 $targetSales = rand(80000000, 150000000); // 80M to 150M VND
                 $totalOrders = rand(20, 100);
                 $targetOrders = rand(30, 80);
 
-                $commission = EmployeeCommission::create([
-                    'store_id' => $store->id,
-                    'employee_id' => $employee->id,
-                    'commission_period' => 'monthly',
-                    'period_start_date' => $periodStart,
-                    'period_end_date' => $periodEnd,
-                    'total_sales' => $totalSales,
-                    'target_sales' => $targetSales,
-                    'total_orders' => $totalOrders,
-                    'target_orders' => $targetOrders,
-                    'base_commission_rate' => 2.0, // 2%
-                    'bonus_commission_rate' => 1.0, // 1% bonus for exceeding target
-                    'deductions' => rand(0, 500000), // Random deductions
-                    'adjustments' => rand(-200000, 300000), // Random adjustments
-                    'deduction_reason' => rand(0, 1) ? 'Khấu trừ bảo hiểm' : null,
-                    'adjustment_reason' => rand(0, 1) ? 'Thưởng đặc biệt' : null,
-                    'payment_status' => $this->getPaymentStatus(),
-                    'payment_method' => 'bank_transfer',
-                    'is_approved' => true,
-                    'approved_by' => $approvedBy,
-                    'approved_at' => now(),
-                    'calculated_by' => $approvedBy,
-                    'sales_breakdown' => [
-                        'xi_mang' => rand(10000000, 50000000),
-                        'sat_thep' => rand(15000000, 60000000),
-                        'gach' => rand(5000000, 30000000),
-                        'cat_da' => rand(8000000, 40000000),
-                    ],
-                ]);
+                try {
+                    $commission = EmployeeCommission::create([
+                        'store_id' => $store->id,
+                        'employee_id' => $employee->id,
+                        'commission_period' => 'monthly',
+                        'period_start_date' => $periodStart,
+                        'period_end_date' => $periodEnd,
+                        'total_sales' => $totalSales,
+                        'target_sales' => $targetSales,
+                        'total_orders' => $totalOrders,
+                        'target_orders' => $targetOrders,
+                        'base_commission_rate' => 2.0, // 2%
+                        'bonus_commission_rate' => 1.0, // 1% bonus for exceeding target
+                        'deductions' => rand(0, 500000), // Random deductions
+                        'adjustments' => rand(-200000, 300000), // Random adjustments
+                        'deduction_reason' => rand(0, 1) ? 'Khấu trừ bảo hiểm' : null,
+                        'adjustment_reason' => rand(0, 1) ? 'Thưởng đặc biệt' : null,
+                        'payment_status' => $this->getPaymentStatus(),
+                        'payment_method' => 'bank_transfer',
+                        'is_approved' => true,
+                        'approved_by' => $approvedBy,
+                        'approved_at' => now(),
+                        'calculated_by' => $approvedBy,
+                        'sales_breakdown' => [
+                            'xi_mang' => rand(10000000, 50000000),
+                            'sat_thep' => rand(15000000, 60000000),
+                            'gach' => rand(5000000, 30000000),
+                            'cat_da' => rand(8000000, 40000000),
+                        ],
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Skip if duplicate entry error
+                    if ($e->getCode() === '23000') {
+                        continue;
+                    }
+                    throw $e;
+                }
 
                 // Calculate commission amounts
                 $commission->calculateCommission();
@@ -525,6 +582,17 @@ class EmployeeSeeder extends BasePackageSeeder
                 $periodEnd = now()->subMonths($i)->endOfMonth();
                 $payDate = $periodEnd->copy()->addDays(5); // Pay 5 days after month end
 
+                // Check if payroll already exists for this period
+                $existingPayroll = EmployeePayroll::where('store_id', $store->id)
+                    ->where('employee_id', $employee->id)
+                    ->where('period_start_date', $periodStart)
+                    ->where('period_end_date', $periodEnd)
+                    ->first();
+
+                if ($existingPayroll) {
+                    continue; // Skip if payroll already exists
+                }
+
                 // Get timesheet data for the period
                 $timesheets = EmployeeTimesheet::where('employee_id', $employee->id)
                     ->whereBetween('work_date', [$periodStart, $periodEnd])
@@ -542,43 +610,51 @@ class EmployeeSeeder extends BasePackageSeeder
                     $commission = $commissionRecord ? $commissionRecord->net_commission : 0;
                 }
 
-                $payroll = EmployeePayroll::create([
-                    'store_id' => $store->id,
-                    'employee_id' => $employee->id,
-                    'payroll_period' => 'monthly',
-                    'period_start_date' => $periodStart,
-                    'period_end_date' => $periodEnd,
-                    'pay_date' => $payDate,
-                    'basic_salary' => $employee->basic_salary,
-                    'hourly_rate' => $employee->basic_salary / 160, // Assuming 160 hours per month
-                    'regular_hours' => $regularHours,
-                    'overtime_hours' => $overtimeHours,
-                    'overtime_rate' => ($employee->basic_salary / 160) * 1.5, // 1.5x overtime rate
-                    'commission' => $commission,
-                    'bonus' => rand(0, 2000000), // Random bonus up to 2M
-                    'allowances' => rand(500000, 1500000), // Transport, meal allowances
-                    'holiday_pay' => rand(0, 1000000),
-                    'other_earnings' => rand(0, 500000),
-                    'earnings_breakdown' => [
-                        'transport_allowance' => 500000,
-                        'meal_allowance' => 300000,
-                        'phone_allowance' => 200000,
-                    ],
-                    'loan_deduction' => rand(0, 1) ? rand(500000, 2000000) : 0,
-                    'advance_deduction' => rand(0, 1) ? rand(200000, 1000000) : 0,
-                    'other_deductions' => rand(0, 300000),
-                    'deductions_breakdown' => [
-                        'uniform' => rand(0, 200000),
-                        'parking' => rand(0, 100000),
-                    ],
-                    'payment_status' => $this->getPaymentStatus(),
-                    'payment_method' => 'bank_transfer',
-                    'bank_account' => $this->generateBankAccount(),
-                    'is_approved' => true,
-                    'approved_by' => $approvedBy,
-                    'approved_at' => now(),
-                    'calculated_by' => $approvedBy,
-                ]);
+                try {
+                    $payroll = EmployeePayroll::create([
+                        'store_id' => $store->id,
+                        'employee_id' => $employee->id,
+                        'payroll_period' => 'monthly',
+                        'period_start_date' => $periodStart,
+                        'period_end_date' => $periodEnd,
+                        'pay_date' => $payDate,
+                        'basic_salary' => $employee->basic_salary,
+                        'hourly_rate' => $employee->basic_salary / 160, // Assuming 160 hours per month
+                        'regular_hours' => $regularHours,
+                        'overtime_hours' => $overtimeHours,
+                        'overtime_rate' => ($employee->basic_salary / 160) * 1.5, // 1.5x overtime rate
+                        'commission' => $commission,
+                        'bonus' => rand(0, 2000000), // Random bonus up to 2M
+                        'allowances' => rand(500000, 1500000), // Transport, meal allowances
+                        'holiday_pay' => rand(0, 1000000),
+                        'other_earnings' => rand(0, 500000),
+                        'earnings_breakdown' => [
+                            'transport_allowance' => 500000,
+                            'meal_allowance' => 300000,
+                            'phone_allowance' => 200000,
+                        ],
+                        'loan_deduction' => rand(0, 1) ? rand(500000, 2000000) : 0,
+                        'advance_deduction' => rand(0, 1) ? rand(200000, 1000000) : 0,
+                        'other_deductions' => rand(0, 300000),
+                        'deductions_breakdown' => [
+                            'uniform' => rand(0, 200000),
+                            'parking' => rand(0, 100000),
+                        ],
+                        'payment_status' => $this->getPaymentStatus(),
+                        'payment_method' => 'bank_transfer',
+                        'bank_account' => $this->generateBankAccount(),
+                        'is_approved' => true,
+                        'approved_by' => $approvedBy,
+                        'approved_at' => now(),
+                        'calculated_by' => $approvedBy,
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Skip if duplicate entry error
+                    if ($e->getCode() === '23000') {
+                        continue;
+                    }
+                    throw $e;
+                }
 
                 // Calculate taxes and final amounts
                 $payroll->calculateTaxes();

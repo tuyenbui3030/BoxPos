@@ -1,29 +1,4 @@
 <div>
-    {{-- Page Header --}}
-    <div class="page-header d-print-none mb-4">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">
-                        Quản lý danh mục
-                    </div>
-                    <h2 class="page-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M3 21l18 0"/>
-                            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/>
-                            <path d="M9 9l0 4"/>
-                            <path d="M12 7l0 6"/>
-                            <path d="M15 11l0 2"/>
-                        </svg>
-                        Vật liệu xây dựng
-                    </h2>
-                    <div class="text-muted mt-1">Quản lý vật liệu và nguyên liệu xây dựng</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Overview Section -->
     <div class="row row-deck row-cards mb-3">
         <div class="col-sm-6 col-lg-3">

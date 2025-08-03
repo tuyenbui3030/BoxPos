@@ -105,7 +105,6 @@ class MaterialCategoriesManagement extends Component
             })
             ->when($this->filters['is_active'] !== '', fn($q) =>
                 $this->filters['is_active'] ? $q->active() : $q->where('is_active', false))
-            ->when($this->filters['level'] !== '', fn($q) => $q->byLevel($this->filters['level']))
             ->with(['parent', 'children'])
             ->orderByHierarchy()
             ->paginate(10);
@@ -316,16 +315,13 @@ class MaterialCategoriesManagement extends Component
         return MaterialCategory::whereNull('parent_id')->count();
     }
 
-    public function getMaxLevel()
-    {
-        return MaterialCategory::max('level') ?? 0;
-    }
-
     public function render()
     {
         return view('material-catalog::livewire.material-categories.management', [
             'categories' => $this->categories,
             'parentCategories' => $this->parentCategories,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app',  [
+            'header' => 'Material Categories Management'
+        ]);
     }
 }

@@ -4,7 +4,7 @@ return [
     // General application terms
     'welcome' => 'Welcome',
     'dashboard' => 'Dashboard',
-    'settings' => 'Settings',
+    'settings' => 'UI Settings',
     'profile' => 'Profile',
     'logout' => 'Logout',
     'login' => 'Login',
@@ -231,4 +231,19 @@ return [
     'menu_settings' => 'Settings',
     'menu_reports' => 'Reports',
     'menu_analytics' => 'Analytics',
+    
+    // Product menu sections
+    'material_management' => 'Material Management',
+    'material_categories' => 'Material Categories',
+    'construction_materials' => 'Construction Materials',
+    'units_of_measure' => 'Units of Measure',
+    'product_operations' => 'Product Operations',
+    'product_reports' => 'Product Reports',
+    
+    // Settings related
+    'setting_theme' => 'Setting theme',
+    'light_theme' => 'Light Theme',
+    'dark_theme' => 'Dark Theme',
+    'light_theme_desc' => 'A clean and bright theme',
+    'dark_theme_desc' => 'A dark theme that is easy on the eyes',
 ];

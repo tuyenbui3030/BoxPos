@@ -29,20 +29,11 @@
 </head>
 <body>
     <div class="page">
-        <!-- Navbar -->
-        <header class="navbar navbar-expand-md navbar-light d-print-none">
-            <div class="container-xxl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <x-navigation.brand-logo />
-
-                <x-navigation.header-tools />
-
-                <livewire:main-navigation />
-            </div>
-        </header>
+        <!-- Top Header -->
+        <livewire:header-component />
+        
+        <!-- Navigation Header -->
+        <livewire:navigation-component />
 
         <div class="page-wrapper">
             <x-layout.page-header :title="$header ?? null" :actions="$headerActions ?? null" />
@@ -67,6 +58,9 @@
 
     <!-- Global Confirmation Modal -->
     <livewire:confirmation-modal />
+
+    <!-- Settings Offcanvas -->
+    <livewire:settings-offcanvas />
 
     <!-- Vendor Libraries JS -->
     @vite('resources/js/vendors.js')
@@ -108,15 +102,14 @@
     @endif
 
     <!-- Language switcher redirect handler -->
-    <script>
+    <!-- <script>
         document.addEventListener('livewire:init', function() {
             window.Livewire.on('redirect-to-url', (event) => {
-                console.log('Language switch redirect to:', event.url);
                 // Use window.location.href for full page reload to avoid Livewire routing conflicts
-                window.location.href = event.url;
+                window.location.href = '/en/dashboard';
             });
         });
-    </script>
+    </script> -->
 
     <!-- Main JS (includes Tabler JS and Alpine.js) -->
     @vite('resources/js/app.js')
@@ -126,41 +119,23 @@
         document.addEventListener('livewire:init', () => {
             // Listen for Livewire locale-updated events
             Livewire.on('locale-updated', (event) => {
-                console.log('Livewire locale updated:', event);
-
-                // Refresh all Livewire components on the page
-                setTimeout(() => {
-                    // Find all Livewire components and refresh them
-                    document.querySelectorAll('[wire\\:id]').forEach(element => {
-                        try {
-                            const wireId = element.getAttribute('wire:id');
-                            if (wireId && window.Livewire.find(wireId)) {
-                                window.Livewire.find(wireId).$refresh();
-                            }
-                        } catch (error) {
-                            console.log('Could not refresh component:', error);
+                document.querySelectorAll('[wire\\:id]').forEach(element => {
+                    try {
+                        const wireId = element.getAttribute('wire:id');
+                        if (wireId && window.Livewire.find(wireId)) {
+                            window.Livewire.find(wireId).$refresh();
                         }
-                    });
-                }, 100); // Small delay to ensure the locale is properly set
+                    } catch (error) {
+                        console.log('Could not refresh component:', error);
+                    }
+                });
             });
 
             // Also listen for custom browser events
-            window.addEventListener('locale-updated', (event) => {
-                console.log('Browser locale updated:', event.detail);
-
-                // Refresh all Livewire components on the page
-                setTimeout(() => {
-                    document.querySelectorAll('[wire\\:id]').forEach(element => {
-                        try {
-                            const wireId = element.getAttribute('wire:id');
-                            if (wireId && window.Livewire.find(wireId)) {
-                                window.Livewire.find(wireId).$refresh();
-                            }
-                        } catch (error) {
-                            console.log('Could not refresh component:', error);
-                        }
-                    });
-                }, 100);
+            Livewire.on('redirect-to-url', (event) => {
+                console.log('Language switch redirect to:', event.url);
+                // Use pushState instead of location.href to avoid page reload
+                window.history.pushState({}, '', event.url);
             });
         });
     </script>
