@@ -29,7 +29,7 @@ class MaterialCatalogServiceProvider extends ServiceProvider
         // Load package migrations
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
 
-        // Load package routes
+        // Load package routes (API endpoints, utilities)
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
         // Load package views
@@ -61,7 +61,6 @@ class MaterialCatalogServiceProvider extends ServiceProvider
         // Register commands if running in console
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Packages\MaterialCatalog\Console\Commands\TestR2Connection::class,
                 \Packages\MaterialCatalog\Console\Commands\MigrateImagesToR2::class,
             ]);
         }

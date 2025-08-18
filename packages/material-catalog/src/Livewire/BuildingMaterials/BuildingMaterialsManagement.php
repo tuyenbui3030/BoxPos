@@ -242,14 +242,9 @@ class BuildingMaterialsManagement extends Component
         $this->selectedMaterial = null;
         $this->images = [];
         $this->resetForm();
-    }
-
-    public function removeImage($index)
-    {
-        if (isset($this->images[$index])) {
-            unset($this->images[$index]);
-            $this->images = array_values($this->images); // Re-index array
-        }
+        
+        // Emit event to clear Alpine preview
+        $this->dispatch('form-reset');
     }
 
     public function removeExistingImage($index)

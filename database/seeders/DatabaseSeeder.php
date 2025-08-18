@@ -197,8 +197,9 @@ class DatabaseSeeder extends Seeder
         
         $fallbackSeeders = [
             // Core system seeders
-            'Packages\User\Database\Seeders\UserSeeder',
             'Packages\Store\Database\Seeders\StoreSeeder',
+            'Packages\User\Database\Seeders\UserSeeder',
+            'Database\Seeders\MultiStoreUserSeeder',
             
             // Material management
             'Packages\MaterialCatalog\Database\Seeders\MaterialCatalogSeeder',

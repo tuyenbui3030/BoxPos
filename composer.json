@@ -58,7 +58,8 @@
             "Packages\\Promotions\\": "packages/promotions/src/",
             "Packages\\Loyalty\\": "packages/loyalty/src/",
             "Packages\\Payments\\": "packages/payments/src/",
-            "Packages\\Notifications\\": "packages/notifications/src/"
+            "Packages\\Notifications\\": "packages/notifications/src/",
+            "Packages\\Marketplace\\": "packages/marketplace/src/"
         }
     },
     "autoload-dev": {

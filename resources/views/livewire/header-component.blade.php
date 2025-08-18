@@ -51,6 +51,9 @@
                     <livewire:notification-center key="notification-center" />
                 </div>
 
+                <!-- App Switcher -->
+                <livewire:marketplace.app-switcher key="app-switcher" />
+
                 <!-- Store Selector (if multiple stores) -->
                 @if(count($availableStores) > 1)
                     <div class="nav-item dropdown d-none d-md-flex me-3">

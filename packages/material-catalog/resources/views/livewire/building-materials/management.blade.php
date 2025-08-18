@@ -483,36 +483,49 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
+                            {{-- Hybrid: Alpine Preview + Livewire Submit --}}
+                            <div class="mb-3" x-data="hybridImageUpload()">
                                 <label class="form-label">Hình ảnh</label>
-                                <input type="file" class="form-control @error('images.*') is-invalid @enderror" 
-                                       wire:model="images" multiple accept="image/*">
+                                <input 
+                                    type="file" 
+                                    class="form-control @error('images.*') is-invalid @enderror" 
+                                    multiple 
+                                    accept="image/*"
+                                    wire:model="images"
+                                    @change="handleFiles($event)"
+                                    x-ref="fileInput"
+                                >
                                 @error('images.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-hint">Chọn nhiều hình ảnh (tối đa 2MB/ảnh). Hình ảnh sẽ được upload lên Cloudflare R2.</small>
+                                <small class="form-hint">Chọn nhiều hình ảnh (tối đa 2MB/ảnh). Preview với Alpine, submit với Livewire</small>
                                 
-                                {{-- Preview uploaded images --}}
-                                @if($images)
-                                    <div class="row mt-3">
-                                        @foreach($images as $index => $image)
+                                {{-- Alpine Preview - New Images --}}
+                                <div x-show="files.length > 0" class="mt-3" x-transition>
+                                    <label class="form-label">Hình ảnh mới (Preview)</label>
+                                    <div class="row">
+                                        <template x-for="(file, index) in files" :key="index">
                                             <div class="col-md-3 mb-2">
                                                 <div class="card">
-                                                    <img src="{{ $image->temporaryUrl() }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Preview">
+                                                    <img 
+                                                        :src="file.preview" 
+                                                        class="card-img-top" 
+                                                        style="height: 150px; object-fit: cover;" 
+                                                        alt="Preview"
+                                                        loading="lazy"
+                                                    >
                                                     <div class="card-body p-2">
-                                                        <small class="text-muted">{{ $image->getClientOriginalName() }}</small>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger float-end" 
-                                                                wire:click="removeImage({{ $index }})">
-                                                            <i class="ti ti-x"></i>
-                                                        </button>
+                                                        <small class="text-muted d-block" x-text="file.name"></small>
+                                                        <small class="text-muted d-block" x-text="formatFileSize(file.size)"></small>
+                                                        <div class="badge bg-blue-lt mt-1">Preview</div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
+                                        </template>
                                     </div>
-                                @endif
+                                </div>
 
-                                {{-- Show existing images when editing --}}
+                                {{-- Existing Images (when editing) --}}
                                 @if($showEditModal && $selectedMaterial && $selectedMaterial->images)
                                     <div class="mt-3">
                                         <label class="form-label">Hình ảnh hiện tại</label>
@@ -522,10 +535,10 @@
                                                     <div class="card">
                                                         <img src="{{ $imageUrl }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Current image">
                                                         <div class="card-body p-2">
-                                                            <small class="text-muted">Hình {{ $index + 1 }}</small>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger float-end" 
+                                                            <small class="text-muted d-block">Hình {{ $index + 1 }}</small>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger mt-1 w-100" 
                                                                     wire:click="removeExistingImage({{ $index }})">
-                                                                <i class="ti ti-x"></i>
+                                                                <i class="ti ti-trash"></i> Xóa
                                                             </button>
                                                         </div>
                                                     </div>
@@ -628,3 +641,86 @@
         <div class="modal-backdrop fade show"></div>
     @endif
 </div>
+
+{{-- Alpine.js Script for Hybrid Image Upload --}}
+<script>
+// Hybrid Image Upload: Alpine Preview + Livewire Submit
+function hybridImageUpload() {
+    return {
+        files: [],
+        maxSize: 2 * 1024 * 1024, // 2MB
+        allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        
+        init() {
+            console.log('Hybrid Image Upload initialized');
+            
+            // Listen for Livewire form reset to clear preview
+            this.$wire.on('form-reset', () => {
+                this.clearFiles();
+            });
+        },
+        
+        handleFiles(event) {
+            const selectedFiles = Array.from(event.target.files);
+            this.files = []; // Clear previous previews
+            
+            // Create previews for valid files
+            selectedFiles.forEach(file => {
+                if (this.validateFile(file)) {
+                    this.createPreview(file);
+                }
+            });
+        },
+        
+        validateFile(file) {
+            // Check file type
+            if (!this.allowedTypes.includes(file.type)) {
+                this.showError(`${file.name} không phải là định dạng hình ảnh hợp lệ`);
+                return false;
+            }
+            
+            // Check file size
+            if (file.size > this.maxSize) {
+                this.showError(`${file.name} quá lớn (tối đa ${this.formatFileSize(this.maxSize)})`);
+                return false;
+            }
+            
+            return true;
+        },
+        
+        createPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.files.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    preview: e.target.result,
+                    id: Date.now() + Math.random()
+                });
+            };
+            reader.onerror = () => {
+                this.showError(`Không thể tạo preview cho ${file.name}`);
+            };
+            reader.readAsDataURL(file);
+        },
+        
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        
+        showError(message) {
+            // You can integrate with your toast notification system here
+            alert(message);
+        },
+        
+        clearFiles() {
+            this.files = [];
+        }
+    }
+}
+</script>

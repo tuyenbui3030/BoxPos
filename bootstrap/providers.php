@@ -2,6 +2,7 @@
 
 return [
     App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,
     App\Providers\LocalizationServiceProvider::class,
     Livewire\LivewireServiceProvider::class,
     Packages\Customer\CustomerServiceProvider::class,
@@ -43,4 +44,7 @@ return [
     // Communication & Reporting
     Packages\Notifications\NotificationsServiceProvider::class,
     Packages\Reports\ReportsServiceProvider::class,
+
+    // Marketplace & Subscriptions
+    Packages\Marketplace\MarketplaceServiceProvider::class,
 ];
